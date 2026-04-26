@@ -18,6 +18,7 @@
     <a class="active" href="produkter.html">Produkter</a>
     <a href="medlemskap.html">Medlemskap</a>
     <a href="konto.html">Konto</a>
+    <a href="kundkorg.html">Kundkorg <span data-cart-count></span></a>
   </div>
 </nav>
 
@@ -37,7 +38,13 @@
         <span class="new" data-product-price>189 kr</span>
       </div>
 
-      <button class="cta" type="button" data-checkout-button>Lås upp med medlemskap</button>
+      <div class="quantity-control" aria-label="Välj antal">
+        <button type="button" data-quantity-minus>-</button>
+        <input type="number" min="1" value="1" inputmode="numeric" data-product-quantity>
+        <button type="button" data-quantity-plus>+</button>
+      </div>
+
+      <button class="cta" type="button" data-add-to-cart-button>Lägg i kundkorg</button>
       <p class="form-message" data-checkout-message></p>
     </div>
   </section>
@@ -57,7 +64,7 @@
 
       <article class="info-card">
         <h3>Checkout</h3>
-        <p>Knappen är förberedd för koppling till varukorg och Shopify checkout.</p>
+        <p>Produkter läggs först i kundkorgen och skickas sedan vidare till Shopify checkout.</p>
       </article>
     </div>
   </section>

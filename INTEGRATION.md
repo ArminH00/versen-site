@@ -16,11 +16,13 @@ Rotera `SHOPIFY_APP_CLIENT_SECRET` om den har visats i chat, skärmdump eller an
 Endpoints:
 
 - `GET /api/products`: hämtar produkter från Shopify Storefront API
-- `POST /api/cart`: skapar en Shopify cart och returnerar `checkoutUrl`
+- `POST /api/cart`: skapar en Shopify cart från en eller flera varukorgsrader och returnerar `checkoutUrl`
 - `GET /api/shopify-status`: kontrollerar om Admin API och Storefront API fungerar
 - `POST /api/create-storefront-token`: skapar en Storefront-token via Admin API. Kräver `Authorization: Bearer <VERSEN_SETUP_SECRET>`.
 
 Frontend har statiska produkter som fallback. När Shopify-env vars finns byter `produkter.html` automatiskt till produkter från `/api/products`.
+
+Kundkorgen sparas i webbläsaren tills kunden går vidare. Checkout skapas först när `kundkorg.html` skickar raderna till `/api/cart`.
 
 ## Setup för Dev Dashboard-app
 

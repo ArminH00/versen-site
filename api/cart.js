@@ -50,8 +50,19 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  if (!body.variantId) {
-    sendJson(res, 400, { error: 'variantId saknas' });
+  const items = Array.isArray(body.items)
+    ? body.items
+    : [{ variantId: body.variantId, quantity: body.quantity }];
+
+  const lines = items
+    .filter((item) => item && item.variantId)
+    .map((item) => ({
+      merchandiseId: item.variantId,
+      quantity: Math.max(1, Number(item.quantity) || 1),
+    }));
+
+  if (!lines.length) {
+    sendJson(res, 400, { error: 'Varukorgen är tom' });
     return;
   }
 
@@ -68,12 +79,7 @@ module.exports = async function handler(req, res) {
   }
 
   const input = {
-    lines: [
-      {
-        merchandiseId: body.variantId,
-        quantity: Number(body.quantity) || 1,
-      },
-    ],
+    lines,
   };
 
   if (discountCode) {
