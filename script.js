@@ -9,11 +9,11 @@ const observer = new IntersectionObserver((entries) => {
 document.querySelectorAll('.fade').forEach((el) => observer.observe(el));
 
 const filters = document.querySelectorAll('[data-filter]');
-const products = document.querySelectorAll('[data-category]');
 
 filters.forEach((filter) => {
   filter.addEventListener('click', () => {
     const category = filter.dataset.filter;
+    const products = document.querySelectorAll('[data-category]');
 
     filters.forEach((item) => item.classList.remove('active'));
     filter.classList.add('active');
@@ -31,3 +31,55 @@ document.querySelectorAll('.sort-pill').forEach((button) => {
     button.classList.add('active');
   });
 });
+
+function productCard(product) {
+  const image = product.image && product.image.url
+    ? `<img src="${product.image.url}" alt="${product.image.altText || product.title}">`
+    : 'Bild';
+
+  const compareAtPrice = product.compareAtPrice || product.price || '';
+  const memberPrice = product.price || 'Pris kommer';
+
+  return `
+    <article class="product-card" data-category="${product.category}" data-product-handle="${product.handle}" data-variant-id="${product.variantId || ''}">
+      <div class="product-image">${image}</div>
+      <div class="product-info">
+        <div class="product-category">${product.category}</div>
+        <h3>${product.title}</h3>
+        <div class="product-prices">
+          <span class="old">${compareAtPrice}</span>
+          <span class="new">${memberPrice}</span>
+        </div>
+        <a class="product-btn" href="produkt.html?handle=${encodeURIComponent(product.handle)}">Visa produkt</a>
+      </div>
+    </article>
+  `;
+}
+
+async function loadProducts() {
+  const grid = document.querySelector('[data-products-grid]');
+
+  if (!grid) {
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/products');
+
+    if (!response.ok) {
+      return;
+    }
+
+    const data = await response.json();
+
+    if (!data.products || !data.products.length) {
+      return;
+    }
+
+    grid.innerHTML = data.products.map(productCard).join('');
+  } catch (error) {
+    return;
+  }
+}
+
+loadProducts();
