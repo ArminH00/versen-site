@@ -76,7 +76,13 @@ async function loadProducts() {
       return;
     }
 
-    grid.innerHTML = data.products.map(productCard).join('');
+    const visibleProducts = data.products.filter((product) => product.handle !== 'medlemskap');
+
+    if (!visibleProducts.length) {
+      return;
+    }
+
+    grid.innerHTML = visibleProducts.map(productCard).join('');
   } catch (error) {
     return;
   }
