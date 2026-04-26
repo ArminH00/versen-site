@@ -1,0 +1,267 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2709
+\cocoatextscaling0\cocoaplatform0{\fonttbl}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+}
+
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Versen – Produkter</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  font-family:'Inter',sans-serif;
+  background:#0a0a0a;
+  color:white;
+  padding-top:58px;
+}
+
+/* NAV */
+
+.nav{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 18px;
+  background:rgba(0,0,0,0.88);
+  backdrop-filter:blur(10px);
+  z-index:100;
+}
+
+.logo{
+  font-weight:700;
+  letter-spacing:2px;
+  font-size:15px;
+}
+
+/* HEADER */
+
+.page-header{
+  padding:20px 20px 10px;
+}
+
+.page-header h1{
+  font-size:28px;
+}
+
+.page-header p{
+  opacity:.6;
+  margin-top:6px;
+}
+
+/* FILTER */
+
+.filter-row{
+  display:flex;
+  gap:10px;
+  overflow-x:auto;
+  padding:14px 20px;
+}
+
+.filter{
+  padding:10px 16px;
+  border-radius:999px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.1);
+  color:white;
+  flex:0 0 auto;
+}
+
+.filter.active{
+  background:white;
+  color:black;
+}
+
+/* GRID */
+
+.product-grid{
+  padding:10px 20px 40px;
+  display:grid;
+  grid-template-columns:1fr;
+  gap:16px;
+}
+
+/* CARD */
+
+.product-card{
+  border-radius:26px;
+  overflow:hidden;
+  background:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.035));
+  border:1px solid rgba(255,255,255,.1);
+}
+
+/* IMAGE */
+
+.product-image{
+  height:200px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(160,140,255,.38), transparent 35%),
+    linear-gradient(135deg,#191919,#0d0d0d);
+  color:rgba(255,255,255,.4);
+  font-size:13px;
+}
+
+/* INFO */
+
+.product-info{
+  padding:16px;
+}
+
+.product-category{
+  font-size:12px;
+  opacity:.5;
+  margin-bottom:6px;
+}
+
+.product-info h3{
+  font-size:17px;
+  margin-bottom:12px;
+}
+
+/* PRICES */
+
+.product-prices{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:14px;
+}
+
+.old{
+  text-decoration:line-through;
+  opacity:.4;
+}
+
+.new{
+  font-weight:700;
+  font-size:18px;
+}
+
+/* BUTTON */
+
+.product-btn{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:999px;
+  background:white;
+  color:black;
+  font-weight:700;
+}
+
+/* DESKTOP */
+
+@media(min-width:768px){
+
+  .product-grid{
+    grid-template-columns:repeat(4,1fr);
+  }
+
+  .product-image{
+    height:160px;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAV -->
+
+<div class="nav">
+  <div class="logo">VERSEN</div>
+  <a href="index.html" style="color:white;text-decoration:none;">Tillbaka</a>
+</div>
+
+<!-- HEADER -->
+
+<div class="page-header">
+  <h1>Alla produkter</h1>
+  <p>Endast tillgängligt för medlemmar</p>
+</div>
+
+<!-- FILTER -->
+
+<div class="filter-row">
+  <button class="filter active">Alla</button>
+  <button class="filter">Dryck</button>
+  <button class="filter">Protein</button>
+  <button class="filter">Tech</button>
+</div>
+
+<!-- GRID -->
+
+<div class="product-grid">
+
+  <div class="product-card">
+    <div class="product-image">Bild</div>
+    <div class="product-info">
+      <div class="product-category">Dryck</div>
+      <h3>Nocco flak</h3>
+      <div class="product-prices">
+        <span class="old">300 kr</span>
+        <span class="new">189 kr</span>
+      </div>
+      <button class="product-btn">Visa produkt</button>
+    </div>
+  </div>
+
+  <div class="product-card">
+    <div class="product-image">Bild</div>
+    <div class="product-info">
+      <div class="product-category">Protein</div>
+      <h3>Proteinpulver</h3>
+      <div class="product-prices">
+        <span class="old">499 kr</span>
+        <span class="new">329 kr</span>
+      </div>
+      <button class="product-btn">Visa produkt</button>
+    </div>
+  </div>
+
+  <div class="product-card">
+    <div class="product-image">Bild</div>
+    <div class="product-info">
+      <div class="product-category">Dryck</div>
+      <h3>Energidryck</h3>
+      <div class="product-prices">
+        <span class="old">25 kr</span>
+        <span class="new">15 kr</span>
+      </div>
+      <button class="product-btn">Visa produkt</button>
+    </div>
+  </div>
+
+  <div class="product-card">
+    <div class="product-image">Bild</div>
+    <div class="product-info">
+      <div class="product-category">Tech</div>
+      <h3>Hörlurar</h3>
+      <div class="product-prices">
+        <span class="old">899 kr</span>
+        <span class="new">599 kr</span>
+      </div>
+      <button class="product-btn">Visa produkt</button>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
