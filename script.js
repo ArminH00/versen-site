@@ -83,3 +83,60 @@ async function loadProducts() {
 }
 
 loadProducts();
+
+function updateMemberStatus() {
+  const status = document.querySelector('[data-member-status]');
+
+  if (!status) {
+    return;
+  }
+
+  const isMember = localStorage.getItem('versenMember') === 'true';
+  status.textContent = isMember ? 'Aktiv medlem' : 'Ej inloggad';
+}
+
+const memberForm = document.querySelector('[data-member-form]');
+
+if (memberForm) {
+  const message = document.querySelector('[data-member-message]');
+
+  updateMemberStatus();
+
+  memberForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(memberForm);
+    const memberCode = formData.get('memberCode');
+
+    if (message) {
+      message.textContent = 'Kontrollerar medlemskap...';
+    }
+
+    try {
+      const response = await fetch('/api/member-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ memberCode }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        localStorage.removeItem('versenMember');
+        localStorage.removeItem('versenMemberCode');
+        updateMemberStatus();
+        if (message) message.textContent = data.error || 'Kunde inte logga in.';
+        return;
+      }
+
+      localStorage.setItem('versenMember', 'true');
+      localStorage.setItem('versenMemberCode', memberCode);
+      updateMemberStatus();
+      if (message) message.textContent = data.status || 'Du är inloggad som medlem.';
+    } catch (error) {
+      if (message) message.textContent = 'Kunde inte kontakta servern.';
+    }
+  });
+}

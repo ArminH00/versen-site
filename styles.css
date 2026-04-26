@@ -568,6 +568,33 @@ button{
   margin-top:18px;
 }
 
+.member-form{
+  display:grid;
+  gap:12px;
+  margin-top:16px;
+}
+
+.member-form input{
+  width:100%;
+  min-height:46px;
+  padding:0 14px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.06);
+  color:white;
+  font:inherit;
+}
+
+.member-form input::placeholder{
+  color:rgba(255,255,255,.42);
+}
+
+.form-message{
+  min-height:22px;
+  margin-top:12px;
+  font-size:13px;
+}
+
 .status-pill{
   display:inline-flex;
   margin-bottom:14px;

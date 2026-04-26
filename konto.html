@@ -34,13 +34,17 @@
   <section class="account-grid fade" aria-label="Kontoinnehåll">
     <article class="account-card login-card">
       <h2>Logga in</h2>
-      <p>Inloggning är inte aktiverad ännu.</p>
-      <button class="product-btn" type="button">Logga in senare</button>
+      <p>Ange medlemskod för att låsa upp medlemsläge i MVP-versionen.</p>
+      <form class="member-form" data-member-form>
+        <input type="password" name="memberCode" placeholder="Medlemskod" autocomplete="current-password" required>
+        <button class="product-btn" type="submit">Logga in</button>
+      </form>
+      <p class="form-message" data-member-message></p>
     </article>
 
     <article class="account-card">
       <h2>Medlemsstatus</h2>
-      <div class="status-pill">Ej inloggad</div>
+      <div class="status-pill" data-member-status>Ej inloggad</div>
       <p>Aktiv status visas här när medlemskap och betalning är kopplat.</p>
     </article>
 

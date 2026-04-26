@@ -55,6 +55,18 @@ module.exports = async function handler(req, res) {
     return;
   }
 
+  const memberCode = process.env.VERSEN_MEMBER_ACCESS_CODE;
+  const discountCode = process.env.SHOPIFY_MEMBER_DISCOUNT_CODE;
+  const hasValidMembership = memberCode && body.memberCode === memberCode;
+
+  if (discountCode && !hasValidMembership) {
+    sendJson(res, 401, {
+      error: 'Medlemskap krävs',
+      membershipRequired: true,
+    });
+    return;
+  }
+
   const input = {
     lines: [
       {
@@ -64,8 +76,8 @@ module.exports = async function handler(req, res) {
     ],
   };
 
-  if (body.discountCode) {
-    input.discountCodes = [body.discountCode];
+  if (discountCode) {
+    input.discountCodes = [discountCode];
   }
 
   const result = await shopifyFetch(CART_CREATE_MUTATION, { input });
