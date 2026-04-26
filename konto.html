@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Versen - Konto</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<nav class="nav">
+  <a class="logo" href="index.html">VERSEN</a>
+
+  <div class="menu" aria-label="Huvudmeny">
+    <a href="index.html">Hem</a>
+    <a href="produkter.html">Produkter</a>
+    <a href="medlemskap.html">Medlemskap</a>
+    <a class="active" href="konto.html">Konto</a>
+  </div>
+</nav>
+
+<main>
+  <header class="page-hero fade">
+    <div class="glow"></div>
+    <div class="page-hero-content">
+      <div class="badge">Mitt konto</div>
+      <h1>Din medlemsyta</h1>
+      <p>Login, medlemsstatus och orderhistorik kopplas in här när backend och checkout är på plats.</p>
+    </div>
+  </header>
+
+  <section class="account-grid fade" aria-label="Kontoinnehåll">
+    <article class="account-card login-card">
+      <h2>Logga in</h2>
+      <p>Inloggning är inte aktiverad ännu.</p>
+      <button class="product-btn" type="button">Logga in senare</button>
+    </article>
+
+    <article class="account-card">
+      <h2>Medlemsstatus</h2>
+      <div class="status-pill">Ej inloggad</div>
+      <p>Aktiv status visas här när medlemskap och betalning är kopplat.</p>
+    </article>
+
+    <article class="account-card order-card">
+      <h2>Orderhistorik</h2>
+      <div class="empty-state">
+        <span>Inga ordrar ännu</span>
+        <p>Dina köp visas här efter första checkout.</p>
+      </div>
+    </article>
+  </section>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>

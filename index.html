@@ -4,433 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Versen</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-
-<style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
-
-body{
-  font-family:'Inter',sans-serif;
-  background:#0a0a0a;
-  color:white;
-  padding-top:58px;
-  overflow-x:hidden;
-}
-
-/* NAV */
-
-.nav{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:58px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 18px;
-  background:rgba(0,0,0,0.88);
-  backdrop-filter:blur(10px);
-  z-index:100;
-}
-
-.logo{
-  font-weight:700;
-  letter-spacing:2px;
-  font-size:15px;
-}
-
-.menu{
-  display:none;
-}
-
-.menu a{
-  color:white;
-  text-decoration:none;
-  opacity:.7;
-}
-
-/* HERO */
-
-.hero{
-  position:relative;
-  padding:8px 20px 14px;
-  text-align:center;
-  overflow:hidden;
-}
-
-.glow{
-  position:absolute;
-  width:360px;
-  height:360px;
-  background:radial-gradient(circle,rgba(140,120,255,.35),rgba(0,0,0,0));
-  filter:blur(90px);
-  top:-170px;
-  left:50%;
-  transform:translateX(-50%);
-  z-index:0;
-}
-
-.hero-content{
-  position:relative;
-  z-index:1;
-  margin-top:40px;
-}
-
-.badge{
-  display:inline-block;
-  margin-bottom:14px;
-  padding:8px 14px;
-  border:1px solid rgba(255,255,255,.14);
-  border-radius:999px;
-  background:rgba(255,255,255,.06);
-  color:rgba(255,255,255,.78);
-  font-size:12px;
-}
-
-.hero h1{
-  font-size:36px;
-  line-height:1.05;
-  letter-spacing:-1.5px;
-  max-width:520px;
-  margin:0 auto;
-}
-
-.hero p{
-  margin:14px auto 0;
-  max-width:420px;
-  font-size:15px;
-  line-height:1.55;
-  color:rgba(255,255,255,.68);
-}
-
-.cta{
-  margin-top:22px;
-  padding:15px 28px;
-  border:none;
-  border-radius:999px;
-  background:white;
-  color:black;
-  font-weight:700;
-  font-size:15px;
-  cursor:pointer;
-  transition:.25s;
-}
-
-.cta:hover{
-  transform:translateY(-2px) scale(1.03);
-  box-shadow:0 18px 50px rgba(255,255,255,.16);
-}
-
-/* SECTIONS */
-
-.section{
-  padding:54px 20px;
-  text-align:center;
-}
-
-.section h2{
-  font-size:28px;
-  line-height:1.12;
-  letter-spacing:-.8px;
-  margin-bottom:14px;
-}
-
-.section-sub{
-  color:rgba(255,255,255,.62);
-  max-width:420px;
-  margin:0 auto 24px;
-  line-height:1.5;
-}
-
-/* CARDS */
-
-.cards{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:16px;
-  max-width:1050px;
-  margin:0 auto;
-}
-
-.card{
-  background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.035));
-  border:1px solid rgba(255,255,255,.1);
-  border-radius:24px;
-  padding:20px;
-  text-align:left;
-  backdrop-filter:blur(10px);
-  transition:.25s;
-}
-
-.card:hover{
-  transform:translateY(-4px);
-  border-color:rgba(255,255,255,.22);
-}
-
-.card-top{
-  height:110px;
-  border-radius:18px;
-  background:
-    radial-gradient(circle at 30% 20%, rgba(160,140,255,.35), transparent 35%),
-    linear-gradient(135deg,#171717,#0d0d0d);
-  margin-bottom:16px;
-}
-
-.card h3{
-  font-size:17px;
-  margin-bottom:10px;
-}
-
-.price-row{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-.old{
-  color:rgba(255,255,255,.42);
-  text-decoration:line-through;
-}
-
-.new{
-  font-weight:700;
-  font-size:18px;
-}
-
-/* LOCK */
-
-.lock-box{
-  max-width:620px;
-  margin:0 auto;
-  padding:28px;
-  border-radius:28px;
-  background:
-    linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.035));
-  border:1px solid rgba(255,255,255,.12);
-  box-shadow:0 30px 100px rgba(120,100,255,.12);
-}
-
-.lock-icon{
-  font-size:28px;
-  margin-bottom:12px;
-}
-
-/* BOTTOM CTA */
-
-.final-cta{
-  padding:60px 20px 80px;
-  text-align:center;
-}
-
-.final-cta h2{
-  font-size:32px;
-  line-height:1.08;
-  letter-spacing:-1px;
-}
-
-/* ANIMATION */
-
-.fade{
-  opacity:0;
-  transform:translateY(24px);
-  transition:.7s ease;
-}
-
-.fade.show{
-  opacity:1;
-  transform:translateY(0);
-}
-
-/* DESKTOP */
-
-@media(min-width:768px){
-
-  body{
-    padding-top:70px;
-  }
-
-  .nav{
-    height:70px;
-    padding:0 60px;
-  }
-
-  .logo{
-    font-size:18px;
-  }
-
-  .menu{
-    display:flex;
-    gap:34px;
-  }
-
-  .hero{
-    padding:26px 20px 0px;
-  }
-
-  .hero h1{
-    font-size:76px;
-    max-width:900px;
-  }
-
-  .hero p{
-    font-size:20px;
-    max-width:640px;
-  }
-
-  .cards{
-    grid-template-columns:repeat(3,1fr);
-  }
-
-  .section h2{
-    font-size:44px;
-  }
-
-  .final-cta h2{
-    font-size:54px;
-  }
-
-  .steps{
-display:flex;
-flex-direction:column;
-gap:20px;
-max-width:700px;
-margin:0 auto;
-}
-
-.step{
-background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03));
-border:1px solid rgba(255,255,255,.1);
-border-radius:20px;
-padding:20px;
-text-align:left;
-}
-
-.step-number{
-width:32px;
-height:32px;
-border-radius:50%;
-background:white;
-color:black;
-display:flex;
-align-items:center;
-justify-content:center;
-font-weight:700;
-margin-bottom:10px;
-}
-
-@media(min-width:768px){
-.steps{
-flex-direction:row;
-}
-.step{
-flex:1;
-}
-}
-
-/* Premium hover effect */
-
-.card{
-  transition:all 0.3s ease;
-  position:relative;
-  overflow:hidden;
-}
-
-.card::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:radial-gradient(circle at 50% 0%, rgba(255,255,255,0.12), transparent);
-  opacity:0;
-  transition:0.3s;
-}
-
-.card:hover{
-  transform:translateY(-6px) scale(1.02);
-  border-color:rgba(255,255,255,0.25);
-}
-
-.card:hover::before{
-  opacity:1;
-}
-
-/* subtle shine effect */
-
-/* Hover endast på desktop (enheter som faktiskt kan hovra) */
-
-@media (hover: hover) and (pointer: fine){
-
-  .card{
-    transition:all 0.3s ease;
-    position:relative;
-    overflow:hidden;
-  }
-
-  .card::before{
-    content:"";
-    position:absolute;
-    inset:0;
-    background:radial-gradient(circle at 50% 0%, rgba(255,255,255,0.12), transparent);
-    opacity:0;
-    transition:0.3s;
-  }
-
-  .card:hover{
-    transform:translateY(-6px) scale(1.02);
-    border-color:rgba(255,255,255,0.25);
-  }
-
-  .card:hover::before{
-    opacity:1;
-  }
-
-  .card::after{
-    content:"";
-    position:absolute;
-    top:-100%;
-    left:-50%;
-    width:200%;
-    height:200%;
-    background:linear-gradient(120deg, transparent, rgba(255,255,255,0.08), transparent);
-    transform:rotate(25deg);
-    transition:0.6s;
-  }
-
-  .card:hover::after{
-    top:100%;
-  }
-
-}
-
-/* Mobil – subtil depth utan hover */
-
-@media (hover: none){
-
-  .card{
-    box-shadow:0 10px 30px rgba(0,0,0,0.4);
-  }
-
-}
-
-}
-
-</style>
+<link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
 <nav class="nav">
-  <div class="logo">VERSEN</div>
+  <a class="logo" href="index.html">VERSEN</a>
 
-  <div class="menu">
+  <div class="menu" aria-label="Huvudmeny">
+    <a class="active" href="index.html">Hem</a>
     <a href="produkter.html">Produkter</a>
-    <a href="#medlemskap">Medlemskap</a>
-    <a href="#konto">Konto</a>
+    <a href="medlemskap.html">Medlemskap</a>
+    <a href="konto.html">Konto</a>
   </div>
 </nav>
 
@@ -446,7 +33,7 @@ flex:1;
       Bli medlem och handla premiumprodukter billigare än i vanliga butiker.
     </p>
 
-    <button class="cta">Starta medlemskap</button>
+    <a class="cta" href="medlemskap.html">Starta medlemskap</a>
   </div>
 </header>
 
@@ -457,93 +44,78 @@ flex:1;
   </p>
 
   <div class="cards">
-    <div class="card">
+    <article class="card">
       <div class="card-top"></div>
       <h3>Nocco flak</h3>
       <div class="price-row">
         <span class="old">300 kr</span>
         <span class="new">189 kr</span>
       </div>
-    </div>
+    </article>
 
-    <div class="card">
+    <article class="card">
       <div class="card-top"></div>
       <h3>Proteinpulver</h3>
       <div class="price-row">
         <span class="old">499 kr</span>
         <span class="new">329 kr</span>
       </div>
-    </div>
+    </article>
 
-    <div class="card">
+    <article class="card">
       <div class="card-top"></div>
       <h3>Energidryck</h3>
       <div class="price-row">
         <span class="old">25 kr</span>
         <span class="new">15 kr</span>
       </div>
-    </div>
+    </article>
   </div>
 </section>
 
 <section class="section fade">
-
   <h2>Så funkar det</h2>
   <p class="section-sub">
     Enkelt. Snabbt. Och billigare varje gång.
   </p>
 
   <div class="steps">
-
-    <div class="step">
+    <article class="step">
       <div class="step-number">1</div>
       <h3>Bli medlem</h3>
       <p>Starta ditt medlemskap på några sekunder.</p>
-    </div>
+    </article>
 
-    <div class="step">
+    <article class="step">
       <div class="step-number">2</div>
       <h3>Få tillgång</h3>
       <p>Lås upp alla produkter och priser direkt.</p>
-    </div>
+    </article>
 
-    <div class="step">
+    <article class="step">
       <div class="step-number">3</div>
       <h3>Handla billigare</h3>
       <p>Spara pengar varje gång du köper.</p>
-    </div>
-
+    </article>
   </div>
-
 </section>
 
 <section class="section fade" id="medlemskap">
   <div class="lock-box">
-    <div class="lock-icon">🔒</div>
+    <div class="lock-icon">Låst</div>
     <h2>Butiken öppnas när du blir medlem</h2>
     <p class="section-sub">
       Produkter, priser och erbjudanden är låsta tills du har ett aktivt medlemskap.
     </p>
-    <button class="cta">Bli medlem</button>
+    <a class="cta" href="medlemskap.html">Bli medlem</a>
   </div>
 </section>
 
 <section class="final-cta fade">
   <h2>Betala mindre. Varje gång du handlar.</h2>
-  <button class="cta">Starta medlemskap</button>
+  <a class="cta" href="medlemskap.html">Starta medlemskap</a>
 </section>
 
-<script>
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if(entry.isIntersecting){
-      entry.target.classList.add('show');
-    }
-  });
-},{threshold:0.12});
-
-document.querySelectorAll('.fade').forEach(el => observer.observe(el));
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>
