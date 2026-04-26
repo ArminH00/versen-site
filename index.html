@@ -294,6 +294,45 @@ body{
   .final-cta h2{
     font-size:54px;
   }
+
+  .steps{
+display:flex;
+flex-direction:column;
+gap:20px;
+max-width:700px;
+margin:0 auto;
+}
+
+.step{
+background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03));
+border:1px solid rgba(255,255,255,.1);
+border-radius:20px;
+padding:20px;
+text-align:left;
+}
+
+.step-number{
+width:32px;
+height:32px;
+border-radius:50%;
+background:white;
+color:black;
+display:flex;
+align-items:center;
+justify-content:center;
+font-weight:700;
+margin-bottom:10px;
+}
+
+@media(min-width:768px){
+.steps{
+flex-direction:row;
+}
+.step{
+flex:1;
+}
+}
+
 }
 
 </style>
@@ -361,6 +400,37 @@ body{
       </div>
     </div>
   </div>
+</section>
+
+<section class="section fade">
+
+  <h2>Så funkar det</h2>
+  <p class="section-sub">
+    Enkelt. Snabbt. Och billigare varje gång.
+  </p>
+
+  <div class="steps">
+
+    <div class="step">
+      <div class="step-number">1</div>
+      <h3>Bli medlem</h3>
+      <p>Starta ditt medlemskap på några sekunder.</p>
+    </div>
+
+    <div class="step">
+      <div class="step-number">2</div>
+      <h3>Få tillgång</h3>
+      <p>Lås upp alla produkter och priser direkt.</p>
+    </div>
+
+    <div class="step">
+      <div class="step-number">3</div>
+      <h3>Handla billigare</h3>
+      <p>Spara pengar varje gång du köper.</p>
+    </div>
+
+  </div>
+
 </section>
 
 <section class="section fade" id="medlemskap">
