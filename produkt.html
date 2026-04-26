@@ -22,22 +22,23 @@
 </nav>
 
 <main class="product-detail-page">
-  <section class="product-detail fade">
-    <div class="product-large-image">Produktbild</div>
+  <section class="product-detail fade" data-product-detail>
+    <div class="product-large-image" data-product-image>Produktbild</div>
 
     <div class="product-detail-info">
-      <div class="badge">Dryck</div>
-      <h1>Nocco flak</h1>
-      <p>
+      <div class="badge" data-product-category>Dryck</div>
+      <h1 data-product-title>Nocco flak</h1>
+      <p data-product-description>
         Ett medlemspris på en populär produkt. Produktdata kan senare hämtas direkt från Shopify.
       </p>
 
       <div class="detail-prices">
-        <span class="old">300 kr</span>
-        <span class="new">189 kr</span>
+        <span class="old" data-product-compare-price>300 kr</span>
+        <span class="new" data-product-price>189 kr</span>
       </div>
 
-      <button class="cta" type="button">Lås upp med medlemskap</button>
+      <button class="cta" type="button" data-checkout-button>Lås upp med medlemskap</button>
+      <p class="form-message" data-checkout-message></p>
     </div>
   </section>
 

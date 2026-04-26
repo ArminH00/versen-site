@@ -84,6 +84,113 @@ async function loadProducts() {
 
 loadProducts();
 
+function setText(selector, value) {
+  const element = document.querySelector(selector);
+
+  if (element && value) {
+    element.textContent = value;
+  }
+}
+
+function setProductDetail(product) {
+  const detail = document.querySelector('[data-product-detail]');
+
+  if (!detail || !product) {
+    return;
+  }
+
+  detail.dataset.variantId = product.variantId || '';
+  detail.dataset.productHandle = product.handle || '';
+  setText('[data-product-category]', product.category);
+  setText('[data-product-title]', product.title);
+  setText('[data-product-description]', product.description || 'Produktinformation hämtas från Shopify.');
+  setText('[data-product-compare-price]', product.compareAtPrice || product.price);
+  setText('[data-product-price]', product.price || 'Pris kommer');
+
+  const image = document.querySelector('[data-product-image]');
+  if (image && product.image && product.image.url) {
+    image.innerHTML = `<img src="${product.image.url}" alt="${product.image.altText || product.title}">`;
+  }
+}
+
+async function loadProductDetail() {
+  const detail = document.querySelector('[data-product-detail]');
+
+  if (!detail) {
+    return;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const handle = params.get('handle') || 'nocco-flak';
+
+  try {
+    const response = await fetch(`/api/products?handle=${encodeURIComponent(handle)}`);
+
+    if (!response.ok) {
+      return;
+    }
+
+    const data = await response.json();
+    setProductDetail(data.product);
+  } catch (error) {
+    return;
+  }
+}
+
+loadProductDetail();
+
+const checkoutButton = document.querySelector('[data-checkout-button]');
+
+if (checkoutButton) {
+  checkoutButton.addEventListener('click', async () => {
+    const detail = document.querySelector('[data-product-detail]');
+    const message = document.querySelector('[data-checkout-message]');
+    const variantId = detail && detail.dataset.variantId;
+    const memberCode = localStorage.getItem('versenMemberCode');
+
+    if (!variantId) {
+      if (message) message.textContent = 'Produkten är inte redo för checkout ännu.';
+      return;
+    }
+
+    checkoutButton.disabled = true;
+    checkoutButton.textContent = 'Skapar checkout...';
+    if (message) message.textContent = '';
+
+    try {
+      const response = await fetch('/api/cart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          variantId,
+          quantity: 1,
+          memberCode,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (data.membershipRequired) {
+          if (message) message.textContent = 'Logga in som medlem på kontosidan först.';
+        } else if (message) {
+          message.textContent = data.error || 'Kunde inte skapa checkout.';
+        }
+        return;
+      }
+
+      window.location.href = data.checkoutUrl;
+    } catch (error) {
+      if (message) message.textContent = 'Kunde inte kontakta checkout.';
+    } finally {
+      checkoutButton.disabled = false;
+      checkoutButton.textContent = 'Gå till checkout';
+    }
+  });
+}
+
 function updateMemberStatus() {
   const status = document.querySelector('[data-member-status]');
 

@@ -32,6 +32,37 @@ const PRODUCTS_QUERY = `
   }
 `;
 
+const PRODUCT_BY_HANDLE_QUERY = `
+  query VersenProductByHandle($handle: String!) {
+    product(handle: $handle) {
+      id
+      title
+      handle
+      description
+      productType
+      featuredImage {
+        url
+        altText
+      }
+      variants(first: 1) {
+        nodes {
+          id
+          title
+          availableForSale
+          price {
+            amount
+            currencyCode
+          }
+          compareAtPrice {
+            amount
+            currencyCode
+          }
+        }
+      }
+    }
+  }
+`;
+
 function formatPrice(price) {
   if (!price) return null;
 
@@ -48,10 +79,11 @@ function formatPrice(price) {
 function normalizeProduct(product) {
   const variant = product.variants.nodes[0];
 
-  return {
+    return {
     id: product.id,
     title: product.title,
     handle: product.handle,
+    description: product.description || '',
     category: product.productType || 'Produkt',
     image: product.featuredImage,
     variantId: variant ? variant.id : null,
@@ -64,6 +96,26 @@ function normalizeProduct(product) {
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') {
     sendJson(res, 405, { error: 'Metoden stöds inte' });
+    return;
+  }
+
+  const url = new URL(req.url || '/', 'https://versen.local');
+  const handle = url.searchParams.get('handle');
+
+  if (handle) {
+    const result = await shopifyFetch(PRODUCT_BY_HANDLE_QUERY, { handle });
+
+    if (!result.ok) {
+      sendJson(res, result.status, result.body);
+      return;
+    }
+
+    if (!result.body.data.product) {
+      sendJson(res, 404, { error: 'Produkten hittades inte' });
+      return;
+    }
+
+    sendJson(res, 200, { product: normalizeProduct(result.body.data.product) });
     return;
   }
 
