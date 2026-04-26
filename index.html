@@ -19,7 +19,6 @@ body{
   background:#0a0a0a;
   color:white;
   padding-top:58px;
-  padding-bottom: 90px;
   overflow-x:hidden;
 }
 
@@ -334,48 +333,94 @@ flex:1;
 }
 }
 
-/* STICKY CTA MOBIL */
+/* Premium hover effect */
 
-.sticky-cta{
-  position:fixed;
-  left:0;
-  bottom:0;
-  width:100%;
-  padding:14px 18px;
-  background:linear-gradient(to top, rgba(0,0,0,.95), rgba(0,0,0,.65), transparent);
-  z-index:200;
-  display:flex;
-  justify-content:center;
+.card{
+  transition:all 0.3s ease;
+  position:relative;
+  overflow:hidden;
 }
 
-.sticky-cta button{
-  width:100%;
-  max-width:420px;
-  padding:16px 22px;
-  border:none;
-  border-radius:999px;
-  background:white;
-  color:black;
-  font-weight:700;
-  font-size:15px;
-  box-shadow:0 18px 60px rgba(255,255,255,.16);
+.card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at 50% 0%, rgba(255,255,255,0.12), transparent);
+  opacity:0;
+  transition:0.3s;
 }
 
-/* Dölj sticky CTA på desktop */
-@media(min-width:768px){
-  .sticky-cta{
-    display:none;
+.card:hover{
+  transform:translateY(-6px) scale(1.02);
+  border-color:rgba(255,255,255,0.25);
+}
+
+.card:hover::before{
+  opacity:1;
+}
+
+/* subtle shine effect */
+
+/* Hover endast på desktop (enheter som faktiskt kan hovra) */
+
+@media (hover: hover) and (pointer: fine){
+
+  .card{
+    transition:all 0.3s ease;
+    position:relative;
+    overflow:hidden;
   }
+
+  .card::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:radial-gradient(circle at 50% 0%, rgba(255,255,255,0.12), transparent);
+    opacity:0;
+    transition:0.3s;
+  }
+
+  .card:hover{
+    transform:translateY(-6px) scale(1.02);
+    border-color:rgba(255,255,255,0.25);
+  }
+
+  .card:hover::before{
+    opacity:1;
+  }
+
+  .card::after{
+    content:"";
+    position:absolute;
+    top:-100%;
+    left:-50%;
+    width:200%;
+    height:200%;
+    background:linear-gradient(120deg, transparent, rgba(255,255,255,0.08), transparent);
+    transform:rotate(25deg);
+    transition:0.6s;
+  }
+
+  .card:hover::after{
+    top:100%;
+  }
+
+}
+
+/* Mobil – subtil depth utan hover */
+
+@media (hover: none){
+
+  .card{
+    box-shadow:0 10px 30px rgba(0,0,0,0.4);
+  }
+
 }
 
 }
 
 </style>
 </head>
-
-<div class="sticky-cta">
-  <button>Starta medlemskap</button>
-</div>
 
 <body>
 
