@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="sv">
 
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Versen</title>
 
@@ -17,9 +19,8 @@ box-sizing:border-box;
 
 body{
 font-family:'Inter', sans-serif;
-background:black;
+background:#0a0a0a;
 color:white;
-overflow-x:hidden;
 }
 
 /* NAVBAR */
@@ -36,7 +37,7 @@ z-index:100;
 }
 
 .logo{
-font-size:22px;
+font-size:20px;
 font-weight:700;
 letter-spacing:2px;
 }
@@ -49,8 +50,7 @@ gap:40px;
 .menu a{
 text-decoration:none;
 color:white;
-font-weight:500;
-opacity:0.8;
+opacity:0.7;
 transition:0.3s;
 }
 
@@ -67,26 +67,28 @@ flex-direction:column;
 justify-content:center;
 align-items:center;
 text-align:center;
+padding:0 20px;
 }
 
 .hero h1{
-font-size:90px;
-font-weight:700;
-letter-spacing:-3px;
+font-size:72px;
+max-width:800px;
+line-height:1.1;
 }
 
 .hero p{
 margin-top:20px;
-font-size:22px;
+font-size:20px;
 opacity:0.7;
+max-width:600px;
 }
 
-/* BUTTON */
+/* KNAPP */
 
 .cta{
 margin-top:40px;
 padding:18px 50px;
-border-radius:40px;
+border-radius:50px;
 border:none;
 background:white;
 color:black;
@@ -96,51 +98,55 @@ transition:0.3s;
 }
 
 .cta:hover{
-transform:scale(1.08);
+transform:scale(1.07);
 }
 
-/* BACKGROUND GLOW */
+/* GLOW BAKGRUND */
 
 .glow{
 position:absolute;
-width:600px;
-height:600px;
-background:radial-gradient(circle,rgba(255,255,255,0.15),transparent);
-filter:blur(120px);
-top:30%;
+width:700px;
+height:700px;
+background:radial-gradient(circle,rgba(255,255,255,0.12),transparent);
+filter:blur(140px);
+top:40%;
 left:50%;
-transform:translateX(-50%);
+transform:translate(-50%,-50%);
+z-index:0;
+}
+
+.hero *{
+position:relative;
+z-index:1;
 }
 
 </style>
 
 </head>
 
-
 <body>
 
 <div class="nav">
-
 <div class="logo">VERSEN</div>
 
 <div class="menu">
-<a href="#">Shop</a>
-<a href="#">Membership</a>
-<a href="#">Account</a>
+<a href="#">Produkter</a>
+<a href="#">Medlemskap</a>
+<a href="#">Konto</a>
 </div>
-
 </div>
-
 
 <div class="hero">
 
 <div class="glow"></div>
 
-<h1>Members Only Prices</h1>
+<h1>Få tillgång till priser andra inte ser</h1>
 
-<p>Access products cheaper than anywhere else</p>
+<p>
+Bli medlem och handla premiumprodukter billigare än i vanliga butiker.
+</p>
 
-<button class="cta">Start Membership</button>
+<button class="cta">Starta medlemskap</button>
 
 </div>
 
