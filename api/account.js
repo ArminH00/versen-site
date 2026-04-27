@@ -160,10 +160,22 @@ async function sendVerificationEmail(req, payload) {
   });
 
   if (!response.ok) {
+    let details = null;
+
+    try {
+      details = await response.json();
+    } catch (error) {
+      details = { message: 'Resend svarade inte med JSON' };
+    }
+
     return {
       ok: false,
       status: response.status,
-      body: { error: 'Kunde inte skicka verifieringsmail' },
+      body: {
+        error: details.message || details.error || 'Kunde inte skicka verifieringsmail',
+        provider: 'Resend',
+        details,
+      },
     };
   }
 
