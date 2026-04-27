@@ -594,11 +594,20 @@ if (loginForm) {
 
 const verificationForm = document.querySelector('[data-verification-form]');
 const registerForm = document.querySelector('[data-register-form]');
+const loginCard = document.querySelector('[data-login-card]');
+const createCard = document.querySelector('[data-create-card]');
+
+if (accountNext === 'membership' && createCard) {
+  createCard.classList.add('is-priority');
+  if (loginCard) loginCard.hidden = true;
+}
 
 if (verificationToken && registerForm) {
   const message = document.querySelector('[data-register-message]');
   registerForm.hidden = false;
   if (verificationForm) verificationForm.hidden = true;
+  if (loginCard) loginCard.hidden = true;
+  if (createCard) createCard.classList.add('is-priority');
   if (message) message.textContent = 'Email verifierad. Välj lösenord för att skapa kontot.';
 }
 

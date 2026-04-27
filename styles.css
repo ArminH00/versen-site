@@ -637,6 +637,11 @@ button:disabled{
   margin-top:18px;
 }
 
+.account-card.is-priority{
+  box-shadow:0 24px 80px rgba(120,100,255,.16);
+  border-color:rgba(255,255,255,.2);
+}
+
 .member-form{
   display:grid;
   gap:12px;
@@ -1009,6 +1014,10 @@ button:disabled{
   }
 
   .admin-card-wide{
+    grid-column:span 2;
+  }
+
+  .account-card.is-priority{
     grid-column:span 2;
   }
 
