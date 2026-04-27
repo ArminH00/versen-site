@@ -1,4 +1,4 @@
-const { adminFetch, sendJson } = require('./shopify');
+const { adminFetch, sendJson, shopifyFetch } = require('./shopify');
 
 const MEMBERS_QUERY = `
   query VersenMembers($query: String!) {
@@ -252,7 +252,7 @@ module.exports = async function handler(req, res) {
     };
   }) : [];
   const membershipHandle = process.env.VERSEN_MEMBERSHIP_PRODUCT_HANDLE || 'medlemskap';
-  const membershipResult = await adminFetch(MEMBERSHIP_PRODUCT_QUERY, { handle: membershipHandle });
+  const membershipResult = await shopifyFetch(MEMBERSHIP_PRODUCT_QUERY, { handle: membershipHandle });
   const membershipProduct = membershipResult.ok && membershipResult.body.data.product
     ? {
       title: membershipResult.body.data.product.title,
