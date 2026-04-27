@@ -1,5 +1,7 @@
 const CART_KEY = 'versenCart';
 const DISCOUNT_KEY = 'versenDiscountCode';
+const CHECKOUT_KEY = 'versenCheckoutPending';
+const ADMIN_SECRET_KEY = 'versenAdminSecret';
 let accountSession = null;
 const pageParams = new URLSearchParams(window.location.search);
 const accountNext = pageParams.get('next') || '';
@@ -99,6 +101,49 @@ function writeDiscountCode(code) {
   }
 }
 
+function rememberCheckout(type, checkoutUrl) {
+  localStorage.setItem(CHECKOUT_KEY, JSON.stringify({
+    type,
+    checkoutUrl,
+    startedAt: new Date().toISOString(),
+  }));
+}
+
+function readPendingCheckout() {
+  try {
+    return JSON.parse(localStorage.getItem(CHECKOUT_KEY) || 'null');
+  } catch (error) {
+    return null;
+  }
+}
+
+function clearPendingCheckout() {
+  localStorage.removeItem(CHECKOUT_KEY);
+}
+
+function prepareCheckoutWindow() {
+  const checkoutWindow = window.open('', '_blank');
+
+  if (checkoutWindow) {
+    checkoutWindow.document.write('<!doctype html><title>Versen checkout</title><body style="background:#0a0a0a;color:white;font-family:Inter,Arial,sans-serif;display:grid;place-items:center;min-height:100vh;margin:0">Öppnar säker checkout...</body>');
+  }
+
+  return checkoutWindow;
+}
+
+function openCheckout(checkoutUrl, type, checkoutWindow = null) {
+  rememberCheckout(type, checkoutUrl);
+  const opened = checkoutWindow || window.open('', '_blank');
+
+  if (!opened) {
+    window.location.href = checkoutUrl;
+    return;
+  }
+
+  opened.location.href = checkoutUrl;
+  window.location.href = `order.html?checkout=${encodeURIComponent(type || 'produkt')}`;
+}
+
 function applyGlobalSessionUi(session = accountSession) {
   const authenticated = Boolean(session && session.authenticated);
   const member = isActiveMember(session);
@@ -177,7 +222,7 @@ function syncShoppingAccess() {
 
   if (cartHelp) {
     cartHelp.textContent = member
-      ? 'Rabattkoder kontrolleras här och följer med till Shopify checkout.'
+      ? 'Rabattkoder kontrolleras här. Shopify checkout öppnas i en ny flik och orderstatus visas hos Versen.'
       : 'Aktivt betalande medlemskap krävs innan du kan lägga till produkter eller gå till checkout.';
   }
 
@@ -664,6 +709,7 @@ if (cartCheckoutButton) {
     cartCheckoutButton.disabled = true;
     cartCheckoutButton.textContent = 'Skapar checkout...';
     if (message) message.textContent = '';
+    const checkoutWindow = prepareCheckoutWindow();
 
     try {
       const response = await fetch('/api/cart', {
@@ -689,15 +735,17 @@ if (cartCheckoutButton) {
         } else if (message) {
           message.textContent = data.error || 'Kunde inte skapa checkout.';
         }
+        if (checkoutWindow) checkoutWindow.close();
         return;
       }
 
-      window.location.href = data.checkoutUrl;
+      openCheckout(data.checkoutUrl, 'produkt', checkoutWindow);
     } catch (error) {
+      if (checkoutWindow) checkoutWindow.close();
       if (message) message.textContent = 'Kunde inte kontakta checkout.';
     } finally {
       cartCheckoutButton.disabled = false;
-      cartCheckoutButton.textContent = 'Gå till checkout';
+      cartCheckoutButton.textContent = 'Öppna checkout';
     }
   });
 }
@@ -878,9 +926,11 @@ async function refreshAccount() {
     const response = await fetch('/api/account', { credentials: 'same-origin' });
     accountSession = await response.json();
     updateMemberStatus(accountSession);
+    renderOrderPage(accountSession);
   } catch (error) {
     accountSession = { authenticated: false };
     updateMemberStatus(accountSession);
+    renderOrderPage(accountSession);
   } finally {
     document.body.classList.remove('auth-loading');
     adjustAccountScroll(accountSession);
@@ -1054,6 +1104,7 @@ if (membershipCheckoutButton) {
     membershipCheckoutButton.disabled = true;
     membershipCheckoutButton.textContent = 'Öppnar checkout...';
     if (message) message.textContent = '';
+    const checkoutWindow = prepareCheckoutWindow();
 
     try {
       const { response, data } = await postJson('/api/membership-checkout', {});
@@ -1064,11 +1115,13 @@ if (membershipCheckoutButton) {
             ? 'Skapa konto eller logga in på kontosidan först.'
             : (data.error || 'Kunde inte starta medlemskap.');
         }
+        if (checkoutWindow) checkoutWindow.close();
         return;
       }
 
-      window.location.href = data.checkoutUrl;
+      openCheckout(data.checkoutUrl, 'medlemskap', checkoutWindow);
     } catch (error) {
+      if (checkoutWindow) checkoutWindow.close();
       if (message) message.textContent = 'Kunde inte kontakta checkout.';
     } finally {
       membershipCheckoutButton.disabled = false;
@@ -1077,49 +1130,257 @@ if (membershipCheckoutButton) {
   });
 }
 
+function renderOrderPage(session = accountSession) {
+  const shell = document.querySelector('[data-order-confirmation]');
+
+  if (!shell) {
+    return;
+  }
+
+  const pending = readPendingCheckout();
+  const latestOrder = session && session.authenticated && session.customer && session.customer.orders
+    ? session.customer.orders[0]
+    : null;
+  const title = document.querySelector('[data-order-title]');
+  const copy = document.querySelector('[data-order-copy]');
+  const details = document.querySelector('[data-order-details]');
+
+  if (latestOrder) {
+    clearPendingCheckout();
+    if (title) title.textContent = 'Ordern är mottagen';
+    if (copy) copy.textContent = 'Vi hittade din senaste order på kontot. Du kan fortsätta handla eller öppna orderstatus från Shopify vid behov.';
+    if (details) {
+      details.innerHTML = `
+        <div class="order-success-card">
+          <span>Senaste order</span>
+          <strong>${escapeHtml(latestOrder.name || 'Order')}</strong>
+          <p>${escapeHtml(latestOrder.total || '')} · ${escapeHtml((latestOrder.items || []).join(', ') || 'Produkter synkas från Shopify')}</p>
+          ${latestOrder.statusUrl ? `<a class="product-btn secondary" href="${escapeHtml(latestOrder.statusUrl)}" target="_blank" rel="noreferrer">Visa orderstatus</a>` : ''}
+        </div>
+      `;
+    }
+    return;
+  }
+
+  if (title) title.textContent = pending ? 'Checkout är öppnad' : 'Orderstatus';
+  if (copy) {
+    copy.textContent = pending
+      ? 'Slutför betalningen i Shopify-fliken. När du kommer tillbaka hit kan du uppdatera statusen.'
+      : 'Logga in eller gå till konto för att se senaste ordern.';
+  }
+  if (details) {
+    details.innerHTML = `
+      <div class="order-success-card">
+        <span>${pending ? 'Väntar på Shopify' : 'Ingen aktiv checkout'}</span>
+        <strong>${pending && pending.type === 'medlemskap' ? 'Medlemskap' : 'Produktorder'}</strong>
+        <p>${pending ? 'När betalningen är klar syns ordern på kontot efter en kort stund.' : 'Dina orders visas automatiskt när du är inloggad.'}</p>
+        <div class="account-actions">
+          <button class="product-btn" type="button" data-refresh-order>Uppdatera status</button>
+          <a class="product-btn secondary" href="konto.html">Mitt konto</a>
+        </div>
+      </div>
+    `;
+  }
+}
+
+document.addEventListener('click', (event) => {
+  const refreshOrder = event.target.closest('[data-refresh-order]');
+
+  if (refreshOrder) {
+    refreshOrder.textContent = 'Kontrollerar...';
+    refreshAccount().finally(() => {
+      refreshOrder.textContent = 'Uppdatera status';
+    });
+  }
+});
+
 const adminForm = document.querySelector('[data-admin-form]');
 
 if (adminForm) {
   const message = document.querySelector('[data-admin-message]');
-  const membersList = document.querySelector('[data-admin-members]');
+  const dashboard = document.querySelector('[data-admin-dashboard]');
+  const searchForm = document.querySelector('[data-admin-search-form]');
+  const savedSecret = localStorage.getItem(ADMIN_SECRET_KEY) || '';
+  const secretInput = adminForm.querySelector('input[name="adminSecret"]');
+
+  if (secretInput && savedSecret) {
+    secretInput.value = savedSecret;
+  }
+
+  function adminHeaders() {
+    const secret = secretInput ? secretInput.value : '';
+
+    return {
+      Authorization: `Bearer ${secret}`,
+    };
+  }
+
+  function statusText(value) {
+    return value ? 'OK' : 'Behöver kollas';
+  }
+
+  function renderAdminDashboard(data) {
+    if (!dashboard) {
+      return;
+    }
+
+    const activeRecharge = data.recharge && data.recharge.activeCount ? data.recharge.activeCount : 0;
+    const recentOrders = data.orders || [];
+    const products = data.products || [];
+    const check = data.customerCheck;
+
+    dashboard.innerHTML = `
+      <div class="admin-kpis">
+        <article class="account-card">
+          <span>ReCharge</span>
+          <strong>${escapeHtml(activeRecharge)} aktiva</strong>
+          <p>${escapeHtml(statusText(data.diagnostics && data.diagnostics.rechargeWorking))}</p>
+        </article>
+        <article class="account-card">
+          <span>Shopify orders</span>
+          <strong>${escapeHtml(String(recentOrders.length))}</strong>
+          <p>${escapeHtml(statusText(data.diagnostics && data.diagnostics.ordersWorking))}</p>
+        </article>
+        <article class="account-card">
+          <span>Medlemsplan</span>
+          <strong>${data.membershipProduct && data.membershipProduct.sellingPlanFound ? 'Aktiv' : 'Saknas'}</strong>
+          <p>${escapeHtml((data.membershipProduct && data.membershipProduct.sellingPlans || []).join(', ') || 'Ingen plan hittad')}</p>
+        </article>
+      </div>
+
+      ${check ? `
+        <article class="account-card admin-card-wide">
+          <h2>Kundkontroll</h2>
+          <div class="admin-status-grid">
+            <div><span>Email</span><strong>${escapeHtml(check.email)}</strong></div>
+            <div><span>ReCharge-kund</span><strong>${check.customerFound ? 'Ja' : 'Nej'}</strong></div>
+            <div><span>Aktiv subscription</span><strong>${check.activeSubscriptionFound ? 'Ja' : 'Nej'}</strong></div>
+          </div>
+        </article>
+      ` : ''}
+
+      <article class="account-card admin-card-wide">
+        <h2>Senaste orders</h2>
+        <div class="admin-table">
+          ${recentOrders.length ? recentOrders.map((order) => `
+            <div class="admin-row">
+              <strong>${escapeHtml(order.name)}</strong>
+              <span>${escapeHtml(order.email || '')}</span>
+              <span>${escapeHtml(order.total || '')}</span>
+              <small>${escapeHtml(order.financialStatus || '')} · ${escapeHtml(new Date(order.createdAt).toLocaleString('sv-SE'))}</small>
+              <p>${escapeHtml((order.lines || []).map((line) => `${line.quantity} x ${line.name}`).join(', '))}</p>
+            </div>
+          `).join('') : '<div class="empty-state"><span>Inga orders</span><p>Inga orders hittades för filtret.</p></div>'}
+        </div>
+      </article>
+
+      <article class="account-card">
+        <h2>Aktiva medlemmar</h2>
+        <div class="admin-table compact-table">
+          ${(data.members || []).length ? data.members.map((member) => `
+            <div class="admin-row">
+              <strong>${escapeHtml(member.name || member.email)}</strong>
+              <span>${escapeHtml(member.email || '')}</span>
+              <small>${escapeHtml(member.amountSpent)} · ${escapeHtml(member.numberOfOrders)} orders</small>
+            </div>
+          `).join('') : '<div class="empty-state"><span>Inga taggade medlemmar</span><p>ReCharge kan ändå ha aktiva subscriptions.</p></div>'}
+        </div>
+      </article>
+
+      <article class="account-card">
+        <h2>Produkter</h2>
+        <div class="admin-table compact-table">
+          ${products.length ? products.map((product) => `
+            <div class="admin-row">
+              <strong>${escapeHtml(product.title)}</strong>
+              <span>${escapeHtml(product.price)} ${product.compareAtPrice ? `· ${escapeHtml(product.compareAtPrice)}` : ''}</span>
+              <small>${escapeHtml(product.status)} · lager ${escapeHtml(String(product.inventory ?? 'okänt'))}</small>
+            </div>
+          `).join('') : '<div class="empty-state"><span>Inga produkter</span><p>Kontrollera Shopify-access.</p></div>'}
+        </div>
+      </article>
+
+      <article class="account-card admin-card-wide">
+        <h2>Launchkontroll</h2>
+        <div class="ops-list">
+          <span>Domän kopplad till Vercel</span>
+          <span>Resend-domän verifierad</span>
+          <span>Riktiga produktbilder och lager inlagt</span>
+          <span>Testorder med fysisk produkt genomförd</span>
+          <span>Returpolicy och villkor ersatta med skarp version</span>
+        </div>
+      </article>
+    `;
+  }
+
+  async function loadAdminDashboard(email = '') {
+    if (message) message.textContent = 'Hämtar kontrollrummet...';
+    const query = email ? `?email=${encodeURIComponent(email)}` : '';
+    const response = await fetch(`/api/admin-members${query}`, { headers: adminHeaders() });
+    const data = await response.json();
+
+    if (!response.ok) {
+      if (message) message.textContent = data.error || 'Kunde inte hämta admindata.';
+      return;
+    }
+
+    if (secretInput) {
+      localStorage.setItem(ADMIN_SECRET_KEY, secretInput.value);
+    }
+    if (message) message.textContent = 'Kontrollrummet är uppdaterat.';
+    renderAdminDashboard(data);
+  }
 
   adminForm.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const formData = new FormData(adminForm);
-    if (message) message.textContent = 'Hämtar medlemmar...';
-
     try {
-      const response = await fetch('/api/admin-members', {
-        headers: {
-          Authorization: `Bearer ${formData.get('adminSecret')}`,
-        },
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (message) message.textContent = data.error || 'Kunde inte hämta medlemmar.';
-        return;
-      }
-
-      if (message) message.textContent = `${data.members.length} medlemmar hittades.`;
-      if (membersList) {
-        membersList.innerHTML = data.members.length
-          ? data.members.map((member) => `
-            <div class="order-row">
-              <strong>${escapeHtml(member.name || member.email)}</strong>
-              <span>${escapeHtml(member.amountSpent)}</span>
-              <small>${escapeHtml(member.email || '')}</small>
-              <p>${escapeHtml(member.numberOfOrders)} ordrar · ${escapeHtml((member.tags || []).join(', '))}</p>
-            </div>
-          `).join('')
-          : '<span>Inga medlemmar hittades</span><p>Kontrollera att kundtaggen matchar Vercel-inställningen.</p>';
-      }
+      await loadAdminDashboard();
     } catch (error) {
       if (message) message.textContent = 'Kunde inte kontakta servern.';
     }
   });
+
+  if (searchForm) {
+    searchForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const formData = new FormData(searchForm);
+
+      try {
+        await loadAdminDashboard(formData.get('email'));
+      } catch (error) {
+        if (message) message.textContent = 'Kunde inte kontrollera kunden.';
+      }
+    });
+  }
 }
 
+function renderSiteFooter() {
+  if (document.body.dataset.noFooter === 'true' || document.querySelector('.site-footer')) {
+    return;
+  }
+
+  const footer = document.createElement('footer');
+  footer.className = 'site-footer fade';
+  footer.innerHTML = `
+    <div class="site-footer-inner">
+      <div>
+        <a class="footer-logo" href="index.html">VERSEN</a>
+        <p>Medlemsbaserad handel med priser låsta för aktiva medlemmar.</p>
+      </div>
+      <nav aria-label="Sidfot">
+        <a href="faq.html">FAQ</a>
+        <a href="villkor.html">Regler och villkor</a>
+        <a href="integritet.html">Integritet</a>
+        <a href="returer.html">Returer</a>
+        <a href="kontakt.html">Kontakt</a>
+      </nav>
+    </div>
+  `;
+  document.body.appendChild(footer);
+  observer.observe(footer);
+}
+
+renderSiteFooter();
 renderCart();
 updateCartCount();
 syncShoppingAccess();

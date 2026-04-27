@@ -64,6 +64,10 @@ async function fetchMembershipProduct(handle) {
   return shopifyFetch(MEMBERSHIP_PRODUCT_QUERY, { handle });
 }
 
+function getBaseUrl(req) {
+  return process.env.VERSEN_SITE_URL || `https://${req.headers.host}`;
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     sendJson(res, 405, { error: 'Metoden stöds inte' });
@@ -134,6 +138,8 @@ module.exports = async function handler(req, res) {
     },
     attributes: [
       { key: 'Versen medlemskap', value: 'true' },
+      { key: 'Versen kanal', value: 'Versen frontend' },
+      { key: 'Versen retur', value: `${getBaseUrl(req)}/order.html?type=membership` },
     ],
   };
 

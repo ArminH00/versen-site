@@ -836,6 +836,196 @@ body.auth-loading [data-discount-form]{
   font-weight:700;
 }
 
+.order-confirmation-panel,
+.legal-section,
+.admin-dashboard{
+  width:min(1050px, calc(100% - 40px));
+  margin:0 auto 70px;
+}
+
+.order-success-card,
+.legal-card{
+  text-align:left;
+  border-radius:24px;
+  padding:22px;
+  background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.035));
+  border:1px solid rgba(255,255,255,.1);
+  box-shadow:0 24px 80px rgba(120,100,255,.08);
+}
+
+.order-success-card{
+  display:grid;
+  gap:12px;
+  max-width:680px;
+  margin:0 auto;
+}
+
+.order-success-card span,
+.admin-kpis span,
+.admin-status-grid span{
+  color:rgba(255,255,255,.52);
+  font-size:12px;
+}
+
+.order-success-card strong{
+  font-size:28px;
+  line-height:1.08;
+}
+
+.order-success-card p,
+.legal-card p,
+.site-footer p,
+.admin-row p{
+  color:rgba(255,255,255,.62);
+  line-height:1.5;
+}
+
+.legal-section{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:14px;
+}
+
+.legal-card{
+  display:grid;
+  gap:10px;
+}
+
+.legal-card h2{
+  font-size:20px;
+}
+
+.contact-card .product-btn{
+  width:max-content;
+  max-width:100%;
+}
+
+.site-footer{
+  padding:34px 20px 44px;
+  border-top:1px solid rgba(255,255,255,.08);
+  background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.055));
+}
+
+.site-footer-inner{
+  display:grid;
+  gap:22px;
+  width:min(1120px,100%);
+  margin:0 auto;
+}
+
+.footer-logo{
+  display:inline-block;
+  margin-bottom:10px;
+  font-weight:700;
+  letter-spacing:1.6px;
+  font-size:14px;
+}
+
+.site-footer nav{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+.site-footer nav a{
+  padding:9px 12px;
+  border-radius:999px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.76);
+  font-size:12px;
+}
+
+.admin-login-grid{
+  padding-bottom:22px;
+}
+
+.admin-dashboard{
+  display:grid;
+  gap:16px;
+}
+
+.admin-kpis{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:12px;
+}
+
+.admin-kpis .account-card{
+  display:grid;
+  gap:8px;
+}
+
+.admin-kpis strong{
+  font-size:26px;
+  line-height:1.08;
+}
+
+.admin-status-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+
+.admin-status-grid div{
+  display:grid;
+  gap:5px;
+  padding:14px;
+  border-radius:18px;
+  background:rgba(255,255,255,.055);
+  border:1px solid rgba(255,255,255,.1);
+}
+
+.admin-table{
+  display:grid;
+  gap:10px;
+}
+
+.admin-row{
+  display:grid;
+  gap:5px;
+  padding:14px;
+  border-radius:18px;
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.09);
+}
+
+.admin-row span{
+  color:white;
+  font-weight:700;
+}
+
+.admin-row small{
+  color:rgba(255,255,255,.52);
+  line-height:1.4;
+}
+
+.ops-list{
+  display:grid;
+  gap:10px;
+}
+
+.ops-list span{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 14px;
+  border-radius:16px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.08);
+  color:rgba(255,255,255,.74);
+}
+
+.ops-list span::before{
+  content:"";
+  width:8px;
+  height:8px;
+  flex:0 0 auto;
+  border-radius:50%;
+  background:rgba(120,255,190,.82);
+  box-shadow:0 0 18px rgba(120,255,190,.35);
+}
+
 .quantity-control{
   display:inline-grid;
   grid-template-columns:44px 64px 44px;
@@ -1142,6 +1332,28 @@ body.auth-loading [data-discount-form]{
   .info-grid,
   .account-grid{
     grid-template-columns:repeat(3,1fr);
+  }
+
+  .legal-section{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .site-footer-inner{
+    grid-template-columns:1fr auto;
+    align-items:center;
+  }
+
+  .admin-kpis,
+  .admin-status-grid{
+    grid-template-columns:repeat(3,1fr);
+  }
+
+  .admin-dashboard{
+    grid-template-columns:repeat(3,1fr);
+  }
+
+  .admin-dashboard .admin-card-wide{
+    grid-column:span 2;
   }
 
   .account-flow{

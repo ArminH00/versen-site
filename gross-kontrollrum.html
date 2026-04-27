@@ -3,22 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Versen - Admin</title>
+<title>Versen - Kontrollrum</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="auth-loading">
+<body class="auth-loading" data-no-footer="true">
 
 <nav class="nav">
   <a class="logo" href="index.html">VERSEN</a>
 
-  <div class="menu" aria-label="Huvudmeny">
-    <a href="index.html">Hem</a>
-    <a href="produkter.html">Produkter</a>
-    <a href="medlemskap.html">Medlemskap</a>
-    <a href="konto.html">Konto</a>
-    <a href="kundkorg.html">Kundkorg <span data-cart-count></span></a>
+  <div class="menu" aria-label="Intern meny">
+    <a class="active" href="gross-kontrollrum.html">Kontrollrum</a>
+    <a href="index.html">Till butiken</a>
   </div>
 </nav>
 
@@ -26,15 +23,16 @@
   <header class="page-hero fade">
     <div class="glow"></div>
     <div class="page-hero-content">
-      <div class="badge">Admin</div>
-      <h1>Kontrollrum</h1>
-      <p>Visa medlemmar, orders, produkter och ReCharge-status. Sidan kräver adminnyckel från Vercel.</p>
+      <div class="badge">Intern admin</div>
+      <h1>Versen kontrollrum</h1>
+      <p>Följ orders, medlemmar, ReCharge-status och launchpunkter utan att behöva jobba direkt i Shopify först.</p>
     </div>
   </header>
 
-  <section class="account-grid fade" aria-label="Adminyta">
+  <section class="account-grid admin-login-grid fade" aria-label="Admininloggning">
     <article class="account-card login-card">
-      <h2>Adminnyckel</h2>
+      <h2>Logga in</h2>
+      <p>Använd adminnyckeln från Vercel. Nyckeln sparas bara i din webbläsare.</p>
       <form class="member-form" data-admin-form>
         <input type="password" name="adminSecret" placeholder="Adminnyckel" autocomplete="current-password" required>
         <button class="product-btn" type="submit">Öppna kontrollrum</button>
