@@ -28,9 +28,24 @@
     <div class="page-hero-content">
       <div class="badge">Mitt konto</div>
       <h1>Din medlemsyta</h1>
-      <p>Skapa konto, logga in och se medlemsstatus samt orderhistorik från Shopify.</p>
+      <p>Verifiera email, skapa lösenord och hantera medlemskap kopplat till Shopify.</p>
     </div>
   </header>
+
+  <section class="account-flow fade" aria-label="Kontoflöde">
+    <div class="flow-step active">
+      <span>1</span>
+      <p>Verifiera email</p>
+    </div>
+    <div class="flow-step">
+      <span>2</span>
+      <p>Skapa konto</p>
+    </div>
+    <div class="flow-step">
+      <span>3</span>
+      <p>Starta medlemskap</p>
+    </div>
+  </section>
 
   <section class="account-grid fade" aria-label="Kontoinnehåll" data-account-area>
     <article class="account-card login-card">
@@ -47,21 +62,25 @@
 
     <article class="account-card login-card">
       <h2>Skapa konto</h2>
-      <p>Skapa kontot först. Efter det kan du köpa medlemskap och koppla checkout till dig.</p>
-      <form class="member-form" data-register-form>
+      <p>Börja med att verifiera din email. Sedan väljer du lösenord och kan starta medlemskapet.</p>
+      <form class="member-form" data-verification-form>
         <input type="text" name="firstName" placeholder="Förnamn" autocomplete="given-name">
         <input type="text" name="lastName" placeholder="Efternamn" autocomplete="family-name">
         <input type="email" name="email" placeholder="Email" autocomplete="email" required>
-        <input type="password" name="password" placeholder="Lösenord" autocomplete="new-password" minlength="6" required>
+        <button class="product-btn" type="submit">Skicka verifieringsmail</button>
+      </form>
+      <form class="member-form verification-password" data-register-form hidden>
+        <input type="password" name="password" placeholder="Välj lösenord" autocomplete="new-password" minlength="8" required>
         <button class="product-btn" type="submit">Skapa konto</button>
       </form>
-      <p class="form-message" data-register-message></p>
+      <p class="form-message" data-register-message>Har du redan verifierat email öppnas lösenordssteget automatiskt från länken.</p>
     </article>
 
     <article class="account-card">
       <h2>Medlemsstatus</h2>
       <div class="status-pill" data-member-status>Ej inloggad</div>
       <p data-account-email>Logga in för att se kontot.</p>
+      <a class="product-btn secondary" href="medlemskap.html" data-membership-link hidden>Starta medlemskap</a>
       <button class="product-btn secondary" type="button" data-logout-button hidden>Logga ut</button>
     </article>
 

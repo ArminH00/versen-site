@@ -10,6 +10,10 @@ Vercel behöver dessa environment variables:
 - `SHOPIFY_APP_CLIENT_SECRET`: Client secret från Shopify Dev Dashboard
 - `SHOPIFY_STOREFRONT_ACCESS_TOKEN`: Storefront API-token. Skapas via setup-endpointen nedan.
 - `VERSEN_SETUP_SECRET`: valfri stark engångshemlighet för setup-endpointen
+- `VERSEN_SITE_URL`: publik URL, till exempel `https://project-f8ph5.vercel.app`
+- `VERSEN_EMAIL_VERIFICATION_SECRET`: stark hemlighet för signerade verifieringslänkar
+- `RESEND_API_KEY`: används för verifieringsmail
+- `VERSEN_EMAIL_FROM`: avsändare, till exempel `Versen <konto@dindomän.se>`
 
 Rotera `SHOPIFY_APP_CLIENT_SECRET` om den har visats i chat, skärmdump eller annan osäker plats.
 
@@ -17,7 +21,7 @@ Endpoints:
 
 - `GET /api/products`: hämtar produkter från Shopify Storefront API
 - `POST /api/cart`: skapar en Shopify cart från en eller flera varukorgsrader och returnerar `checkoutUrl`
-- `GET/POST /api/account`: skapar konto, loggar in, loggar ut, skickar lösenordsåterställning och hämtar medlemsstatus
+- `GET/POST /api/account`: verifierar email, skapar konto, loggar in, loggar ut, skickar lösenordsåterställning och hämtar medlemsstatus
 - `POST /api/membership-checkout`: skapar Shopify checkout för medlemskapsprodukten
 - `GET /api/admin-members`: hämtar medlemmar för intern vy. Kräver `Authorization: Bearer <VERSEN_ADMIN_SECRET>`.
 - `GET /api/shopify-status`: kontrollerar om Admin API och Storefront API fungerar
@@ -56,17 +60,22 @@ Launch-MVP:
 7. Sätt `SHOPIFY_WEBHOOK_SECRET` och skapa Shopify webhook för `orders/paid` mot `/api/shopify-order-webhook`.
 8. Sätt `VERSEN_ADMIN_SECRET` för intern adminvy på `admin.html`.
 
-Flöde:
+Kundflöde:
 
-1. Kunden skapar konto på `konto.html`.
-2. Kunden startar medlemskap på `medlemskap.html`.
-3. Versen skapar Shopify cart med medlemskapsprodukten och kundens access token.
-4. Shopify/ReCharge tar betalt och hanterar prenumerationen.
-5. Shopify webhook taggar kunden med `VERSEN_MEMBER_TAG`.
-6. `/api/cart` tillåter produktcheckout och applicerar medlemsrabatt bara när kunden är inloggad och aktiv medlem.
+1. Kunden trycker på medlemskap.
+2. Om kunden inte är inloggad skickas kunden till `konto.html?next=membership`.
+3. Kunden anger email och får verifieringslänk.
+4. Efter verifierad email väljer kunden lösenord och Shopify-kontot skapas.
+5. Kunden skickas tillbaka till `medlemskap.html`.
+6. Versen skapar Shopify cart med medlemskapsprodukten och kundens access token.
+7. Shopify/ReCharge tar betalt och hanterar prenumerationen.
+8. Shopify webhook taggar kunden med `VERSEN_MEMBER_TAG`.
+9. `/api/cart` tillåter produktcheckout och applicerar medlemsrabatt bara när kunden är inloggad och aktiv medlem.
 
 Recharge:
 
+- För lansering är Shopify + Recharge smartast om produkterna och checkout redan ligger i Shopify. Då slipper vi bygga separat subscription billing, kundportal och orderkoppling.
+- Byt till Stripe/egen billing först om medlemskapet ska leva helt utanför Shopify eller om Recharge skapar för mycket begränsning i kundportalen.
 - Om `RECHARGE_API_TOKEN` finns kontrollerar Versen även aktiv Recharge-prenumeration via kundens email.
 - Lägg till `RECHARGE_MEMBERSHIP_PRODUCT_ID` eller `RECHARGE_MEMBERSHIP_VARIANT_ID` om bara en viss subscription-produkt ska räknas.
 - Annars används Shopify-kundtaggen som medlemsstatus.

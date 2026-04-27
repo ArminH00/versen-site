@@ -1,5 +1,8 @@
 const CART_KEY = 'versenCart';
 let accountSession = null;
+const pageParams = new URLSearchParams(window.location.search);
+const accountNext = pageParams.get('next') || '';
+const verificationToken = pageParams.get('verify') || '';
 
 const observer = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
@@ -516,11 +519,13 @@ function updateMemberStatus(session = accountSession) {
 
   const email = document.querySelector('[data-account-email]');
   const logoutButton = document.querySelector('[data-logout-button]');
+  const membershipLink = document.querySelector('[data-membership-link]');
 
   if (!session || !session.authenticated) {
     status.textContent = 'Ej inloggad';
     if (email) email.textContent = 'Logga in för att se kontot.';
     if (logoutButton) logoutButton.hidden = true;
+    if (membershipLink) membershipLink.hidden = true;
     renderOrders([]);
     return;
   }
@@ -529,7 +534,14 @@ function updateMemberStatus(session = accountSession) {
   status.classList.toggle('is-active', Boolean(session.customer.member));
   if (email) email.textContent = `${session.customer.email} · ${session.customer.displayName || 'Kund'}`;
   if (logoutButton) logoutButton.hidden = false;
+  if (membershipLink) membershipLink.hidden = Boolean(session.customer.member);
   renderOrders(session.customer.orders);
+}
+
+function completeAccountIntent() {
+  if (accountNext === 'membership') {
+    window.location.href = 'medlemskap.html?ready=1';
+  }
 }
 
 async function refreshAccount() {
@@ -573,13 +585,52 @@ if (loginForm) {
       accountSession = data;
       updateMemberStatus(accountSession);
       if (message) message.textContent = 'Du är inloggad.';
+      completeAccountIntent();
     } catch (error) {
       if (message) message.textContent = 'Kunde inte kontakta servern.';
     }
   });
 }
 
+const verificationForm = document.querySelector('[data-verification-form]');
 const registerForm = document.querySelector('[data-register-form]');
+
+if (verificationToken && registerForm) {
+  const message = document.querySelector('[data-register-message]');
+  registerForm.hidden = false;
+  if (verificationForm) verificationForm.hidden = true;
+  if (message) message.textContent = 'Email verifierad. Välj lösenord för att skapa kontot.';
+}
+
+if (verificationForm) {
+  const message = document.querySelector('[data-register-message]');
+
+  verificationForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(verificationForm);
+    if (message) message.textContent = 'Skickar verifieringsmail...';
+
+    try {
+      const { response, data } = await postJson('/api/account', {
+        action: 'start_verification',
+        firstName: formData.get('firstName'),
+        lastName: formData.get('lastName'),
+        email: formData.get('email'),
+        next: accountNext,
+      });
+
+      if (!response.ok) {
+        if (message) message.textContent = data.error || 'Kunde inte skicka verifieringsmail.';
+        return;
+      }
+
+      if (message) message.textContent = data.status || 'Verifieringsmail skickat. Kontrollera inkorgen.';
+    } catch (error) {
+      if (message) message.textContent = 'Kunde inte kontakta servern.';
+    }
+  });
+}
 
 if (registerForm) {
   const message = document.querySelector('[data-register-message]');
@@ -592,10 +643,8 @@ if (registerForm) {
 
     try {
       const { response, data } = await postJson('/api/account', {
-        action: 'create',
-        firstName: formData.get('firstName'),
-        lastName: formData.get('lastName'),
-        email: formData.get('email'),
+        action: 'create_verified',
+        verificationToken,
         password: formData.get('password'),
       });
 
@@ -607,6 +656,7 @@ if (registerForm) {
       accountSession = data;
       updateMemberStatus(accountSession);
       if (message) message.textContent = 'Kontot är skapat och du är inloggad.';
+      completeAccountIntent();
     } catch (error) {
       if (message) message.textContent = 'Kunde inte kontakta servern.';
     }
@@ -652,7 +702,18 @@ const membershipCheckoutButton = document.querySelector('[data-membership-checko
 if (membershipCheckoutButton) {
   const message = document.querySelector('[data-membership-message]');
 
+  refreshAccount().then(() => {
+    if (pageParams.get('ready') === '1' && message) {
+      message.textContent = 'Kontot är klart. Starta medlemskapet när du är redo.';
+    }
+  });
+
   membershipCheckoutButton.addEventListener('click', async () => {
+    if (!accountSession || !accountSession.authenticated) {
+      window.location.href = 'konto.html?next=membership';
+      return;
+    }
+
     membershipCheckoutButton.disabled = true;
     membershipCheckoutButton.textContent = 'Öppnar checkout...';
     if (message) message.textContent = '';
