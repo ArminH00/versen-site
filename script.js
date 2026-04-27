@@ -2,6 +2,7 @@ const CART_KEY = 'versenCart';
 const DISCOUNT_KEY = 'versenDiscountCode';
 const CHECKOUT_KEY = 'versenCheckoutPending';
 const ADMIN_SECRET_KEY = 'versenAdminSecret';
+const MEMBERSHIP_REVEAL_KEY = 'versenMembershipRevealSeen';
 let accountSession = null;
 const pageParams = new URLSearchParams(window.location.search);
 const accountNext = pageParams.get('next') || '';
@@ -142,7 +143,9 @@ function openCheckout(checkoutUrl, type, checkoutWindow = null) {
   }
 
   opened.location.href = checkoutUrl;
-  window.location.href = `order.html?checkout=${encodeURIComponent(type || 'produkt')}`;
+  window.location.href = type === 'medlemskap'
+    ? 'medlemskap-aktivt.html?checkout=medlemskap'
+    : `order.html?checkout=${encodeURIComponent(type || 'produkt')}`;
 }
 
 function applyGlobalSessionUi(session = accountSession) {
@@ -943,13 +946,90 @@ async function refreshAccount() {
     accountSession = await response.json();
     updateMemberStatus(accountSession);
     renderOrderPage(accountSession);
+    renderMembershipActivation(accountSession);
   } catch (error) {
     accountSession = { authenticated: false };
     updateMemberStatus(accountSession);
     renderOrderPage(accountSession);
+    renderMembershipActivation(accountSession);
   } finally {
     document.body.classList.remove('auth-loading');
     adjustAccountScroll(accountSession);
+  }
+}
+
+function renderMembershipActivation(session = accountSession) {
+  const shell = document.querySelector('[data-membership-activation]');
+
+  if (!shell) {
+    return;
+  }
+
+  const pending = readPendingCheckout();
+  const member = isActiveMember(session);
+  const firstName = session && session.authenticated && session.customer
+    ? (session.customer.firstName || (session.customer.displayName || '').split(' ')[0] || '')
+    : '';
+  const seenReveal = localStorage.getItem(MEMBERSHIP_REVEAL_KEY) === '1';
+  const title = document.querySelector('[data-activation-title]');
+  const copy = document.querySelector('[data-activation-copy]');
+  const badge = document.querySelector('[data-activation-badge]');
+  const status = document.querySelector('[data-activation-status]');
+  const actions = document.querySelector('[data-activation-actions]');
+
+  shell.classList.toggle('is-unlocked', member);
+  shell.classList.toggle('is-waiting', !member);
+  shell.classList.toggle('has-seen-reveal', seenReveal);
+
+  if (member) {
+    clearPendingCheckout();
+    if (badge) badge.textContent = seenReveal ? 'Medlemskap aktivt' : 'Välkommen in';
+    if (title) title.textContent = seenReveal ? 'Du är redan medlem' : `Medlemskap aktiverat${firstName ? `, ${firstName}` : ''}`;
+    if (copy) {
+      copy.textContent = seenReveal
+        ? 'Butiken är upplåst. Dina medlemspriser är redo när du vill handla.'
+        : 'Dina medlemspriser är upplåsta. Tryck på knappen och öppna butiken med full access.';
+    }
+    if (status) {
+      status.innerHTML = `
+        <span>Access</span>
+        <strong>Aktiv medlem</strong>
+        <p>Rabatter, produktcheckout och medlemspriser är nu öppna.</p>
+      `;
+    }
+    if (actions) {
+      actions.innerHTML = `
+        <button class="cta activation-unlock" type="button" data-unlock-store>${seenReveal ? 'Gå till produkter' : 'Lås upp butik'}</button>
+        <a class="product-btn secondary" href="konto.html">Se mitt konto</a>
+      `;
+    }
+    if (!seenReveal) {
+      window.setTimeout(() => {
+        localStorage.setItem(MEMBERSHIP_REVEAL_KEY, '1');
+      }, 2400);
+    }
+    return;
+  }
+
+  if (badge) badge.textContent = 'Väntar på betalning';
+  if (title) title.textContent = 'Slutför medlemskapet';
+  if (copy) {
+    copy.textContent = pending
+      ? 'När betalningen är klar i Shopify aktiveras medlemskapet här automatiskt.'
+      : 'Vi hittar ingen aktiv medlemscheckout. Starta medlemskapet igen om du inte kom vidare.';
+  }
+  if (status) {
+    status.innerHTML = `
+      <span>Status</span>
+      <strong>${pending ? 'Kontrollerar Shopify' : 'Ingen aktiv checkout'}</strong>
+      <p>${pending ? 'Den här sidan uppdateras av sig själv. Stanna här efter att checkouten är klar.' : 'Gå tillbaka till medlemskap och starta checkout när du är redo.'}</p>
+    `;
+  }
+  if (actions) {
+    actions.innerHTML = `
+      <button class="product-btn" type="button" data-refresh-membership>Kontrollera igen</button>
+      <a class="product-btn secondary" href="medlemskap.html">Till medlemskap</a>
+    `;
   }
 }
 
@@ -1294,14 +1374,44 @@ if (document.querySelector('[data-order-confirmation]')) {
   }, 5000);
 }
 
+if (document.querySelector('[data-membership-activation]')) {
+  let activationRefreshes = 0;
+  const activationInterval = window.setInterval(() => {
+    if (isActiveMember() || activationRefreshes >= 18) {
+      window.clearInterval(activationInterval);
+      return;
+    }
+
+    activationRefreshes += 1;
+    refreshAccount();
+  }, 4000);
+}
+
 document.addEventListener('click', (event) => {
   const refreshOrder = event.target.closest('[data-refresh-order]');
+  const refreshMembership = event.target.closest('[data-refresh-membership]');
+  const unlockStore = event.target.closest('[data-unlock-store]');
 
   if (refreshOrder) {
     refreshOrder.textContent = 'Kontrollerar...';
     refreshAccount().finally(() => {
       refreshOrder.textContent = 'Uppdatera status';
     });
+  }
+
+  if (refreshMembership) {
+    refreshMembership.textContent = 'Kontrollerar...';
+    refreshAccount().finally(() => {
+      refreshMembership.textContent = 'Kontrollera igen';
+    });
+  }
+
+  if (unlockStore) {
+    localStorage.setItem(MEMBERSHIP_REVEAL_KEY, '1');
+    unlockStore.textContent = 'Öppnar butiken...';
+    window.setTimeout(() => {
+      window.location.href = 'produkter.html?unlocked=1';
+    }, 520);
   }
 });
 

@@ -139,7 +139,7 @@ module.exports = async function handler(req, res) {
     attributes: [
       { key: 'Versen medlemskap', value: 'true' },
       { key: 'Versen kanal', value: 'Versen frontend' },
-      { key: 'Versen retur', value: `${getBaseUrl(req)}/order.html?type=membership` },
+      { key: 'Versen retur', value: `${getBaseUrl(req)}/medlemskap-aktivt.html?checkout=medlemskap` },
     ],
   };
 
