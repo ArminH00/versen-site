@@ -101,6 +101,8 @@ async function createStorefrontAccessToken(title = 'Versen Vercel Storefront') {
     };
   }
 
+  storefrontTokenCache = body.storefront_access_token && body.storefront_access_token.access_token;
+
   return {
     ok: true,
     status: 200,
@@ -109,12 +111,20 @@ async function createStorefrontAccessToken(title = 'Versen Vercel Storefront') {
 }
 
 async function getStorefrontAccessToken() {
-  if (process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN) {
-    return process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
-  }
-
   if (storefrontTokenCache) {
     return storefrontTokenCache;
+  }
+
+  if (process.env.SHOPIFY_APP_CLIENT_ID && process.env.SHOPIFY_APP_CLIENT_SECRET) {
+    const result = await createStorefrontAccessToken();
+
+    if (result.ok && result.body.storefront_access_token) {
+      return result.body.storefront_access_token.access_token;
+    }
+  }
+
+  if (process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN) {
+    return process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
   }
 
   return null;
