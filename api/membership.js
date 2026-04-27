@@ -1,4 +1,4 @@
-const { shopifyFetch } = require('./shopify');
+const { getCookie, sendJson, shopifyFetch } = require('./shopify');
 
 const CUSTOMER_QUERY = `
   query VersenCustomer($customerAccessToken: String!) {
@@ -170,7 +170,20 @@ async function getCustomerSession(customerAccessToken) {
   };
 }
 
-module.exports = {
-  getCustomerSession,
-  membershipTags,
-};
+async function handler(req, res) {
+  if (req.method !== 'GET') {
+    sendJson(res, 405, { error: 'Metoden stöds inte' });
+    return;
+  }
+
+  const customerAccessToken = getCookie(req, 'versen_customer_token');
+  const session = await getCustomerSession(customerAccessToken);
+
+  sendJson(res, 200, session);
+}
+
+handler.getCustomerSession = getCustomerSession;
+handler.membershipTags = membershipTags;
+handler.checkRechargeMembership = checkRechargeMembership;
+
+module.exports = handler;
