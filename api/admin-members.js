@@ -208,7 +208,7 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const secret = process.env.VERSEN_ADMIN_SECRET;
+  const secret = process.env.VERSEN_ADMIN_SECRET || process.env.VERSEN_SETUP_SECRET;
   const header = req.headers.authorization || '';
 
   if (!secret || header !== `Bearer ${secret}`) {
