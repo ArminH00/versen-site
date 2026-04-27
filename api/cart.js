@@ -1,4 +1,5 @@
-const { sendJson, shopifyFetch } = require('./shopify');
+const { getCookie, readBody, sendJson, shopifyFetch } = require('./shopify');
+const { getCustomerSession } = require('./membership');
 
 const CART_CREATE_MUTATION = `
   mutation VersenCartCreate($input: CartInput!) {
@@ -14,26 +15,6 @@ const CART_CREATE_MUTATION = `
     }
   }
 `;
-
-function readBody(req) {
-  return new Promise((resolve, reject) => {
-    let body = '';
-
-    req.on('data', (chunk) => {
-      body += chunk;
-    });
-
-    req.on('end', () => {
-      try {
-        resolve(body ? JSON.parse(body) : {});
-      } catch (error) {
-        reject(error);
-      }
-    });
-
-    req.on('error', reject);
-  });
-}
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -66,14 +47,18 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const memberCode = process.env.VERSEN_MEMBER_ACCESS_CODE;
   const discountCode = process.env.SHOPIFY_MEMBER_DISCOUNT_CODE;
-  const hasValidMembership = memberCode && body.memberCode === memberCode;
+  const customerAccessToken = getCookie(req, 'versen_customer_token');
+  const session = await getCustomerSession(customerAccessToken);
+  const legacyMemberCode = process.env.VERSEN_MEMBER_ACCESS_CODE;
+  const hasLegacyMembership = legacyMemberCode && body.memberCode === legacyMemberCode;
+  const hasValidMembership = (session.authenticated && session.customer.member) || hasLegacyMembership;
 
   if (discountCode && !hasValidMembership) {
     sendJson(res, 401, {
-      error: 'Medlemskap krävs',
+      error: session.authenticated ? 'Aktivt medlemskap krävs' : 'Logga in som medlem först',
       membershipRequired: true,
+      loginRequired: !session.authenticated,
     });
     return;
   }
@@ -84,6 +69,13 @@ module.exports = async function handler(req, res) {
 
   if (discountCode) {
     input.discountCodes = [discountCode];
+  }
+
+  if (session.authenticated) {
+    input.buyerIdentity = {
+      customerAccessToken,
+      email: session.customer.email,
+    };
   }
 
   const result = await shopifyFetch(CART_CREATE_MUTATION, { input });

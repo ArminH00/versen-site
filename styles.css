@@ -591,6 +591,10 @@ button:disabled{
   margin-top:18px;
 }
 
+.login-card .product-btn.secondary{
+  margin-top:18px;
+}
+
 .member-form{
   display:grid;
   gap:12px;
@@ -628,6 +632,45 @@ button:disabled{
   border:1px solid rgba(255,255,255,.12);
   color:rgba(255,255,255,.7);
   font-size:12px;
+}
+
+.status-pill.is-active{
+  background:rgba(90,255,180,.12);
+  border-color:rgba(90,255,180,.28);
+  color:rgba(170,255,215,.92);
+}
+
+.account-link{
+  margin-top:12px;
+}
+
+.order-row{
+  display:grid;
+  gap:6px;
+  padding:14px 0;
+  border-top:1px solid rgba(255,255,255,.1);
+}
+
+.order-row:first-child{
+  border-top:none;
+  padding-top:0;
+}
+
+.order-row span{
+  color:white;
+  font-weight:700;
+}
+
+.order-row small,
+.order-row p,
+.order-row a{
+  color:rgba(255,255,255,.62);
+  line-height:1.45;
+}
+
+.order-row a{
+  text-decoration:underline;
+  text-underline-offset:3px;
 }
 
 .empty-state{
@@ -915,6 +958,10 @@ button:disabled{
   .info-grid,
   .account-grid{
     grid-template-columns:repeat(3,1fr);
+  }
+
+  .admin-card-wide{
+    grid-column:span 2;
   }
 
   .cart-layout{

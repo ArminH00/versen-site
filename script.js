@@ -1,4 +1,5 @@
 const CART_KEY = 'versenCart';
+let accountSession = null;
 
 const observer = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
@@ -44,6 +45,19 @@ function parsePrice(value) {
 
 function formatSek(value) {
   return `${Math.round(value)} kr`;
+}
+
+async function postJson(url, payload) {
+  const response = await fetch(url, {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload || {}),
+  });
+  const data = await response.json();
+  return { response, data };
 }
 
 function updateCartCount() {
@@ -424,7 +438,6 @@ if (cartCheckoutButton) {
   cartCheckoutButton.addEventListener('click', async () => {
     const cart = readCart();
     const message = document.querySelector('[data-cart-message]');
-    const memberCode = localStorage.getItem('versenMemberCode');
 
     if (!cart.length) {
       if (message) message.textContent = 'Kundkorgen är tom.';
@@ -438,6 +451,7 @@ if (cartCheckoutButton) {
     try {
       const response = await fetch('/api/cart', {
         method: 'POST',
+        credentials: 'same-origin',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -446,7 +460,6 @@ if (cartCheckoutButton) {
             variantId: item.variantId,
             quantity: item.quantity,
           })),
-          memberCode,
         }),
       });
 
@@ -454,7 +467,7 @@ if (cartCheckoutButton) {
 
       if (!response.ok) {
         if (data.membershipRequired) {
-          if (message) message.textContent = 'Logga in som medlem på kontosidan först.';
+          if (message) message.textContent = data.loginRequired ? 'Logga in på kontosidan först.' : 'Aktivt medlemskap krävs innan checkout.';
         } else if (message) {
           message.textContent = data.error || 'Kunde inte skapa checkout.';
         }
@@ -471,57 +484,238 @@ if (cartCheckoutButton) {
   });
 }
 
-function updateMemberStatus() {
+function renderOrders(orders) {
+  const list = document.querySelector('[data-orders-list]');
+
+  if (!list) {
+    return;
+  }
+
+  if (!orders || !orders.length) {
+    list.innerHTML = '<span>Inga ordrar ännu</span><p>Dina Shopify-köp visas här efter första checkout.</p>';
+    return;
+  }
+
+  list.innerHTML = orders.map((order) => `
+    <div class="order-row">
+      <strong>${escapeHtml(order.name)}</strong>
+      <span>${escapeHtml(order.total || '')}</span>
+      <small>${escapeHtml(new Date(order.processedAt).toLocaleDateString('sv-SE'))}</small>
+      <p>${escapeHtml((order.items || []).join(', '))}</p>
+      ${order.statusUrl ? `<a href="${escapeHtml(order.statusUrl)}" target="_blank" rel="noreferrer">Visa order</a>` : ''}
+    </div>
+  `).join('');
+}
+
+function updateMemberStatus(session = accountSession) {
   const status = document.querySelector('[data-member-status]');
 
   if (!status) {
     return;
   }
 
-  const isMember = localStorage.getItem('versenMember') === 'true';
-  status.textContent = isMember ? 'Aktiv medlem' : 'Ej inloggad';
+  const email = document.querySelector('[data-account-email]');
+  const logoutButton = document.querySelector('[data-logout-button]');
+
+  if (!session || !session.authenticated) {
+    status.textContent = 'Ej inloggad';
+    if (email) email.textContent = 'Logga in för att se kontot.';
+    if (logoutButton) logoutButton.hidden = true;
+    renderOrders([]);
+    return;
+  }
+
+  status.textContent = session.customer.membershipStatus;
+  status.classList.toggle('is-active', Boolean(session.customer.member));
+  if (email) email.textContent = `${session.customer.email} · ${session.customer.displayName || 'Kund'}`;
+  if (logoutButton) logoutButton.hidden = false;
+  renderOrders(session.customer.orders);
 }
 
-const memberForm = document.querySelector('[data-member-form]');
+async function refreshAccount() {
+  if (!document.querySelector('[data-account-area]') && !document.querySelector('[data-membership-checkout]')) {
+    return;
+  }
 
-if (memberForm) {
-  const message = document.querySelector('[data-member-message]');
+  try {
+    const response = await fetch('/api/account', { credentials: 'same-origin' });
+    accountSession = await response.json();
+    updateMemberStatus(accountSession);
+  } catch (error) {
+    accountSession = { authenticated: false };
+    updateMemberStatus(accountSession);
+  }
+}
 
-  updateMemberStatus();
+const loginForm = document.querySelector('[data-login-form]');
 
-  memberForm.addEventListener('submit', async (event) => {
+if (loginForm) {
+  const message = document.querySelector('[data-login-message]');
+
+  loginForm.addEventListener('submit', async (event) => {
     event.preventDefault();
 
-    const formData = new FormData(memberForm);
-    const memberCode = formData.get('memberCode');
-
-    if (message) {
-      message.textContent = 'Kontrollerar medlemskap...';
-    }
+    const formData = new FormData(loginForm);
+    if (message) message.textContent = 'Loggar in...';
 
     try {
-      const response = await fetch('/api/member-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ memberCode }),
+      const { response, data } = await postJson('/api/account', {
+        action: 'login',
+        email: formData.get('email'),
+        password: formData.get('password'),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        localStorage.removeItem('versenMember');
-        localStorage.removeItem('versenMemberCode');
-        updateMemberStatus();
         if (message) message.textContent = data.error || 'Kunde inte logga in.';
         return;
       }
 
-      localStorage.setItem('versenMember', 'true');
-      localStorage.setItem('versenMemberCode', memberCode);
-      updateMemberStatus();
-      if (message) message.textContent = data.status || 'Du är inloggad som medlem.';
+      accountSession = data;
+      updateMemberStatus(accountSession);
+      if (message) message.textContent = 'Du är inloggad.';
+    } catch (error) {
+      if (message) message.textContent = 'Kunde inte kontakta servern.';
+    }
+  });
+}
+
+const registerForm = document.querySelector('[data-register-form]');
+
+if (registerForm) {
+  const message = document.querySelector('[data-register-message]');
+
+  registerForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(registerForm);
+    if (message) message.textContent = 'Skapar konto...';
+
+    try {
+      const { response, data } = await postJson('/api/account', {
+        action: 'create',
+        firstName: formData.get('firstName'),
+        lastName: formData.get('lastName'),
+        email: formData.get('email'),
+        password: formData.get('password'),
+      });
+
+      if (!response.ok) {
+        if (message) message.textContent = data.error || 'Kunde inte skapa konto.';
+        return;
+      }
+
+      accountSession = data;
+      updateMemberStatus(accountSession);
+      if (message) message.textContent = 'Kontot är skapat och du är inloggad.';
+    } catch (error) {
+      if (message) message.textContent = 'Kunde inte kontakta servern.';
+    }
+  });
+}
+
+const recoverButton = document.querySelector('[data-recover-button]');
+
+if (recoverButton) {
+  recoverButton.addEventListener('click', async () => {
+    const message = document.querySelector('[data-login-message]');
+    const email = document.querySelector('[data-login-form] input[name="email"]');
+
+    if (!email || !email.value) {
+      if (message) message.textContent = 'Fyll i email först.';
+      return;
+    }
+
+    try {
+      const { data } = await postJson('/api/account', {
+        action: 'recover',
+        email: email.value,
+      });
+      if (message) message.textContent = data.status || data.error || 'Klart.';
+    } catch (error) {
+      if (message) message.textContent = 'Kunde inte kontakta servern.';
+    }
+  });
+}
+
+const logoutButton = document.querySelector('[data-logout-button]');
+
+if (logoutButton) {
+  logoutButton.addEventListener('click', async () => {
+    await postJson('/api/account', { action: 'logout' });
+    accountSession = { authenticated: false };
+    updateMemberStatus(accountSession);
+  });
+}
+
+const membershipCheckoutButton = document.querySelector('[data-membership-checkout]');
+
+if (membershipCheckoutButton) {
+  const message = document.querySelector('[data-membership-message]');
+
+  membershipCheckoutButton.addEventListener('click', async () => {
+    membershipCheckoutButton.disabled = true;
+    membershipCheckoutButton.textContent = 'Öppnar checkout...';
+    if (message) message.textContent = '';
+
+    try {
+      const { response, data } = await postJson('/api/membership-checkout', {});
+
+      if (!response.ok) {
+        if (message) {
+          message.textContent = data.loginRequired
+            ? 'Skapa konto eller logga in på kontosidan först.'
+            : (data.error || 'Kunde inte starta medlemskap.');
+        }
+        return;
+      }
+
+      window.location.href = data.checkoutUrl;
+    } catch (error) {
+      if (message) message.textContent = 'Kunde inte kontakta checkout.';
+    } finally {
+      membershipCheckoutButton.disabled = false;
+      membershipCheckoutButton.textContent = 'Starta medlemskap';
+    }
+  });
+}
+
+const adminForm = document.querySelector('[data-admin-form]');
+
+if (adminForm) {
+  const message = document.querySelector('[data-admin-message]');
+  const membersList = document.querySelector('[data-admin-members]');
+
+  adminForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const formData = new FormData(adminForm);
+    if (message) message.textContent = 'Hämtar medlemmar...';
+
+    try {
+      const response = await fetch('/api/admin-members', {
+        headers: {
+          Authorization: `Bearer ${formData.get('adminSecret')}`,
+        },
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (message) message.textContent = data.error || 'Kunde inte hämta medlemmar.';
+        return;
+      }
+
+      if (message) message.textContent = `${data.members.length} medlemmar hittades.`;
+      if (membersList) {
+        membersList.innerHTML = data.members.length
+          ? data.members.map((member) => `
+            <div class="order-row">
+              <strong>${escapeHtml(member.name || member.email)}</strong>
+              <span>${escapeHtml(member.amountSpent)}</span>
+              <small>${escapeHtml(member.email || '')}</small>
+              <p>${escapeHtml(member.numberOfOrders)} ordrar · ${escapeHtml((member.tags || []).join(', '))}</p>
+            </div>
+          `).join('')
+          : '<span>Inga medlemmar hittades</span><p>Kontrollera att kundtaggen matchar Vercel-inställningen.</p>';
+      }
     } catch (error) {
       if (message) message.textContent = 'Kunde inte kontakta servern.';
     }
@@ -530,3 +724,4 @@ if (memberForm) {
 
 renderCart();
 updateCartCount();
+refreshAccount();

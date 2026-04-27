@@ -28,32 +28,48 @@
     <div class="page-hero-content">
       <div class="badge">Mitt konto</div>
       <h1>Din medlemsyta</h1>
-      <p>Login, medlemsstatus och orderhistorik kopplas in här när backend och checkout är på plats.</p>
+      <p>Skapa konto, logga in och se medlemsstatus samt orderhistorik från Shopify.</p>
     </div>
   </header>
 
-  <section class="account-grid fade" aria-label="Kontoinnehåll">
+  <section class="account-grid fade" aria-label="Kontoinnehåll" data-account-area>
     <article class="account-card login-card">
       <h2>Logga in</h2>
-      <p>Ange medlemskod för att låsa upp medlemsläge i MVP-versionen.</p>
-      <form class="member-form" data-member-form>
-        <input type="password" name="memberCode" placeholder="Medlemskod" autocomplete="current-password" required>
+      <p>Logga in med ditt Shopify-konto för att handla med medlemspris.</p>
+      <form class="member-form" data-login-form>
+        <input type="email" name="email" placeholder="Email" autocomplete="email" required>
+        <input type="password" name="password" placeholder="Lösenord" autocomplete="current-password" required>
         <button class="product-btn" type="submit">Logga in</button>
       </form>
-      <p class="form-message" data-member-message></p>
+      <button class="remove-btn account-link" type="button" data-recover-button>Skicka återställningsmail</button>
+      <p class="form-message" data-login-message></p>
+    </article>
+
+    <article class="account-card login-card">
+      <h2>Skapa konto</h2>
+      <p>Skapa kontot först. Efter det kan du köpa medlemskap och koppla checkout till dig.</p>
+      <form class="member-form" data-register-form>
+        <input type="text" name="firstName" placeholder="Förnamn" autocomplete="given-name">
+        <input type="text" name="lastName" placeholder="Efternamn" autocomplete="family-name">
+        <input type="email" name="email" placeholder="Email" autocomplete="email" required>
+        <input type="password" name="password" placeholder="Lösenord" autocomplete="new-password" minlength="6" required>
+        <button class="product-btn" type="submit">Skapa konto</button>
+      </form>
+      <p class="form-message" data-register-message></p>
     </article>
 
     <article class="account-card">
       <h2>Medlemsstatus</h2>
       <div class="status-pill" data-member-status>Ej inloggad</div>
-      <p>Aktiv status visas här när medlemskap och betalning är kopplat.</p>
+      <p data-account-email>Logga in för att se kontot.</p>
+      <button class="product-btn secondary" type="button" data-logout-button hidden>Logga ut</button>
     </article>
 
     <article class="account-card order-card">
       <h2>Orderhistorik</h2>
-      <div class="empty-state">
+      <div class="empty-state" data-orders-list>
         <span>Inga ordrar ännu</span>
-        <p>Dina köp visas här efter första checkout.</p>
+        <p>Dina Shopify-köp visas här när du är inloggad.</p>
       </div>
     </article>
   </section>

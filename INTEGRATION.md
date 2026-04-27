@@ -17,8 +17,12 @@ Endpoints:
 
 - `GET /api/products`: hämtar produkter från Shopify Storefront API
 - `POST /api/cart`: skapar en Shopify cart från en eller flera varukorgsrader och returnerar `checkoutUrl`
+- `GET/POST /api/account`: skapar konto, loggar in, loggar ut, skickar lösenordsåterställning och hämtar medlemsstatus
+- `POST /api/membership-checkout`: skapar Shopify checkout för medlemskapsprodukten
+- `GET /api/admin-members`: hämtar medlemmar för intern vy. Kräver `Authorization: Bearer <VERSEN_ADMIN_SECRET>`.
 - `GET /api/shopify-status`: kontrollerar om Admin API och Storefront API fungerar
 - `POST /api/create-storefront-token`: skapar en Storefront-token via Admin API. Kräver `Authorization: Bearer <VERSEN_SETUP_SECRET>`.
+- `POST /api/shopify-order-webhook`: Shopify webhook som taggar kunder som medlemmar efter betalt medlemskap.
 
 Frontend har statiska produkter som fallback. När Shopify-env vars finns byter `produkter.html` automatiskt till produkter från `/api/products`.
 
@@ -39,21 +43,38 @@ Kundkorgen sparas i webbläsaren tills kunden går vidare. Checkout skapas förs
 
 ## Medlemskap
 
-Medlemskap ska inte bara låsas i frontend. Servern måste avgöra om en användare är medlem innan medlemspris eller checkout-rabatt används.
+Medlemskap ska inte bara låsas i frontend. Servern avgör om en användare är medlem innan medlemspris eller checkout-rabatt används.
 
 Launch-MVP:
 
-1. Skapa en rabattkod i Shopify för medlemmar.
-2. Sätt `SHOPIFY_MEMBER_DISCOUNT_CODE` i Vercel.
-3. Sätt `VERSEN_MEMBER_ACCESS_CODE` i Vercel.
-4. Medlemmen loggar in på `konto.html` med medlemskoden.
-5. `/api/cart` applicerar rabattkod server-side endast om medlemskoden matchar.
+1. Skapa medlemskapsprodukten i Shopify med handle `medlemskap`.
+2. Koppla produkten till Recharge om den ska vara en månadsprenumeration.
+3. Sätt `SHOPIFY_MEMBER_DISCOUNT_CODE` i Vercel.
+4. Sätt `VERSEN_MEMBER_TAG` i Vercel, standard är `versen_member`.
+5. Sätt `VERSEN_MEMBERSHIP_PRODUCT_HANDLE` i Vercel om handle inte är `medlemskap`.
+6. Sätt `SHOPIFY_MEMBERSHIP_SELLING_PLAN_ID` om Storefront-token inte har scope för selling plans.
+7. Sätt `SHOPIFY_WEBHOOK_SECRET` och skapa Shopify webhook för `orders/paid` mot `/api/shopify-order-webhook`.
+8. Sätt `VERSEN_ADMIN_SECRET` för intern adminvy på `admin.html`.
+
+Flöde:
+
+1. Kunden skapar konto på `konto.html`.
+2. Kunden startar medlemskap på `medlemskap.html`.
+3. Versen skapar Shopify cart med medlemskapsprodukten och kundens access token.
+4. Shopify/ReCharge tar betalt och hanterar prenumerationen.
+5. Shopify webhook taggar kunden med `VERSEN_MEMBER_TAG`.
+6. `/api/cart` tillåter produktcheckout och applicerar medlemsrabatt bara när kunden är inloggad och aktiv medlem.
+
+Recharge:
+
+- Om `RECHARGE_API_TOKEN` finns kontrollerar Versen även aktiv Recharge-prenumeration via kundens email.
+- Lägg till `RECHARGE_MEMBERSHIP_PRODUCT_ID` eller `RECHARGE_MEMBERSHIP_VARIANT_ID` om bara en viss subscription-produkt ska räknas.
+- Annars används Shopify-kundtaggen som medlemsstatus.
 
 Efter launch:
 
-1. Använd Shopify för produktkatalog och checkout.
-2. Använd en auth-provider för inloggning och session, till exempel Clerk eller Supabase Auth.
-3. Spara medlemsstatus server-side.
-4. När medlemmen checkar ut skapar `/api/cart` en cart med medlemsrabatt eller medlemsvariant.
+1. Lägg till Recharge cancellation-webhook eller schemalagd synk så taggen tas bort när medlemskap avslutas.
+2. Bygg en mer komplett intern adminpanel om man vill hantera återbetalningar, manuella godkännanden och support.
+3. Byt till separat auth-provider först om Shopify-konton inte räcker för produktvisionen.
 
 Viktigt: rabatter och medlemspriser behöver även skyddas i Shopify/checkout, inte bara döljas visuellt på sidan.

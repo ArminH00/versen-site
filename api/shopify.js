@@ -164,6 +164,110 @@ async function shopifyFetch(query, variables = {}) {
   };
 }
 
+async function adminFetch(query, variables = {}) {
+  const domain = getShopDomain();
+  const token = await getAdminAccessToken();
+
+  if (!domain || !token) {
+    return {
+      ok: false,
+      status: 500,
+      body: {
+        error: 'Shopify Admin API saknar konfiguration',
+        missing: ['SHOPIFY_STORE_DOMAIN', 'SHOPIFY_APP_CLIENT_ID', 'SHOPIFY_APP_CLIENT_SECRET'],
+      },
+    };
+  }
+
+  const response = await fetch(`https://${domain}/admin/api/${API_VERSION}/graphql.json`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Shopify-Access-Token': token,
+    },
+    body: JSON.stringify({ query, variables }),
+  });
+
+  const body = await response.json();
+
+  if (!response.ok || body.errors) {
+    return {
+      ok: false,
+      status: response.status || 500,
+      body: {
+        error: 'Shopify Admin API svarade med ett fel',
+        details: body.errors || body,
+      },
+    };
+  }
+
+  return {
+    ok: true,
+    status: 200,
+    body,
+  };
+}
+
+function readBody(req) {
+  return new Promise((resolve, reject) => {
+    let body = '';
+
+    req.on('data', (chunk) => {
+      body += chunk;
+    });
+
+    req.on('end', () => {
+      try {
+        resolve(body ? JSON.parse(body) : {});
+      } catch (error) {
+        reject(error);
+      }
+    });
+
+    req.on('error', reject);
+  });
+}
+
+function readRawBody(req) {
+  return new Promise((resolve, reject) => {
+    let body = '';
+
+    req.on('data', (chunk) => {
+      body += chunk;
+    });
+
+    req.on('end', () => resolve(body));
+    req.on('error', reject);
+  });
+}
+
+function getCookie(req, name) {
+  const cookie = req.headers.cookie || '';
+  const match = cookie
+    .split(';')
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(`${name}=`));
+
+  if (!match) {
+    return null;
+  }
+
+  return decodeURIComponent(match.slice(name.length + 1));
+}
+
+function setCustomerCookie(res, token, expiresAt) {
+  const expires = expiresAt ? new Date(expiresAt).toUTCString() : new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toUTCString();
+  res.setHeader('Set-Cookie', [
+    `versen_customer_token=${encodeURIComponent(token)}; Path=/; Expires=${expires}; HttpOnly; Secure; SameSite=Lax`,
+  ]);
+}
+
+function clearCustomerCookie(res) {
+  res.setHeader('Set-Cookie', [
+    'versen_customer_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax',
+  ]);
+}
+
 function sendJson(res, status, body) {
   res.statusCode = status;
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -172,9 +276,15 @@ function sendJson(res, status, body) {
 }
 
 module.exports = {
+  adminFetch,
+  clearCustomerCookie,
   createStorefrontAccessToken,
   getAdminAccessToken,
+  getCookie,
   getShopDomain,
+  readBody,
+  readRawBody,
   sendJson,
+  setCustomerCookie,
   shopifyFetch,
 };
