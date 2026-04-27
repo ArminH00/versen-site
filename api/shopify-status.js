@@ -1,9 +1,42 @@
-const { getAdminAccessToken, getShopDomain, sendJson, shopifyFetch } = require('./shopify');
+const { adminFetch, getAdminAccessToken, getShopDomain, sendJson, shopifyFetch } = require('./shopify');
 
 const SHOP_QUERY = `
   query VersenShopStatus {
     shop {
       name
+    }
+  }
+`;
+
+const ORDERS_QUERY = `
+  query VersenOrderStatus($query: String!) {
+    orders(first: 5, query: $query, sortKey: CREATED_AT, reverse: true) {
+      nodes {
+        id
+        name
+        email
+        createdAt
+        displayFinancialStatus
+        currentTotalPriceSet {
+          shopMoney {
+            amount
+            currencyCode
+          }
+        }
+        lineItems(first: 10) {
+          nodes {
+            name
+            quantity
+            product {
+              handle
+            }
+            variant {
+              id
+              title
+            }
+          }
+        }
+      }
     }
   }
 `;
@@ -91,6 +124,56 @@ async function getRechargeStatus(req) {
   };
 }
 
+async function getOrderStatus(req) {
+  if (!hasSecret(req)) {
+    return null;
+  }
+
+  const email = String(req.query.email || '').trim().toLowerCase();
+
+  if (!email) {
+    return {
+      email,
+      lookupWorking: false,
+      ordersFound: false,
+      error: 'Email saknas',
+    };
+  }
+
+  const result = await adminFetch(ORDERS_QUERY, { query: `email:${email}` });
+
+  if (!result.ok) {
+    return {
+      email,
+      lookupWorking: false,
+      ordersFound: false,
+      status: result.status,
+      error: result.body,
+    };
+  }
+
+  const orders = result.body.data.orders.nodes.map((order) => ({
+    name: order.name,
+    email: order.email,
+    createdAt: order.createdAt,
+    financialStatus: order.displayFinancialStatus,
+    total: order.currentTotalPriceSet && order.currentTotalPriceSet.shopMoney,
+    lines: order.lineItems.nodes.map((item) => ({
+      name: item.name,
+      quantity: item.quantity,
+      productHandle: item.product ? item.product.handle : null,
+      variantTitle: item.variant ? item.variant.title : null,
+    })),
+  }));
+
+  return {
+    email,
+    lookupWorking: true,
+    ordersFound: orders.length > 0,
+    orders,
+  };
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') {
     sendJson(res, 405, { error: 'Metoden stöds inte' });
@@ -101,6 +184,7 @@ module.exports = async function handler(req, res) {
   const adminToken = await getAdminAccessToken();
   const storefront = await shopifyFetch(SHOP_QUERY);
   const recharge = req.query.recharge === '1' ? await getRechargeStatus(req) : null;
+  const orders = req.query.orders === '1' ? await getOrderStatus(req) : null;
 
   sendJson(res, storefront.ok ? 200 : 500, {
     shopDomainConfigured: Boolean(domain),
@@ -109,6 +193,7 @@ module.exports = async function handler(req, res) {
     storefrontTokenConfigured: Boolean(process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN),
     storefrontWorking: storefront.ok,
     recharge,
+    orders,
     shop: storefront.ok ? storefront.body.data.shop : null,
     error: storefront.ok ? null : storefront.body,
   });
