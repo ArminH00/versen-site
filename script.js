@@ -6,6 +6,7 @@ let accountSession = null;
 const pageParams = new URLSearchParams(window.location.search);
 const accountNext = pageParams.get('next') || '';
 const verificationToken = pageParams.get('verify') || '';
+const resetToken = pageParams.get('reset') || '';
 const activeNavLink = document.querySelector('.menu a.active');
 
 if ('scrollRestoration' in history) {
@@ -885,9 +886,10 @@ function updateMemberStatus(session = accountSession) {
     if (authCard) authCard.hidden = true;
     if (statusCard) statusCard.hidden = true;
     if (ordersCard) ordersCard.hidden = true;
-    if (accountFlow) accountFlow.hidden = false;
-    if (loginCard) loginCard.hidden = accountNext === 'membership' || Boolean(verificationToken);
-    if (createCard) createCard.hidden = false;
+    if (accountFlow) accountFlow.hidden = Boolean(resetToken);
+    if (loginCard) loginCard.hidden = accountNext === 'membership' || Boolean(verificationToken) || Boolean(resetToken);
+    if (createCard) createCard.hidden = Boolean(resetToken);
+    if (resetCard) resetCard.hidden = !resetToken;
     if (email) email.textContent = 'Logga in för att se kontot.';
     if (logoutButton) logoutButton.hidden = true;
     if (membershipLink) membershipLink.hidden = true;
@@ -905,6 +907,7 @@ function updateMemberStatus(session = accountSession) {
   if (ordersCard) ordersCard.hidden = false;
   if (loginCard) loginCard.hidden = true;
   if (createCard) createCard.hidden = true;
+  if (resetCard) resetCard.hidden = true;
 
   status.textContent = session.customer.membershipStatus;
   status.classList.toggle('is-active', hasMemberDiscount);
@@ -985,8 +988,10 @@ if (loginForm) {
 
 const verificationForm = document.querySelector('[data-verification-form]');
 const registerForm = document.querySelector('[data-register-form]');
+const resetForm = document.querySelector('[data-reset-form]');
 const loginCard = document.querySelector('[data-login-card]');
 const createCard = document.querySelector('[data-create-card]');
+const resetCard = document.querySelector('[data-reset-card]');
 
 if (accountNext === 'membership' && createCard) {
   createCard.classList.add('is-priority');
@@ -1000,6 +1005,17 @@ if (verificationToken && registerForm) {
   if (loginCard) loginCard.hidden = true;
   if (createCard) createCard.classList.add('is-priority');
   if (message) message.textContent = 'Email verifierad. Välj lösenord för att skapa kontot.';
+}
+
+if (resetToken && resetForm) {
+  const message = document.querySelector('[data-reset-message]');
+  const accountFlow = document.querySelector('[data-account-flow]');
+  resetForm.hidden = false;
+  if (loginCard) loginCard.hidden = true;
+  if (createCard) createCard.hidden = true;
+  if (resetCard) resetCard.hidden = false;
+  if (accountFlow) accountFlow.hidden = true;
+  if (message) message.textContent = 'Välj ett nytt lösenord för ditt konto.';
 }
 
 if (verificationForm) {
@@ -1056,6 +1072,37 @@ if (registerForm) {
       accountSession = data;
       updateMemberStatus(accountSession);
       if (message) message.textContent = 'Kontot är skapat och du är inloggad.';
+      completeAccountIntent();
+    } catch (error) {
+      if (message) message.textContent = 'Kunde inte kontakta servern.';
+    }
+  });
+}
+
+if (resetForm) {
+  const message = document.querySelector('[data-reset-message]');
+
+  resetForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(resetForm);
+    if (message) message.textContent = 'Uppdaterar lösenord...';
+
+    try {
+      const { response, data } = await postJson('/api/account', {
+        action: 'reset_password',
+        resetToken,
+        password: formData.get('password'),
+      });
+
+      if (!response.ok) {
+        if (message) message.textContent = data.error || 'Kunde inte uppdatera lösenord.';
+        return;
+      }
+
+      accountSession = data;
+      updateMemberStatus(accountSession);
+      if (message) message.textContent = 'Lösenordet är uppdaterat och du är inloggad.';
       completeAccountIntent();
     } catch (error) {
       if (message) message.textContent = 'Kunde inte kontakta servern.';

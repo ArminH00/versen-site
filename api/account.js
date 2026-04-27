@@ -2,7 +2,9 @@ const crypto = require('crypto');
 const {
   adminFetch,
   clearCustomerCookie,
+  getAdminAccessToken,
   getCookie,
+  getShopDomain,
   readBody,
   sendJson,
   setCustomerCookie,
@@ -57,6 +59,7 @@ const CUSTOMER_EXISTS_QUERY = `
       nodes {
         id
         email
+        firstName
       }
     }
   }
@@ -215,6 +218,85 @@ async function sendVerificationEmail(req, payload) {
   };
 }
 
+async function sendPasswordResetEmail(req, payload) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.VERSEN_EMAIL_FROM || 'Versen <hej@versen.se>';
+  const token = signPayload({
+    type: 'password_reset',
+    customerId: payload.customerId,
+    email: payload.email,
+    exp: Date.now() + (1000 * 60 * 30),
+    nonce: crypto.randomBytes(12).toString('hex'),
+  });
+
+  if (!token) {
+    return {
+      ok: false,
+      status: 500,
+      body: { error: 'Lösenordsåterställning saknar hemlighet i Vercel' },
+    };
+  }
+
+  const resetUrl = `${getBaseUrl(req)}/konto.html?reset=${encodeURIComponent(token)}`;
+
+  if (!apiKey) {
+    return {
+      ok: false,
+      status: 503,
+      body: { error: 'Emailutskick är inte konfigurerat ännu' },
+    };
+  }
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from,
+      to: [payload.email],
+      subject: 'Återställ ditt Versen-lösenord',
+      html: `
+        <div style="font-family:Inter,Arial,sans-serif;background:#0a0a0a;color:#fff;padding:32px">
+          <p style="letter-spacing:2px;text-transform:uppercase;color:#82f7d2;font-size:12px;margin:0 0 18px">Versen</p>
+          <h1 style="margin:0 0 12px">Återställ lösenord</h1>
+          <p style="color:#c9c9c9;line-height:1.5">Klicka på knappen för att välja ett nytt lösenord för ditt Versen-konto.</p>
+          <a href="${resetUrl}" style="display:inline-block;margin-top:18px;background:#fff;color:#000;padding:14px 22px;border-radius:999px;text-decoration:none;font-weight:700">Välj nytt lösenord</a>
+          <p style="color:#8d8d8d;margin-top:24px;font-size:13px">Länken gäller i 30 minuter. Om du inte bad om detta kan du ignorera mailet.</p>
+        </div>
+      `,
+      text: `Återställ ditt Versen-lösenord: ${resetUrl}`,
+    }),
+  });
+
+  if (!response.ok) {
+    let details = null;
+
+    try {
+      details = await response.json();
+    } catch (error) {
+      details = { message: 'Resend svarade inte med JSON' };
+    }
+
+    return {
+      ok: false,
+      status: response.status,
+      body: {
+        error: details.message || details.error || 'Kunde inte skicka återställningsmail',
+        provider: 'Resend',
+        details,
+      },
+    };
+  }
+
+  return {
+    ok: true,
+    status: 200,
+    body: { status: 'Återställningsmail skickat. Kontrollera inkorgen.' },
+  };
+}
+
 async function sendSupportEmail(res, body) {
   const name = clean(body.name, 120);
   const email = clean(body.email, 180).toLowerCase();
@@ -322,6 +404,11 @@ async function loginCustomer(res, email, password) {
 }
 
 async function customerExists(email) {
+  const customer = await findCustomerByEmail(email);
+  return customer ? true : customer;
+}
+
+async function findCustomerByEmail(email) {
   if (!email) {
     return false;
   }
@@ -333,7 +420,63 @@ async function customerExists(email) {
   }
 
   const customers = result.body.data.customers.nodes || [];
-  return customers.some((customer) => normalizeEmail(customer.email) === email);
+  return customers.find((customer) => normalizeEmail(customer.email) === email) || false;
+}
+
+function numericCustomerId(id) {
+  const match = String(id || '').match(/Customer\/(\d+)$/);
+  return match ? match[1] : null;
+}
+
+async function updateCustomerPassword(customerId, password) {
+  const domain = getShopDomain();
+  const token = await getAdminAccessToken();
+  const apiVersion = process.env.SHOPIFY_API_VERSION || '2026-04';
+  const numericId = numericCustomerId(customerId);
+
+  if (!domain || !token || !numericId) {
+    return {
+      ok: false,
+      status: 500,
+      body: { error: 'Shopify Admin API saknar konfiguration för lösenordsbyte' },
+    };
+  }
+
+  const response = await fetch(`https://${domain}/admin/api/${apiVersion}/customers/${numericId}.json`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Shopify-Access-Token': token,
+    },
+    body: JSON.stringify({
+      customer: {
+        id: Number(numericId),
+        password,
+        password_confirmation: password,
+      },
+    }),
+  });
+
+  let body = null;
+
+  try {
+    body = await response.json();
+  } catch (error) {
+    body = { error: 'Shopify svarade inte med JSON' };
+  }
+
+  if (!response.ok || body.errors) {
+    return {
+      ok: false,
+      status: response.status || 500,
+      body: {
+        error: 'Kunde inte uppdatera lösenordet i Shopify',
+        details: body,
+      },
+    };
+  }
+
+  return { ok: true, status: 200, body };
 }
 
 module.exports = async function handler(req, res) {
@@ -382,28 +525,49 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    const exists = await customerExists(email);
+    const customer = await findCustomerByEmail(email);
 
-    if (exists === false) {
+    if (customer === false) {
       sendJson(res, 404, { error: 'Kontot finns inte.' });
       return;
     }
 
-    const result = await shopifyFetch(CUSTOMER_RECOVER_MUTATION, { email });
+    if (customer === null) {
+      sendJson(res, 500, { error: 'Kunde inte kontrollera kontot just nu.' });
+      return;
+    }
+
+    const result = await sendPasswordResetEmail(req, {
+      customerId: customer.id,
+      email: customer.email,
+    });
+
+    sendJson(res, result.status, result.body);
+    return;
+  }
+
+  if (body.action === 'reset_password') {
+    const verified = verifyPayload(body.resetToken);
+    const password = String(body.password || '');
+
+    if (!verified || verified.type !== 'password_reset' || !verified.customerId || !verified.email) {
+      sendJson(res, 401, { error: 'Återställningslänken är ogiltig eller har gått ut' });
+      return;
+    }
+
+    if (password.length < 8) {
+      sendJson(res, 400, { error: 'Välj minst 8 tecken som lösenord' });
+      return;
+    }
+
+    const result = await updateCustomerPassword(verified.customerId, password);
 
     if (!result.ok) {
       sendJson(res, result.status, result.body);
       return;
     }
 
-    const errors = result.body.data.customerRecover.customerUserErrors;
-
-    if (errors.length) {
-      sendJson(res, 400, { error: errors[0].message });
-      return;
-    }
-
-    sendJson(res, 200, { status: 'Återställningsmail skickat. Kontrollera inkorgen.' });
+    await loginCustomer(res, verified.email, password);
     return;
   }
 
