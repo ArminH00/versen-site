@@ -35,6 +35,19 @@ button:disabled{
   display:none!important;
 }
 
+body.auth-loading .menu,
+body.auth-loading [data-guest-home],
+body.auth-loading [data-member-home],
+body.auth-loading [data-account-flow],
+body.auth-loading [data-account-area],
+body.auth-loading [data-membership-checkout],
+body.auth-loading [data-catalog-add],
+body.auth-loading [data-add-to-cart-button],
+body.auth-loading [data-cart-checkout],
+body.auth-loading [data-discount-form]{
+  visibility:hidden;
+}
+
 .nav{
   position:fixed;
   top:0;
