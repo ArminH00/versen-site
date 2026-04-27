@@ -32,7 +32,7 @@
     </div>
   </header>
 
-  <section class="account-flow fade" aria-label="Kontoflöde">
+  <section class="account-flow fade" aria-label="Kontoflöde" data-account-flow>
     <div class="flow-step active">
       <span>1</span>
       <p>Verifiera email</p>
@@ -48,6 +48,27 @@
   </section>
 
   <section class="account-grid fade" aria-label="Kontoinnehåll" data-account-area>
+    <article class="account-card account-overview" data-auth-card hidden>
+      <div class="status-pill is-active">Inloggad</div>
+      <h2 data-account-greeting>Hej</h2>
+      <p data-account-summary>Här ser du medlemskap, rabatter och senaste aktivitet.</p>
+
+      <div class="account-metrics">
+        <div class="account-metric">
+          <span>Medlemskap</span>
+          <strong data-dashboard-membership>Kontrollerar</strong>
+        </div>
+        <div class="account-metric">
+          <span>Rabatter</span>
+          <strong data-dashboard-discount>Låsta</strong>
+        </div>
+        <div class="account-metric">
+          <span>Ordrar</span>
+          <strong data-dashboard-orders>0</strong>
+        </div>
+      </div>
+    </article>
+
     <article class="account-card login-card" data-login-card>
       <h2>Logga in</h2>
       <p>Logga in med ditt Shopify-konto för att handla med medlemspris.</p>
@@ -76,15 +97,18 @@
       <p class="form-message" data-register-message>Har du redan verifierat email öppnas lösenordssteget automatiskt från länken.</p>
     </article>
 
-    <article class="account-card">
-      <h2>Medlemsstatus</h2>
+    <article class="account-card member-card" data-status-card hidden>
+      <h2>Medlemskap</h2>
       <div class="status-pill" data-member-status>Ej inloggad</div>
-      <p data-account-email>Logga in för att se kontot.</p>
-      <a class="product-btn secondary" href="medlemskap.html" data-membership-link hidden>Starta medlemskap</a>
-      <button class="product-btn secondary" type="button" data-logout-button hidden>Logga ut</button>
+      <p data-account-email>Kontrollerar konto.</p>
+      <p data-member-note>Medlemsrabatten låses upp när medlemskapet är aktivt.</p>
+      <div class="account-actions">
+        <a class="product-btn secondary" href="medlemskap.html" data-membership-link hidden>Starta medlemskap</a>
+        <button class="product-btn secondary" type="button" data-logout-button hidden>Logga ut</button>
+      </div>
     </article>
 
-    <article class="account-card order-card">
+    <article class="account-card order-card" data-orders-card hidden>
       <h2>Orderhistorik</h2>
       <div class="empty-state" data-orders-list>
         <span>Inga ordrar ännu</span>

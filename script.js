@@ -3,6 +3,11 @@ let accountSession = null;
 const pageParams = new URLSearchParams(window.location.search);
 const accountNext = pageParams.get('next') || '';
 const verificationToken = pageParams.get('verify') || '';
+const activeNavLink = document.querySelector('.menu a.active');
+
+if (activeNavLink) {
+  activeNavLink.scrollIntoView({ block: 'nearest', inline: 'center' });
+}
 
 const observer = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
@@ -517,12 +522,29 @@ function updateMemberStatus(session = accountSession) {
     return;
   }
 
+  const accountFlow = document.querySelector('[data-account-flow]');
+  const authCard = document.querySelector('[data-auth-card]');
+  const statusCard = document.querySelector('[data-status-card]');
+  const ordersCard = document.querySelector('[data-orders-card]');
   const email = document.querySelector('[data-account-email]');
   const logoutButton = document.querySelector('[data-logout-button]');
   const membershipLink = document.querySelector('[data-membership-link]');
+  const greeting = document.querySelector('[data-account-greeting]');
+  const summary = document.querySelector('[data-account-summary]');
+  const memberNote = document.querySelector('[data-member-note]');
+  const dashboardMembership = document.querySelector('[data-dashboard-membership]');
+  const dashboardDiscount = document.querySelector('[data-dashboard-discount]');
+  const dashboardOrders = document.querySelector('[data-dashboard-orders]');
 
   if (!session || !session.authenticated) {
     status.textContent = 'Ej inloggad';
+    status.classList.remove('is-active');
+    if (authCard) authCard.hidden = true;
+    if (statusCard) statusCard.hidden = true;
+    if (ordersCard) ordersCard.hidden = true;
+    if (accountFlow) accountFlow.hidden = false;
+    if (loginCard) loginCard.hidden = accountNext === 'membership' || Boolean(verificationToken);
+    if (createCard) createCard.hidden = false;
     if (email) email.textContent = 'Logga in för att se kontot.';
     if (logoutButton) logoutButton.hidden = true;
     if (membershipLink) membershipLink.hidden = true;
@@ -530,11 +552,32 @@ function updateMemberStatus(session = accountSession) {
     return;
   }
 
+  const firstName = session.customer.firstName || (session.customer.displayName || '').split(' ')[0] || 'där';
+  const orderCount = Number(session.customer.numberOfOrders || 0);
+  const hasMemberDiscount = Boolean(session.customer.member);
+
+  if (accountFlow) accountFlow.hidden = true;
+  if (authCard) authCard.hidden = false;
+  if (statusCard) statusCard.hidden = false;
+  if (ordersCard) ordersCard.hidden = false;
+  if (loginCard) loginCard.hidden = true;
+  if (createCard) createCard.hidden = true;
+
   status.textContent = session.customer.membershipStatus;
-  status.classList.toggle('is-active', Boolean(session.customer.member));
-  if (email) email.textContent = `${session.customer.email} · ${session.customer.displayName || 'Kund'}`;
+  status.classList.toggle('is-active', hasMemberDiscount);
+  if (greeting) greeting.textContent = `Hej ${firstName}`;
+  if (summary) summary.textContent = `${session.customer.email} är kopplat till ditt Versen-konto.`;
+  if (email) email.textContent = session.customer.email;
+  if (memberNote) {
+    memberNote.textContent = hasMemberDiscount
+      ? 'Medlemsrabatten är aktiv och används automatiskt i checkout.'
+      : 'Starta medlemskap för att låsa upp rabatterade priser i checkout.';
+  }
+  if (dashboardMembership) dashboardMembership.textContent = hasMemberDiscount ? 'Aktivt' : 'Ej aktivt';
+  if (dashboardDiscount) dashboardDiscount.textContent = hasMemberDiscount ? 'Upplåsta' : 'Låsta';
+  if (dashboardOrders) dashboardOrders.textContent = String(orderCount);
   if (logoutButton) logoutButton.hidden = false;
-  if (membershipLink) membershipLink.hidden = Boolean(session.customer.member);
+  if (membershipLink) membershipLink.hidden = hasMemberDiscount;
   renderOrders(session.customer.orders);
 }
 
