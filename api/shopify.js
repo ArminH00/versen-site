@@ -191,9 +191,11 @@ async function adminFetch(query, variables = {}) {
   const body = await response.json();
 
   if (!response.ok || body.errors) {
+    const denied = (body.errors || []).some((error) => error.extensions && error.extensions.code === 'ACCESS_DENIED');
+
     return {
       ok: false,
-      status: response.status || 500,
+      status: response.ok && denied ? 403 : (response.status || 500),
       body: {
         error: 'Shopify Admin API svarade med ett fel',
         details: body.errors || body,
