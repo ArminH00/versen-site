@@ -22,7 +22,7 @@
   </div>
 </nav>
 
-<header class="hero fade">
+<header class="hero fade" data-guest-home>
   <div class="glow"></div>
 
   <div class="hero-content">
@@ -38,7 +38,23 @@
   </div>
 </header>
 
-<section class="section fade" id="produkter">
+<header class="hero member-hero fade" data-member-home hidden>
+  <div class="glow"></div>
+
+  <div class="hero-content">
+    <div class="badge">Aktiv medlem</div>
+
+    <h1 data-member-home-title>Välkommen tillbaka</h1>
+
+    <p>
+      Dina medlemspriser är upplåsta. Fyll kundkorgen och gå vidare till checkout när du är klar.
+    </p>
+
+    <a class="cta" href="produkter.html">Handla produkter</a>
+  </div>
+</header>
+
+<section class="section fade" id="produkter" data-guest-home>
   <h2>Medlemspriser som känns direkt</h2>
   <p class="section-sub">
     Se exempel på hur mycket billigare produkter kan bli när du handlar som medlem.
@@ -74,7 +90,16 @@
   </div>
 </section>
 
-<section class="section fade">
+<section class="section member-shopping fade" data-member-home hidden>
+  <h2>Populärt för medlemmar</h2>
+  <p class="section-sub">
+    Snabba val med medlemspris direkt. Lägg till flera produkter och slutför allt i kundkorgen.
+  </p>
+
+  <div class="member-product-strip" data-member-products></div>
+</section>
+
+<section class="section fade" data-guest-home>
   <h2>Så funkar det</h2>
   <p class="section-sub">
     Enkelt. Snabbt. Och billigare varje gång.
@@ -101,7 +126,7 @@
   </div>
 </section>
 
-<section class="section fade" id="medlemskap">
+<section class="section fade" id="medlemskap" data-guest-home>
   <div class="lock-box">
     <div class="lock-icon">Låst</div>
     <h2>Butiken öppnas när du blir medlem</h2>
@@ -112,7 +137,7 @@
   </div>
 </section>
 
-<section class="final-cta fade">
+<section class="final-cta fade" data-guest-home>
   <h2>Betala mindre. Varje gång du handlar.</h2>
   <a class="cta" href="medlemskap.html">Starta medlemskap</a>
 </section>

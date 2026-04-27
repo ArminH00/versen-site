@@ -7,6 +7,20 @@ const CART_CREATE_MUTATION = `
       cart {
         id
         checkoutUrl
+        discountCodes {
+          code
+          applicable
+        }
+        cost {
+          subtotalAmount {
+            amount
+            currencyCode
+          }
+          totalAmount {
+            amount
+            currencyCode
+          }
+        }
       }
       userErrors {
         field
@@ -15,6 +29,41 @@ const CART_CREATE_MUTATION = `
     }
   }
 `;
+
+function normalizeDiscountCode(value) {
+  return String(value || '').trim().slice(0, 80);
+}
+
+function formatMoney(money) {
+  if (!money) return '';
+
+  const amount = Number(money.amount);
+  const currency = money.currencyCode === 'SEK' ? 'kr' : money.currencyCode;
+
+  if (Number.isNaN(amount)) {
+    return '';
+  }
+
+  return `${Math.round(amount)} ${currency}`;
+}
+
+function discountAmount(cost) {
+  if (!cost || !cost.subtotalAmount || !cost.totalAmount) {
+    return null;
+  }
+
+  const subtotal = Number(cost.subtotalAmount.amount);
+  const total = Number(cost.totalAmount.amount);
+
+  if (Number.isNaN(subtotal) || Number.isNaN(total)) {
+    return null;
+  }
+
+  return {
+    amount: Math.max(0, subtotal - total),
+    currencyCode: cost.totalAmount.currencyCode,
+  };
+}
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -48,13 +97,14 @@ module.exports = async function handler(req, res) {
   }
 
   const discountCode = process.env.SHOPIFY_MEMBER_DISCOUNT_CODE;
+  const requestedDiscountCode = normalizeDiscountCode(body.discountCode);
   const customerAccessToken = getCookie(req, 'versen_customer_token');
   const session = await getCustomerSession(customerAccessToken);
   const legacyMemberCode = process.env.VERSEN_MEMBER_ACCESS_CODE;
   const hasLegacyMembership = legacyMemberCode && body.memberCode === legacyMemberCode;
   const hasValidMembership = (session.authenticated && session.customer.member) || hasLegacyMembership;
 
-  if (discountCode && !hasValidMembership) {
+  if (!hasValidMembership) {
     sendJson(res, 401, {
       error: session.authenticated ? 'Aktivt medlemskap krävs' : 'Logga in som medlem först',
       membershipRequired: true,
@@ -67,8 +117,13 @@ module.exports = async function handler(req, res) {
     lines,
   };
 
-  if (discountCode) {
-    input.discountCodes = [discountCode];
+  const discountCodes = [discountCode, requestedDiscountCode]
+    .map(normalizeDiscountCode)
+    .filter(Boolean)
+    .filter((code, index, list) => list.findIndex((item) => item.toLowerCase() === code.toLowerCase()) === index);
+
+  if (discountCodes.length) {
+    input.discountCodes = discountCodes;
   }
 
   if (session.authenticated) {
@@ -95,5 +150,9 @@ module.exports = async function handler(req, res) {
   sendJson(res, 200, {
     cartId: payload.cart.id,
     checkoutUrl: payload.cart.checkoutUrl,
+    discountCodes: payload.cart.discountCodes || [],
+    subtotal: formatMoney(payload.cart.cost && payload.cart.cost.subtotalAmount),
+    total: formatMoney(payload.cart.cost && payload.cart.cost.totalAmount),
+    discountTotal: formatMoney(discountAmount(payload.cart.cost)),
   });
 };

@@ -1,4 +1,5 @@
 const CART_KEY = 'versenCart';
+const DISCOUNT_KEY = 'versenDiscountCode';
 let accountSession = null;
 const pageParams = new URLSearchParams(window.location.search);
 const accountNext = pageParams.get('next') || '';
@@ -40,6 +41,7 @@ function readCart() {
 function writeCart(cart) {
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
   updateCartCount();
+  syncShoppingAccess();
 }
 
 function cartQuantity(cart = readCart()) {
@@ -73,6 +75,115 @@ function updateCartCount() {
   document.querySelectorAll('[data-cart-count]').forEach((element) => {
     element.textContent = count ? `(${count})` : '';
   });
+}
+
+function isActiveMember(session = accountSession) {
+  return Boolean(session && session.authenticated && session.customer && session.customer.member);
+}
+
+function readDiscountCode() {
+  return localStorage.getItem(DISCOUNT_KEY) || '';
+}
+
+function writeDiscountCode(code) {
+  const value = String(code || '').trim();
+
+  if (value) {
+    localStorage.setItem(DISCOUNT_KEY, value);
+  } else {
+    localStorage.removeItem(DISCOUNT_KEY);
+  }
+}
+
+function applyGlobalSessionUi(session = accountSession) {
+  const authenticated = Boolean(session && session.authenticated);
+  const member = isActiveMember(session);
+  const firstName = authenticated
+    ? (session.customer.firstName || (session.customer.displayName || '').split(' ')[0] || '')
+    : '';
+
+  document.body.classList.toggle('is-authenticated', authenticated);
+  document.body.classList.toggle('is-member', member);
+
+  document.querySelectorAll('a[href="medlemskap.html"], a[href^="medlemskap.html?"]').forEach((link) => {
+    link.hidden = member;
+  });
+
+  document.querySelectorAll('[data-guest-home]').forEach((element) => {
+    element.hidden = member;
+  });
+
+  document.querySelectorAll('[data-member-home]').forEach((element) => {
+    element.hidden = !member;
+  });
+
+  setText('[data-member-home-title]', firstName ? `Välkommen tillbaka, ${firstName}` : 'Välkommen tillbaka');
+  setText('[data-account-hero-title]', member ? 'Ditt medlemskonto' : 'Din medlemsyta');
+  setText(
+    '[data-account-hero-copy]',
+    member
+      ? 'Medlemskapet är aktivt. Här ser du status, rabatter och senaste aktivitet.'
+      : 'Verifiera email, skapa lösenord och hantera medlemskap kopplat till Shopify.'
+  );
+
+  document.querySelectorAll('.menu a[href="konto.html"]').forEach((link) => {
+    link.textContent = authenticated && firstName ? firstName : 'Konto';
+  });
+}
+
+function syncShoppingAccess() {
+  const member = isActiveMember();
+  const cart = readCart();
+  const discountInput = document.querySelector('[data-discount-code]');
+  const discountFormButton = document.querySelector('[data-discount-form] button');
+  const cartStatus = document.querySelector('[data-cart-status]');
+  const cartHelp = document.querySelector('[data-cart-help]');
+  const membershipCheckout = document.querySelector('[data-membership-checkout]');
+  const membershipMessage = document.querySelector('[data-membership-message]');
+
+  document.querySelectorAll('[data-catalog-add]').forEach((button) => {
+    button.disabled = !member;
+    button.textContent = member ? 'Lägg i kundkorg' : 'Kräver medlemskap';
+  });
+
+  const detailAddButton = document.querySelector('[data-add-to-cart-button]');
+  if (detailAddButton) {
+    detailAddButton.disabled = !member;
+    detailAddButton.textContent = member ? 'Lägg i kundkorg' : 'Kräver medlemskap';
+  }
+
+  const checkoutButton = document.querySelector('[data-cart-checkout]');
+  if (checkoutButton) {
+    checkoutButton.disabled = !cart.length || !member;
+  }
+
+  if (discountInput) {
+    discountInput.disabled = !member || !cart.length;
+    if (!discountInput.value) discountInput.value = readDiscountCode();
+  }
+
+  if (discountFormButton) {
+    discountFormButton.disabled = !member || !cart.length;
+  }
+
+  if (cartStatus) {
+    cartStatus.textContent = member ? 'Redo för checkout' : 'Medlemskap krävs';
+    cartStatus.classList.toggle('is-active', member);
+  }
+
+  if (cartHelp) {
+    cartHelp.textContent = member
+      ? 'Rabattkoder kontrolleras här och följer med till Shopify checkout.'
+      : 'Aktivt betalande medlemskap krävs innan du kan lägga till produkter eller gå till checkout.';
+  }
+
+  if (membershipCheckout) {
+    membershipCheckout.hidden = member;
+  }
+
+  if (membershipMessage && member) {
+    membershipMessage.textContent = 'Du har redan ett aktivt medlemskap. Fortsätt till produkterna.';
+  }
 }
 
 function addToCart(product, quantity = 1) {
@@ -194,12 +305,45 @@ async function loadProducts() {
     }
 
     grid.innerHTML = visibleProducts.map(productCard).join('');
+    syncShoppingAccess();
   } catch (error) {
     return;
   }
 }
 
 loadProducts();
+
+async function loadMemberHomeProducts() {
+  const grid = document.querySelector('[data-member-products]');
+
+  if (!grid) {
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/products');
+
+    if (!response.ok) {
+      return;
+    }
+
+    const data = await response.json();
+    const products = (data.products || [])
+      .filter((product) => product.handle !== 'medlemskap')
+      .slice(0, 3);
+
+    if (!products.length) {
+      return;
+    }
+
+    grid.innerHTML = products.map(productCard).join('');
+    syncShoppingAccess();
+  } catch (error) {
+    return;
+  }
+}
+
+loadMemberHomeProducts();
 
 function setText(selector, value) {
   const element = document.querySelector(selector);
@@ -235,6 +379,8 @@ function setProductDetail(product) {
   if (image && product.image && product.image.url) {
     image.innerHTML = `<img src="${escapeHtml(product.image.url)}" alt="${escapeHtml(product.image.altText || product.title)}">`;
   }
+
+  syncShoppingAccess();
 }
 
 async function loadProductDetail() {
@@ -308,6 +454,13 @@ if (addToCartButton) {
     const message = document.querySelector('[data-checkout-message]');
     const quantity = quantityInput ? Number(quantityInput.value) : 1;
 
+    if (!isActiveMember()) {
+      if (message) message.textContent = accountSession && accountSession.authenticated
+        ? 'Aktivt betalande medlemskap krävs för att lägga till produkter.'
+        : 'Logga in och starta medlemskap innan du lägger till produkter.';
+      return;
+    }
+
     if (!product) {
       if (message) message.textContent = 'Produkten är inte redo för kundkorgen ännu.';
       return;
@@ -379,10 +532,11 @@ function renderCart() {
 
   const checkoutButton = document.querySelector('[data-cart-checkout]');
   if (checkoutButton) {
-    checkoutButton.disabled = !cart.length;
+    checkoutButton.disabled = !cart.length || !isActiveMember();
   }
 
   updateCartCount();
+  syncShoppingAccess();
 }
 
 document.addEventListener('click', (event) => {
@@ -393,6 +547,12 @@ document.addEventListener('click', (event) => {
 
   if (catalogAddButton) {
     const card = catalogAddButton.closest('[data-variant-id]');
+
+    if (!isActiveMember()) {
+      catalogAddButton.textContent = 'Medlemskap krävs';
+      window.setTimeout(syncShoppingAccess, 1200);
+      return;
+    }
 
     if (card && card.dataset.variantId) {
       addToCart({
@@ -452,6 +612,14 @@ if (cartCheckoutButton) {
       return;
     }
 
+    if (!isActiveMember()) {
+      if (message) message.textContent = accountSession && accountSession.authenticated
+        ? 'Aktivt betalande medlemskap krävs innan checkout.'
+        : 'Logga in och starta medlemskap innan checkout.';
+      syncShoppingAccess();
+      return;
+    }
+
     cartCheckoutButton.disabled = true;
     cartCheckoutButton.textContent = 'Skapar checkout...';
     if (message) message.textContent = '';
@@ -468,6 +636,7 @@ if (cartCheckoutButton) {
             variantId: item.variantId,
             quantity: item.quantity,
           })),
+          discountCode: readDiscountCode(),
         }),
       });
 
@@ -488,6 +657,75 @@ if (cartCheckoutButton) {
     } finally {
       cartCheckoutButton.disabled = false;
       cartCheckoutButton.textContent = 'Gå till checkout';
+    }
+  });
+}
+
+const discountForm = document.querySelector('[data-discount-form]');
+
+if (discountForm) {
+  const input = document.querySelector('[data-discount-code]');
+  const message = document.querySelector('[data-discount-message]');
+
+  discountForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const cart = readCart();
+    const code = input ? input.value.trim() : '';
+
+    if (!cart.length) {
+      if (message) message.textContent = 'Lägg till en produkt innan du kontrollerar rabattkod.';
+      return;
+    }
+
+    if (!isActiveMember()) {
+      if (message) message.textContent = 'Aktivt medlemskap krävs för att använda rabattkod.';
+      return;
+    }
+
+    if (!code) {
+      writeDiscountCode('');
+      if (message) message.textContent = 'Rabattkod borttagen.';
+      return;
+    }
+
+    if (message) message.textContent = 'Kontrollerar rabattkod...';
+
+    try {
+      const response = await fetch('/api/cart', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          items: cart.map((item) => ({
+            variantId: item.variantId,
+            quantity: item.quantity,
+          })),
+          discountCode: code,
+          validateOnly: true,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (message) message.textContent = data.error || 'Kunde inte kontrollera rabattkod.';
+        return;
+      }
+
+      const match = (data.discountCodes || []).find((item) => item.code.toLowerCase() === code.toLowerCase());
+
+      if (match && match.applicable) {
+        writeDiscountCode(code);
+        if (message) message.textContent = `Rabattkoden är aktiv. Beräknad rabatt: ${data.discountTotal || 'bekräftas i checkout'}.`;
+      } else {
+        writeDiscountCode('');
+        if (message) message.textContent = 'Rabattkoden gäller inte för den här kundkorgen.';
+      }
+    } catch (error) {
+      if (message) message.textContent = 'Kunde inte kontakta Shopify.';
     }
   });
 }
@@ -516,6 +754,9 @@ function renderOrders(orders) {
 }
 
 function updateMemberStatus(session = accountSession) {
+  applyGlobalSessionUi(session);
+  syncShoppingAccess();
+
   const status = document.querySelector('[data-member-status]');
 
   if (!status) {
@@ -582,16 +823,16 @@ function updateMemberStatus(session = accountSession) {
 }
 
 function completeAccountIntent() {
-  if (accountNext === 'membership') {
+  if (isActiveMember()) {
+    window.location.href = 'index.html';
+  } else if (accountNext === 'membership') {
     window.location.href = 'medlemskap.html?ready=1';
+  } else {
+    window.location.href = 'index.html';
   }
 }
 
 async function refreshAccount() {
-  if (!document.querySelector('[data-account-area]') && !document.querySelector('[data-membership-checkout]')) {
-    return;
-  }
-
   try {
     const response = await fetch('/api/account', { credentials: 'same-origin' });
     accountSession = await response.json();
@@ -835,6 +1076,8 @@ if (adminForm) {
   });
 }
 
+applyGlobalSessionUi({ authenticated: false });
 renderCart();
 updateCartCount();
+syncShoppingAccess();
 refreshAccount();

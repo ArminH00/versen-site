@@ -46,7 +46,15 @@
         <span>Medlemspris</span>
         <strong data-cart-total>0 kr</strong>
       </div>
-      <p>Rabatt och frakt bekräftas i Shopify checkout. Medlemskap krävs för att gå vidare.</p>
+      <form class="discount-form" data-discount-form>
+        <label for="discount-code">Rabattkod</label>
+        <div class="discount-row">
+          <input id="discount-code" type="text" name="discountCode" placeholder="Ange kod" autocomplete="off" data-discount-code>
+          <button class="product-btn secondary" type="submit">Kontrollera</button>
+        </div>
+        <p class="form-message" data-discount-message></p>
+      </form>
+      <p data-cart-help>Rabatt och frakt bekräftas i Shopify checkout. Aktivt medlemskap krävs för att gå vidare.</p>
       <button class="cta cart-checkout" type="button" data-cart-checkout>Gå till checkout</button>
       <p class="form-message" data-cart-message></p>
     </aside>

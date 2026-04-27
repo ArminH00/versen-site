@@ -39,6 +39,13 @@ function membershipTags() {
     .filter(Boolean);
 }
 
+function emailList(value, fallback = '') {
+  return String(value || fallback)
+    .split(',')
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean);
+}
+
 function formatPrice(price) {
   if (!price) return '';
 
@@ -55,7 +62,13 @@ function formatPrice(price) {
 function normalizeCustomer(customer, rechargeActive = false) {
   const tags = customer.tags || [];
   const tagMatch = tags.some((tag) => membershipTags().includes(String(tag).toLowerCase()));
-  const member = Boolean(tagMatch || rechargeActive);
+  const email = String(customer.email || '').toLowerCase();
+  const forcedMembers = emailList(process.env.VERSEN_TEST_MEMBER_EMAILS, 'armin@hurtic.com');
+  const forcedNonMembers = emailList(process.env.VERSEN_TEST_NON_MEMBER_EMAILS, 'armin.hurtic@icloud.com');
+  const forcedMember = forcedMembers.includes(email);
+  const forcedNonMember = forcedNonMembers.includes(email);
+  const member = forcedNonMember ? false : Boolean(tagMatch || rechargeActive || forcedMember);
+  const membershipSource = forcedMember ? 'Test' : (rechargeActive ? 'Recharge' : (tagMatch ? 'Shopify' : null));
 
   return {
     id: customer.id,
@@ -65,7 +78,7 @@ function normalizeCustomer(customer, rechargeActive = false) {
     email: customer.email,
     tags,
     member,
-    membershipSource: rechargeActive ? 'Recharge' : (tagMatch ? 'Shopify' : null),
+    membershipSource,
     membershipStatus: member ? 'Aktiv medlem' : 'Inget aktivt medlemskap',
     numberOfOrders: customer.numberOfOrders,
     orders: ((customer.orders && customer.orders.nodes) || []).map((order) => ({
