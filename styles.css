@@ -951,6 +951,10 @@ body.auth-loading [data-discount-form]{
   gap:12px;
 }
 
+.admin-dashboard > .admin-kpis{
+  grid-column:1 / -1;
+}
+
 .admin-kpis .account-card{
   display:grid;
   gap:8px;
@@ -1350,10 +1354,15 @@ body.auth-loading [data-discount-form]{
 
   .admin-dashboard{
     grid-template-columns:repeat(3,1fr);
+    align-items:start;
   }
 
   .admin-dashboard .admin-card-wide{
     grid-column:span 2;
+  }
+
+  .admin-dashboard > .account-card{
+    min-width:0;
   }
 
   .account-flow{
