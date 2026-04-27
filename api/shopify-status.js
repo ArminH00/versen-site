@@ -41,6 +41,30 @@ const ORDERS_QUERY = `
   }
 `;
 
+const MEMBERSHIP_PRODUCT_QUERY = `
+  query VersenMembershipStatus($handle: String!) {
+    product(handle: $handle) {
+      id
+      title
+      handle
+      variants(first: 5) {
+        nodes {
+          id
+          title
+          sellingPlanAllocations(first: 5) {
+            nodes {
+              sellingPlan {
+                id
+                name
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
 function hasSecret(req) {
   const secret = process.env.VERSEN_ADMIN_SECRET || process.env.VERSEN_SETUP_SECRET;
   const header = req.headers.authorization || '';
@@ -174,6 +198,40 @@ async function getOrderStatus(req) {
   };
 }
 
+async function getMembershipProductStatus() {
+  const handle = process.env.VERSEN_MEMBERSHIP_PRODUCT_HANDLE || 'medlemskap';
+  const result = await shopifyFetch(MEMBERSHIP_PRODUCT_QUERY, { handle });
+
+  if (!result.ok) {
+    return {
+      handle,
+      lookupWorking: false,
+      productFound: false,
+      sellingPlanFound: false,
+      error: result.body,
+    };
+  }
+
+  const product = result.body.data.product;
+  const variants = product ? product.variants.nodes.map((variant) => ({
+    id: variant.id,
+    title: variant.title,
+    sellingPlans: variant.sellingPlanAllocations.nodes.map((allocation) => ({
+      id: allocation.sellingPlan.id,
+      name: allocation.sellingPlan.name,
+    })),
+  })) : [];
+
+  return {
+    handle,
+    lookupWorking: true,
+    productFound: Boolean(product),
+    title: product ? product.title : null,
+    sellingPlanFound: variants.some((variant) => variant.sellingPlans.length > 0),
+    variants,
+  };
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') {
     sendJson(res, 405, { error: 'Metoden stöds inte' });
@@ -185,6 +243,7 @@ module.exports = async function handler(req, res) {
   const storefront = await shopifyFetch(SHOP_QUERY);
   const recharge = req.query.recharge === '1' ? await getRechargeStatus(req) : null;
   const orders = req.query.orders === '1' ? await getOrderStatus(req) : null;
+  const membershipProduct = req.query.membershipProduct === '1' ? await getMembershipProductStatus() : null;
 
   sendJson(res, storefront.ok ? 200 : 500, {
     shopDomainConfigured: Boolean(domain),
@@ -194,6 +253,7 @@ module.exports = async function handler(req, res) {
     storefrontWorking: storefront.ok,
     recharge,
     orders,
+    membershipProduct,
     shop: storefront.ok ? storefront.body.data.shop : null,
     error: storefront.ok ? null : storefront.body,
   });
