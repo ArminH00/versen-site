@@ -107,6 +107,13 @@ module.exports = async function handler(req, res) {
   const sellingPlanId = process.env.SHOPIFY_MEMBERSHIP_SELLING_PLAN_ID
     || (variant.sellingPlanAllocations && variant.sellingPlanAllocations.nodes[0] && variant.sellingPlanAllocations.nodes[0].sellingPlan.id);
 
+  if (!sellingPlanId) {
+    sendJson(res, 409, {
+      error: 'Medlemskapsplan saknas i Shopify. Koppla produkten till ReCharge eller ange SHOPIFY_MEMBERSHIP_SELLING_PLAN_ID innan medlemskap kan säljas.',
+    });
+    return;
+  }
+
   const line = {
     merchandiseId: variant.id,
     quantity: 1,
