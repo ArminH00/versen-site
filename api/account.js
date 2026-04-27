@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const {
+  adminFetch,
   clearCustomerCookie,
   getCookie,
   readBody,
@@ -50,8 +51,36 @@ const CUSTOMER_RECOVER_MUTATION = `
   }
 `;
 
+const CUSTOMER_EXISTS_QUERY = `
+  query VersenCustomerExists($query: String!) {
+    customers(first: 1, query: $query) {
+      nodes {
+        id
+        email
+      }
+    }
+  }
+`;
+
 function normalizeEmail(email) {
   return String(email || '').trim().toLowerCase();
+}
+
+function clean(value, maxLength = 4000) {
+  return String(value || '').trim().slice(0, maxLength);
+}
+
+function isEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || '').trim());
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 function getBaseUrl(req) {
@@ -186,10 +215,86 @@ async function sendVerificationEmail(req, payload) {
   };
 }
 
+async function sendSupportEmail(res, body) {
+  const name = clean(body.name, 120);
+  const email = clean(body.email, 180).toLowerCase();
+  const topic = clean(body.topic, 80) || 'Support';
+  const order = clean(body.order, 80);
+  const message = clean(body.message, 3000);
+
+  if (!name || !isEmail(email) || !message) {
+    sendJson(res, 400, { error: 'Fyll i namn, giltig email och meddelande.' });
+    return;
+  }
+
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.VERSEN_EMAIL_FROM || 'Versen <hej@versen.se>';
+  const supportEmail = process.env.VERSEN_SUPPORT_EMAIL || 'hej@versen.se';
+
+  if (!apiKey) {
+    sendJson(res, 503, { error: 'Supportmail är inte konfigurerat ännu.' });
+    return;
+  }
+
+  const safe = {
+    name: escapeHtml(name),
+    email: escapeHtml(email),
+    topic: escapeHtml(topic),
+    order: escapeHtml(order),
+    message: escapeHtml(message).replace(/\n/g, '<br>'),
+  };
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from,
+      to: [supportEmail],
+      reply_to: email,
+      subject: `Versen support: ${topic}`,
+      html: `
+        <div style="font-family:Arial,sans-serif;background:#090a0d;color:#fff;padding:28px">
+          <h1 style="margin:0 0 16px">Nytt supportärende</h1>
+          <p><strong>Namn:</strong> ${safe.name}</p>
+          <p><strong>Email:</strong> ${safe.email}</p>
+          <p><strong>Ärende:</strong> ${safe.topic}</p>
+          ${order ? `<p><strong>Order:</strong> ${safe.order}</p>` : ''}
+          <div style="margin-top:18px;padding:18px;border:1px solid rgba(255,255,255,.15);border-radius:14px;background:rgba(255,255,255,.05)">
+            ${safe.message}
+          </div>
+        </div>
+      `,
+      text: `Nytt supportärende\n\nNamn: ${name}\nEmail: ${email}\nÄrende: ${topic}\n${order ? `Order: ${order}\n` : ''}\n${message}`,
+    }),
+  });
+
+  if (!response.ok) {
+    let details = null;
+
+    try {
+      details = await response.json();
+    } catch (error) {
+      details = { message: 'Resend svarade inte med JSON' };
+    }
+
+    sendJson(res, response.status, {
+      error: details.message || details.error || 'Kunde inte skicka supportärendet.',
+      details,
+    });
+    return;
+  }
+
+  sendJson(res, 200, { status: 'Meddelandet är skickat. Vi återkommer via email.' });
+}
+
 async function loginCustomer(res, email, password) {
+  const normalizedEmail = normalizeEmail(email);
   const result = await shopifyFetch(CUSTOMER_LOGIN_MUTATION, {
     input: {
-      email: normalizeEmail(email),
+      email: normalizedEmail,
       password: String(password || ''),
     },
   });
@@ -202,8 +307,11 @@ async function loginCustomer(res, email, password) {
   const payload = result.body.data.customerAccessTokenCreate;
 
   if (payload.customerUserErrors.length || !payload.customerAccessToken) {
+    const accountExists = await customerExists(normalizedEmail);
+
     sendJson(res, 401, {
-      error: payload.customerUserErrors[0] ? payload.customerUserErrors[0].message : 'Kunde inte logga in',
+      error: accountExists === false ? 'Kontot finns inte.' : 'Fel lösenord.',
+      reason: accountExists === false ? 'account_not_found' : 'invalid_password',
     });
     return;
   }
@@ -211,6 +319,21 @@ async function loginCustomer(res, email, password) {
   setCustomerCookie(res, payload.customerAccessToken.accessToken, payload.customerAccessToken.expiresAt);
   const session = await getCustomerSession(payload.customerAccessToken.accessToken);
   sendJson(res, 200, session);
+}
+
+async function customerExists(email) {
+  if (!email) {
+    return false;
+  }
+
+  const result = await adminFetch(CUSTOMER_EXISTS_QUERY, { query: `email:${email}` });
+
+  if (!result.ok) {
+    return null;
+  }
+
+  const customers = result.body.data.customers.nodes || [];
+  return customers.some((customer) => normalizeEmail(customer.email) === email);
 }
 
 module.exports = async function handler(req, res) {
@@ -246,11 +369,23 @@ module.exports = async function handler(req, res) {
     return;
   }
 
+  if (body.action === 'contact') {
+    await sendSupportEmail(res, body);
+    return;
+  }
+
   if (body.action === 'recover') {
     const email = normalizeEmail(body.email);
 
     if (!email) {
       sendJson(res, 400, { error: 'Ange email' });
+      return;
+    }
+
+    const exists = await customerExists(email);
+
+    if (exists === false) {
+      sendJson(res, 404, { error: 'Kontot finns inte.' });
       return;
     }
 
@@ -268,7 +403,7 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    sendJson(res, 200, { status: 'Om kontot finns skickas ett mail för att återställa lösenordet.' });
+    sendJson(res, 200, { status: 'Återställningsmail skickat. Kontrollera inkorgen.' });
     return;
   }
 

@@ -900,6 +900,39 @@ body.auth-loading [data-discount-form]{
   max-width:100%;
 }
 
+.contact-card a{
+  color:#82f7d2;
+}
+
+.contact-form{
+  margin-top:8px;
+}
+
+.contact-form textarea,
+.contact-form select{
+  width:100%;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:14px;
+  background:rgba(255,255,255,.055);
+  color:#fff;
+  padding:14px 16px;
+  font:inherit;
+  outline:none;
+}
+
+.contact-form textarea{
+  min-height:150px;
+  resize:vertical;
+}
+
+.contact-form select{
+  appearance:none;
+}
+
+.contact-form select option{
+  color:#111;
+}
+
 .site-footer{
   padding:34px 20px 44px;
   border-top:1px solid rgba(255,255,255,.08);

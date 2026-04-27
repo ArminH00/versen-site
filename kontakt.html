@@ -34,8 +34,22 @@
   <section class="legal-section fade">
     <article class="legal-card contact-card">
       <h2>Support</h2>
-      <p>Email för support läggs in när domänen är köpt och Resend-domänen är verifierad.</p>
-      <a class="product-btn" href="konto.html">Gå till konto</a>
+      <p>Maila oss direkt på <a href="mailto:hej@versen.se">hej@versen.se</a> eller skicka ett ärende här.</p>
+      <form class="member-form contact-form" data-contact-form>
+        <input type="text" name="name" placeholder="Namn" autocomplete="name" required>
+        <input type="email" name="email" placeholder="Email" autocomplete="email" required>
+        <select name="topic" aria-label="Ärende">
+          <option value="Order">Order</option>
+          <option value="Medlemskap">Medlemskap</option>
+          <option value="Konto">Konto</option>
+          <option value="Retur">Retur</option>
+          <option value="Annat">Annat</option>
+        </select>
+        <input type="text" name="order" placeholder="Ordernummer om du har ett">
+        <textarea name="message" placeholder="Beskriv vad du behöver hjälp med" rows="6" required></textarea>
+        <button class="product-btn" type="submit">Skicka till support</button>
+      </form>
+      <p class="form-message" data-contact-message></p>
     </article>
     <article class="legal-card">
       <h2>Inför kontakt</h2>

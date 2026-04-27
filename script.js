@@ -1087,6 +1087,40 @@ if (recoverButton) {
   });
 }
 
+const contactForm = document.querySelector('[data-contact-form]');
+
+if (contactForm) {
+  const message = document.querySelector('[data-contact-message]');
+
+  contactForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(contactForm);
+    if (message) message.textContent = 'Skickar ärendet...';
+
+    try {
+      const { response, data } = await postJson('/api/account', {
+        action: 'contact',
+        name: formData.get('name'),
+        email: formData.get('email'),
+        topic: formData.get('topic'),
+        order: formData.get('order'),
+        message: formData.get('message'),
+      });
+
+      if (!response.ok) {
+        if (message) message.textContent = data.error || 'Kunde inte skicka ärendet.';
+        return;
+      }
+
+      contactForm.reset();
+      if (message) message.textContent = data.status || 'Meddelandet är skickat.';
+    } catch (error) {
+      if (message) message.textContent = 'Kunde inte kontakta servern.';
+    }
+  });
+}
+
 const logoutButton = document.querySelector('[data-logout-button]');
 
 if (logoutButton) {
