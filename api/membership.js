@@ -1,4 +1,4 @@
-const { getCookie, sendJson, shopifyFetch } = require('./shopify');
+const { adminFetch, getCookie, sendJson, shopifyFetch } = require('./shopify');
 
 const CUSTOMER_QUERY = `
   query VersenCustomer($customerAccessToken: String!) {
@@ -25,6 +25,31 @@ const CUSTOMER_QUERY = `
               title
               quantity
             }
+          }
+        }
+      }
+    }
+  }
+`;
+
+const CUSTOMER_ORDERS_QUERY = `
+  query VersenCustomerOrders($query: String!) {
+    orders(first: 8, query: $query, sortKey: CREATED_AT, reverse: true) {
+      nodes {
+        id
+        name
+        email
+        createdAt
+        currentTotalPriceSet {
+          shopMoney {
+            amount
+            currencyCode
+          }
+        }
+        lineItems(first: 4) {
+          nodes {
+            name
+            quantity
           }
         }
       }
@@ -59,7 +84,29 @@ function formatPrice(price) {
   return `${Math.round(amount)} ${currency}`;
 }
 
-function normalizeCustomer(customer, rechargeActive = false) {
+function normalizeStorefrontOrders(customer) {
+  return ((customer.orders && customer.orders.nodes) || []).map((order) => ({
+    id: order.id,
+    name: order.name,
+    processedAt: order.processedAt,
+    statusUrl: order.statusUrl,
+    total: formatPrice(order.totalPrice),
+    items: order.lineItems.nodes.map((item) => `${item.quantity} x ${item.title}`),
+  }));
+}
+
+function normalizeAdminOrders(orders) {
+  return (orders || []).map((order) => ({
+    id: order.id,
+    name: order.name,
+    processedAt: order.createdAt,
+    statusUrl: '',
+    total: formatPrice(order.currentTotalPriceSet && order.currentTotalPriceSet.shopMoney),
+    items: order.lineItems.nodes.map((item) => `${item.quantity} x ${item.name}`),
+  }));
+}
+
+function normalizeCustomer(customer, rechargeActive = false, adminOrders = null) {
   const tags = customer.tags || [];
   const tagMatch = tags.some((tag) => membershipTags().includes(String(tag).toLowerCase()));
   const email = String(customer.email || '').toLowerCase();
@@ -80,16 +127,23 @@ function normalizeCustomer(customer, rechargeActive = false) {
     member,
     membershipSource,
     membershipStatus: member ? 'Aktiv medlem' : 'Inget aktivt medlemskap',
-    numberOfOrders: customer.numberOfOrders,
-    orders: ((customer.orders && customer.orders.nodes) || []).map((order) => ({
-      id: order.id,
-      name: order.name,
-      processedAt: order.processedAt,
-      statusUrl: order.statusUrl,
-      total: formatPrice(order.totalPrice),
-      items: order.lineItems.nodes.map((item) => `${item.quantity} x ${item.title}`),
-    })),
+    numberOfOrders: Math.max(Number(customer.numberOfOrders || 0), adminOrders ? adminOrders.length : 0),
+    orders: adminOrders && adminOrders.length ? normalizeAdminOrders(adminOrders) : normalizeStorefrontOrders(customer),
   };
+}
+
+async function getRecentOrdersByEmail(email) {
+  if (!email) {
+    return null;
+  }
+
+  const result = await adminFetch(CUSTOMER_ORDERS_QUERY, { query: `email:${String(email).toLowerCase()}` });
+
+  if (!result.ok) {
+    return null;
+  }
+
+  return result.body.data.orders.nodes || [];
 }
 
 async function checkRechargeMembership(email) {
@@ -162,11 +216,14 @@ async function getCustomerSession(customerAccessToken) {
     };
   }
 
-  const rechargeActive = await checkRechargeMembership(result.body.data.customer.email);
+  const [rechargeActive, adminOrders] = await Promise.all([
+    checkRechargeMembership(result.body.data.customer.email),
+    getRecentOrdersByEmail(result.body.data.customer.email),
+  ]);
 
   return {
     authenticated: true,
-    customer: normalizeCustomer(result.body.data.customer, rechargeActive),
+    customer: normalizeCustomer(result.body.data.customer, rechargeActive, adminOrders),
   };
 }
 

@@ -842,6 +842,19 @@ function renderOrders(orders) {
   `).join('');
 }
 
+function orderTime(order) {
+  const value = order && (order.processedAt || order.createdAt);
+  const time = value ? new Date(value).getTime() : 0;
+
+  return Number.isNaN(time) ? 0 : time;
+}
+
+function pendingCheckoutTime(pending) {
+  const time = pending && pending.startedAt ? new Date(pending.startedAt).getTime() : 0;
+
+  return Number.isNaN(time) ? 0 : time;
+}
+
 function updateMemberStatus(session = accountSession) {
   applyGlobalSessionUi(session);
   syncShoppingAccess();
@@ -1141,11 +1154,13 @@ function renderOrderPage(session = accountSession) {
   const latestOrder = session && session.authenticated && session.customer && session.customer.orders
     ? session.customer.orders[0]
     : null;
+  const pendingStartedAt = pendingCheckoutTime(pending);
+  const latestIsFresh = latestOrder && (!pendingStartedAt || orderTime(latestOrder) >= pendingStartedAt - 30000);
   const title = document.querySelector('[data-order-title]');
   const copy = document.querySelector('[data-order-copy]');
   const details = document.querySelector('[data-order-details]');
 
-  if (latestOrder) {
+  if (latestIsFresh) {
     clearPendingCheckout();
     if (title) title.textContent = 'Ordern är mottagen';
     if (copy) copy.textContent = 'Vi hittade din senaste order på kontot. Du kan fortsätta handla eller öppna orderstatus från Shopify vid behov.';
@@ -1165,7 +1180,7 @@ function renderOrderPage(session = accountSession) {
   if (title) title.textContent = pending ? 'Checkout är öppnad' : 'Orderstatus';
   if (copy) {
     copy.textContent = pending
-      ? 'Slutför betalningen i Shopify-fliken. När du kommer tillbaka hit kan du uppdatera statusen.'
+      ? 'Slutför betalningen i Shopify-fliken. Vi väntar på nästa order från Shopify, så vi visar inte en äldre order av misstag.'
       : 'Logga in eller gå till konto för att se senaste ordern.';
   }
   if (details) {
@@ -1173,7 +1188,7 @@ function renderOrderPage(session = accountSession) {
       <div class="order-success-card">
         <span>${pending ? 'Väntar på Shopify' : 'Ingen aktiv checkout'}</span>
         <strong>${pending && pending.type === 'medlemskap' ? 'Medlemskap' : 'Produktorder'}</strong>
-        <p>${pending ? 'När betalningen är klar syns ordern på kontot efter en kort stund.' : 'Dina orders visas automatiskt när du är inloggad.'}</p>
+        <p>${pending ? 'När betalningen är klar syns ordern här efter en kort stund. Den här rutan uppdateras automatiskt.' : 'Dina orders visas automatiskt när du är inloggad.'}</p>
         <div class="account-actions">
           <button class="product-btn" type="button" data-refresh-order>Uppdatera status</button>
           <a class="product-btn secondary" href="konto.html">Mitt konto</a>
@@ -1181,6 +1196,21 @@ function renderOrderPage(session = accountSession) {
       </div>
     `;
   }
+}
+
+if (document.querySelector('[data-order-confirmation]')) {
+  let orderRefreshes = 0;
+  const orderInterval = window.setInterval(() => {
+    const pending = readPendingCheckout();
+
+    if (!pending || orderRefreshes >= 12) {
+      window.clearInterval(orderInterval);
+      return;
+    }
+
+    orderRefreshes += 1;
+    refreshAccount();
+  }, 5000);
 }
 
 document.addEventListener('click', (event) => {
