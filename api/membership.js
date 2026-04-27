@@ -67,8 +67,8 @@ function normalizeCustomer(customer, rechargeActive = false) {
   const forcedNonMembers = emailList(process.env.VERSEN_TEST_NON_MEMBER_EMAILS, 'armin.hurtic@icloud.com');
   const forcedMember = forcedMembers.includes(email);
   const forcedNonMember = forcedNonMembers.includes(email);
-  const member = forcedNonMember ? false : Boolean(tagMatch || rechargeActive || forcedMember);
-  const membershipSource = forcedMember ? 'Test' : (rechargeActive ? 'Recharge' : (tagMatch ? 'Shopify' : null));
+  const member = Boolean(rechargeActive || (!forcedNonMember && (tagMatch || forcedMember)));
+  const membershipSource = rechargeActive ? 'Recharge' : (forcedMember ? 'Test' : (tagMatch ? 'Shopify' : null));
 
   return {
     id: customer.id,
