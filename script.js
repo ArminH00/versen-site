@@ -3,12 +3,20 @@ const DISCOUNT_KEY = 'versenDiscountCode';
 const CHECKOUT_KEY = 'versenCheckoutPending';
 const ADMIN_SECRET_KEY = 'versenAdminSecret';
 const MEMBERSHIP_REVEAL_KEY = 'versenMembershipRevealSeen';
+const LAUNCH_GATE_KEY = 'versenLaunchAccess';
+const LAUNCH_GATE_CODE = '6363';
 let accountSession = null;
 const pageParams = new URLSearchParams(window.location.search);
 const accountNext = pageParams.get('next') || '';
 const verificationToken = pageParams.get('verify') || '';
 const resetToken = pageParams.get('reset') || '';
 const activeNavLink = document.querySelector('.menu a.active');
+const isLaunchPage = window.location.pathname.endsWith('/snart.html') || window.location.pathname.endsWith('snart.html');
+
+if (!isLaunchPage && localStorage.getItem(LAUNCH_GATE_KEY) !== '1') {
+  const currentPage = `${window.location.pathname.split('/').pop() || 'index.html'}${window.location.search}${window.location.hash}`;
+  window.location.replace(`snart.html?next=${encodeURIComponent(currentPage)}`);
+}
 
 if ('scrollRestoration' in history) {
   history.scrollRestoration = 'manual';
@@ -49,6 +57,14 @@ function readCart() {
 function writeCart(cart) {
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
   updateCartCount();
+  syncShoppingAccess();
+}
+
+function clearCart() {
+  localStorage.removeItem(CART_KEY);
+  localStorage.removeItem(DISCOUNT_KEY);
+  updateCartCount();
+  renderCart();
   syncShoppingAccess();
 }
 
@@ -121,6 +137,11 @@ function readPendingCheckout() {
 
 function clearPendingCheckout() {
   localStorage.removeItem(CHECKOUT_KEY);
+}
+
+function unlockLaunchGate(destination = '') {
+  localStorage.setItem(LAUNCH_GATE_KEY, '1');
+  window.location.href = destination || pageParams.get('next') || 'index.html';
 }
 
 function prepareCheckoutWindow() {
@@ -1376,6 +1397,10 @@ function renderOrderPage(session = accountSession) {
   const details = document.querySelector('[data-order-details]');
 
   if (latestIsFresh) {
+    if (pending && pending.type === 'produkt') {
+      clearCart();
+    }
+
     clearPendingCheckout();
     if (title) title.textContent = 'Ordern är mottagen';
     if (copy) copy.textContent = 'Vi hittade din senaste order på kontot. Du kan fortsätta handla eller öppna orderstatus från Shopify vid behov.';
@@ -1468,6 +1493,46 @@ document.addEventListener('click', (event) => {
     }, 520);
   }
 });
+
+const launchForm = document.querySelector('[data-launch-form]');
+
+if (launchForm) {
+  const input = launchForm.querySelector('[data-launch-input]');
+  const message = document.querySelector('[data-launch-message]');
+
+  launchForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const value = String(input && input.value ? input.value : '').trim();
+
+    if (value === LAUNCH_GATE_CODE) {
+      if (message) message.textContent = 'Välkommen in.';
+      unlockLaunchGate(pageParams.get('next') || 'index.html');
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      if (message) message.textContent = 'Skriv din email eller accesskod.';
+      return;
+    }
+
+    if (message) message.textContent = 'Sparar din plats...';
+
+    try {
+      const { response, data } = await postJson('/api/waitlist', { email: value });
+
+      if (!response.ok) {
+        if (message) message.textContent = data.error || 'Kunde inte spara email just nu.';
+        return;
+      }
+
+      launchForm.reset();
+      if (message) message.textContent = data.status || 'Klart. Du är först i kön.';
+    } catch (error) {
+      if (message) message.textContent = 'Kunde inte kontakta servern just nu.';
+    }
+  });
+}
 
 const adminForm = document.querySelector('[data-admin-form]');
 

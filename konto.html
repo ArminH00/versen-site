@@ -5,9 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#050609">
 <meta name="color-scheme" content="dark">
+<script>try{if(!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen - Konto</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260428-menu-cards">
+<link rel="stylesheet" href="styles.css?v=20260428-launch-gate">
 </head>
 
 <body class="auth-loading">
@@ -71,18 +72,6 @@
       </div>
     </article>
 
-    <article class="account-card login-card" data-login-card>
-      <h2>Logga in</h2>
-      <p>Logga in med ditt Shopify-konto för att handla med medlemspris.</p>
-      <form class="member-form" data-login-form>
-        <input type="email" name="email" placeholder="Email" autocomplete="email" required>
-        <input type="password" name="password" placeholder="Lösenord" autocomplete="current-password" required>
-        <button class="product-btn" type="submit">Logga in</button>
-      </form>
-      <button class="remove-btn account-link" type="button" data-recover-button>Skicka återställningsmail</button>
-      <p class="form-message" data-login-message></p>
-    </article>
-
     <article class="account-card login-card" data-create-card>
       <h2>Skapa konto</h2>
       <p>Börja med att verifiera din email. Sedan väljer du lösenord och kan starta medlemskapet.</p>
@@ -97,6 +86,18 @@
         <button class="product-btn" type="submit">Skapa konto</button>
       </form>
       <p class="form-message" data-register-message>Har du redan verifierat email öppnas lösenordssteget automatiskt från länken.</p>
+    </article>
+
+    <article class="account-card login-card" data-login-card>
+      <h2>Logga in</h2>
+      <p>Har du redan konto loggar du in här för att se medlemskap, rabatter och orderhistorik.</p>
+      <form class="member-form" data-login-form>
+        <input type="email" name="email" placeholder="Email" autocomplete="email" required>
+        <input type="password" name="password" placeholder="Lösenord" autocomplete="current-password" required>
+        <button class="product-btn" type="submit">Logga in</button>
+      </form>
+      <button class="remove-btn account-link" type="button" data-recover-button>Skicka återställningsmail</button>
+      <p class="form-message" data-login-message></p>
     </article>
 
     <article class="account-card login-card" data-reset-card hidden>
@@ -130,6 +131,6 @@
   </section>
 </main>
 
-<script src="script.js?v=20260428-menu-cards"></script>
+<script src="script.js?v=20260428-launch-gate"></script>
 </body>
 </html>
