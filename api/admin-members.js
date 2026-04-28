@@ -51,11 +51,13 @@ const RECENT_ORDERS_QUERY = `
 
 const PRODUCTS_QUERY = `
   query VersenAdminProducts {
-    products(first: 20, sortKey: UPDATED_AT, reverse: true) {
+    products(first: 100, sortKey: UPDATED_AT, reverse: true) {
       nodes {
         id
         title
         handle
+        vendor
+        tags
         status
         totalInventory
         variants(first: 1) {
@@ -233,6 +235,7 @@ module.exports = async function handler(req, res) {
     tags: customer.tags,
     numberOfOrders: customer.numberOfOrders,
     amountSpent: formatPrice(customer.amountSpent),
+    points: Math.floor(Number(customer.amountSpent && customer.amountSpent.amount || 0) * 2),
     updatedAt: customer.updatedAt,
   }));
 
@@ -245,6 +248,13 @@ module.exports = async function handler(req, res) {
     return {
       title: product.title,
       handle: product.handle,
+      id: product.id,
+      vendor: product.vendor || '',
+      tags: product.tags || [],
+      flags: {
+        fewLeft: (product.tags || []).map((tag) => String(tag).toLowerCase()).includes('versen_few_left'),
+        greatPrice: (product.tags || []).map((tag) => String(tag).toLowerCase()).includes('versen_great_price'),
+      },
       status: product.status,
       inventory: product.totalInventory,
       price: variant.price ? `${Math.round(Number(variant.price))} kr` : 'Saknas',

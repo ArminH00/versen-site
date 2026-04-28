@@ -7,6 +7,7 @@ const PRODUCTS_QUERY = `
         id
         title
         handle
+        vendor
         tags
         productType
         featuredImage {
@@ -47,6 +48,7 @@ const PRODUCT_BY_HANDLE_QUERY = `
       id
       title
       handle
+      vendor
       description
       tags
       productType
@@ -132,14 +134,21 @@ function normalizeProduct(product) {
   const variants = (product.variants.nodes || []).map((variant) => normalizeVariant(variant, product));
   const variant = variants.find((item) => item.availableForSale) || variants[0] || {};
   const image = variant.image || product.featuredImage;
+  const tags = product.tags || [];
+  const normalizedTags = tags.map((tag) => String(tag).toLowerCase());
 
   return {
     id: product.id,
     title: product.title,
     handle: product.handle,
     description: product.description || '',
+    vendor: product.vendor || '',
     category: categoryForProduct(product),
-    tags: product.tags || [],
+    tags,
+    flags: {
+      fewLeft: normalizedTags.includes('versen_few_left'),
+      greatPrice: normalizedTags.includes('versen_great_price'),
+    },
     image,
     variantId: variant.id || null,
     availableForSale: Boolean(variant.availableForSale),

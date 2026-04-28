@@ -34,7 +34,7 @@ const CUSTOMER_QUERY = `
 
 const CUSTOMER_ORDERS_QUERY = `
   query VersenCustomerOrders($query: String!) {
-    orders(first: 8, query: $query, sortKey: CREATED_AT, reverse: true) {
+    orders(first: 50, query: $query, sortKey: CREATED_AT, reverse: true) {
       nodes {
         id
         name
@@ -106,6 +106,16 @@ function normalizeAdminOrders(orders) {
   }));
 }
 
+function orderAmount(order) {
+  const amount = order
+    && order.currentTotalPriceSet
+    && order.currentTotalPriceSet.shopMoney
+    && order.currentTotalPriceSet.shopMoney.amount;
+  const value = Number(amount);
+
+  return Number.isNaN(value) ? 0 : value;
+}
+
 function normalizeCustomer(customer, rechargeActive = false, adminOrders = null) {
   const tags = customer.tags || [];
   const tagMatch = tags.some((tag) => membershipTags().includes(String(tag).toLowerCase()));
@@ -116,6 +126,8 @@ function normalizeCustomer(customer, rechargeActive = false, adminOrders = null)
   const forcedNonMember = forcedNonMembers.includes(email);
   const member = Boolean(rechargeActive || (!forcedNonMember && (tagMatch || forcedMember)));
   const membershipSource = rechargeActive ? 'Recharge' : (forcedMember ? 'Test' : (tagMatch ? 'Shopify' : null));
+  const orderSpend = adminOrders ? adminOrders.reduce((sum, order) => sum + orderAmount(order), 0) : 0;
+  const points = Math.floor(orderSpend * 2);
 
   return {
     id: customer.id,
@@ -128,6 +140,8 @@ function normalizeCustomer(customer, rechargeActive = false, adminOrders = null)
     membershipSource,
     membershipStatus: member ? 'Aktiv medlem' : 'Inget aktivt medlemskap',
     numberOfOrders: Math.max(Number(customer.numberOfOrders || 0), adminOrders ? adminOrders.length : 0),
+    points,
+    pointsBaseAmount: Math.round(orderSpend),
     orders: adminOrders && adminOrders.length ? normalizeAdminOrders(adminOrders) : normalizeStorefrontOrders(customer),
   };
 }

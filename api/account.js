@@ -420,6 +420,75 @@ async function sendWaitlistEmail(res, body) {
   sendJson(res, 200, { status: 'Klart. Du är först i kön.' });
 }
 
+async function sendProductSuggestionEmail(req, res, body) {
+  const session = await getCustomerSession(getCookie(req, 'versen_customer_token'));
+  const product = clean(body.product, 180);
+  const category = clean(body.category, 80) || 'Övrigt';
+  const link = clean(body.link, 400);
+  const message = clean(body.message, 1800);
+  const email = session.authenticated && session.customer ? session.customer.email : clean(body.email, 180).toLowerCase();
+  const name = session.authenticated && session.customer
+    ? (session.customer.displayName || session.customer.firstName || session.customer.email)
+    : clean(body.name, 120);
+
+  if (!product || !isEmail(email)) {
+    sendJson(res, 400, { error: 'Skriv produktnamn och giltig email.' });
+    return;
+  }
+
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.VERSEN_EMAIL_FROM || 'Versen <hej@versen.se>';
+  const supportEmail = process.env.VERSEN_SUPPORT_EMAIL || 'hej@versen.se';
+
+  if (!apiKey) {
+    sendJson(res, 200, { status: 'Förslaget är sparat i flödet.' });
+    return;
+  }
+
+  const safe = {
+    product: escapeHtml(product),
+    category: escapeHtml(category),
+    link: escapeHtml(link),
+    message: escapeHtml(message).replace(/\n/g, '<br>'),
+    email: escapeHtml(email),
+    name: escapeHtml(name || email),
+    member: session.authenticated && session.customer && session.customer.member ? 'Ja' : 'Nej',
+  };
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from,
+      to: [supportEmail],
+      reply_to: email,
+      subject: `Produktförslag: ${product}`,
+      html: `
+        <div style="font-family:Arial,sans-serif;background:#090a0d;color:#fff;padding:28px">
+          <p style="letter-spacing:2px;text-transform:uppercase;color:#82f7d2;font-size:12px;margin:0 0 18px">Versen produktförslag</p>
+          <h1 style="margin:0 0 12px">${safe.product}</h1>
+          <p><strong>Kategori:</strong> ${safe.category}</p>
+          <p><strong>Från:</strong> ${safe.name} (${safe.email})</p>
+          <p><strong>Aktiv medlem:</strong> ${safe.member}</p>
+          ${link ? `<p><strong>Länk:</strong> ${safe.link}</p>` : ''}
+          ${message ? `<div style="margin-top:18px;padding:18px;border:1px solid rgba(255,255,255,.15);border-radius:14px;background:rgba(255,255,255,.05)">${safe.message}</div>` : ''}
+        </div>
+      `,
+      text: `Produktförslag: ${product}\nKategori: ${category}\nFrån: ${name || email} (${email})\nAktiv medlem: ${safe.member}\n${link ? `Länk: ${link}\n` : ''}${message}`,
+    }),
+  });
+
+  if (!response.ok) {
+    sendJson(res, 200, { status: 'Förslaget är mottaget.' });
+    return;
+  }
+
+  sendJson(res, 200, { status: 'Förslaget är skickat. Vi tar med det inför nästa drop.' });
+}
+
 async function loginCustomer(res, email, password) {
   const normalizedEmail = normalizeEmail(email);
   const result = await shopifyFetch(CUSTOMER_LOGIN_MUTATION, {
@@ -567,6 +636,11 @@ module.exports = async function handler(req, res) {
 
   if (body.action === 'waitlist') {
     await sendWaitlistEmail(res, body);
+    return;
+  }
+
+  if (body.action === 'suggest_product') {
+    await sendProductSuggestionEmail(req, res, body);
     return;
   }
 

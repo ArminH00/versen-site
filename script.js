@@ -12,6 +12,8 @@ const verificationToken = pageParams.get('verify') || '';
 const resetToken = pageParams.get('reset') || '';
 const activeNavLink = document.querySelector('.menu a.active');
 const isLaunchPage = window.location.pathname.endsWith('/snart.html') || window.location.pathname.endsWith('snart.html');
+let catalogProducts = [];
+let selectedCatalogCategory = null;
 
 if (!isLaunchPage && localStorage.getItem(LAUNCH_GATE_KEY) !== '1') {
   const currentPage = `${window.location.pathname.split('/').pop() || 'index.html'}${window.location.search}${window.location.hash}`;
@@ -179,6 +181,26 @@ function applyGlobalSessionUi(session = accountSession) {
   document.body.classList.toggle('is-authenticated', authenticated);
   document.body.classList.toggle('is-member', member);
 
+  document.querySelectorAll('.menu').forEach((menu) => {
+    if (!menu.querySelector('a[href="forslag.html"]')) {
+      const accountLink = menu.querySelector('a[href="konto.html"]');
+      const suggestionLink = document.createElement('a');
+      suggestionLink.href = 'forslag.html';
+      suggestionLink.textContent = 'Förslag';
+      suggestionLink.hidden = !member;
+
+      if (window.location.pathname.endsWith('/forslag.html') || window.location.pathname.endsWith('forslag.html')) {
+        suggestionLink.classList.add('active');
+      }
+
+      menu.insertBefore(suggestionLink, accountLink || null);
+    }
+  });
+
+  document.querySelectorAll('.menu a[href="forslag.html"]').forEach((link) => {
+    link.hidden = !member;
+  });
+
   document.querySelectorAll('a[href="medlemskap.html"], a[href^="medlemskap.html?"]').forEach((link) => {
     link.hidden = member;
   });
@@ -342,16 +364,7 @@ const filters = document.querySelectorAll('[data-filter]');
 
 filters.forEach((filter) => {
   filter.addEventListener('click', () => {
-    const category = filter.dataset.filter;
-    const products = document.querySelectorAll('[data-category]');
-
-    filters.forEach((item) => item.classList.remove('active'));
-    filter.classList.add('active');
-
-    products.forEach((product) => {
-      const isMatch = category === 'Alla' || product.dataset.category === category;
-      product.classList.toggle('is-hidden', !isMatch);
-    });
+    selectCatalogCategory(filter.dataset.filter);
   });
 });
 
@@ -373,13 +386,20 @@ function productCard(product) {
   const variantText = product.variants && product.variants.length > 1
     ? `<span>${product.variants.length} val</span>`
     : '';
+  const vendor = product.vendor || product.category || 'Versen';
+  const flags = product.flags || {};
+  const badges = [
+    flags.greatPrice ? '<span>Grymt pris</span>' : '',
+    flags.fewLeft ? '<span>Få kvar</span>' : '',
+  ].filter(Boolean).join('');
 
   return `
     <article class="product-card" role="link" tabindex="0" data-product-url="${escapeHtml(productUrl)}" data-category="${escapeHtml(product.category)}" data-product-handle="${escapeHtml(product.handle)}" data-variant-id="${escapeHtml(product.variantId || '')}" data-product-title="${escapeHtml(product.title)}" data-product-price="${escapeHtml(memberPrice)}" data-product-compare-at-price="${escapeHtml(compareAtPrice)}" data-product-image-url="${escapeHtml(product.image && product.image.url ? product.image.url : '')}" data-product-image-alt="${escapeHtml(product.image && product.image.altText ? product.image.altText : product.title)}">
       <div class="product-image">${image}</div>
       <div class="product-info">
+        ${badges ? `<div class="product-badges">${badges}</div>` : ''}
         <div class="product-card-meta">
-          <div class="product-category">${escapeHtml(product.category)}</div>
+          <div class="product-category">${escapeHtml(vendor)}</div>
           ${variantText}
         </div>
         <h3>${escapeHtml(product.title)}</h3>
@@ -395,6 +415,85 @@ function productCard(product) {
     </article>
   `;
 }
+
+function renderCategoryLaunch(products) {
+  document.querySelectorAll('[data-category-count]').forEach((element) => {
+    const count = products.filter((product) => product.category === element.dataset.categoryCount).length;
+    element.textContent = count ? `${count} produkter denna vecka` : 'Fylls på snart';
+  });
+
+  document.querySelectorAll('[data-category-images]').forEach((element) => {
+    const images = products
+      .filter((product) => product.category === element.dataset.categoryImages && product.image && product.image.url)
+      .slice(0, 4);
+
+    element.innerHTML = images.map((product) => `
+      <img src="${escapeHtml(product.image.url)}" alt="${escapeHtml(product.image.altText || product.title)}">
+    `).join('');
+  });
+}
+
+function renderCatalogProducts(category) {
+  const grid = document.querySelector('[data-products-grid]');
+
+  if (!grid) {
+    return;
+  }
+
+  if (!category) {
+    grid.innerHTML = `
+      <div class="empty-state catalog-empty">
+        <span>Välj en kategori</span>
+        <p>Bilvård eller Träning & hälsa. Produkterna visas direkt här.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const products = catalogProducts.filter((product) => product.category === category);
+
+  if (!products.length) {
+    grid.innerHTML = `
+      <div class="empty-state catalog-empty">
+        <span>Inget i kategorin ännu</span>
+        <p>Välj en annan kategori eller kom tillbaka nästa torsdag.</p>
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = products.map(productCard).join('');
+  prepareProductCardLinks(grid);
+  syncShoppingAccess();
+}
+
+function selectCatalogCategory(category, options = {}) {
+  if (!category) {
+    return;
+  }
+
+  selectedCatalogCategory = category;
+
+  document.querySelectorAll('[data-filter]').forEach((button) => {
+    button.classList.toggle('active', button.dataset.filter === category);
+  });
+
+  document.querySelectorAll('[data-category-select]').forEach((button) => {
+    button.classList.toggle('active', button.dataset.categorySelect === category);
+  });
+
+  renderCatalogProducts(category);
+
+  if (options.scroll !== false) {
+    document.querySelector('.catalog-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+document.querySelectorAll('[data-category-select]').forEach((button) => {
+  button.addEventListener('click', () => {
+    selectCatalogCategory(button.dataset.categorySelect);
+  });
+});
 
 function prepareProductCardLinks(root = document) {
   root.querySelectorAll('.product-card').forEach((card) => {
@@ -472,9 +571,17 @@ async function loadProducts() {
       return;
     }
 
-    grid.innerHTML = visibleProducts.map(productCard).join('');
-    prepareProductCardLinks(grid);
-    syncShoppingAccess();
+    catalogProducts = visibleProducts;
+    renderCategoryLaunch(visibleProducts);
+
+    const categoryFromUrl = new URLSearchParams(window.location.search).get('kategori');
+    const initialCategory = categoryFromUrl || selectedCatalogCategory;
+
+    if (initialCategory) {
+      selectCatalogCategory(initialCategory, { scroll: false });
+    } else {
+      renderCatalogProducts(null);
+    }
   } catch (error) {
     return;
   }
@@ -671,7 +778,7 @@ function sentenceParagraphs(body) {
     return lineParts;
   }
 
-  return normalized
+  const sentences = normalized
     .replace(/\s+(?=(?:Förvaras|Produkten|Repel|Tillsätt|Använd|Blanda|Spola|Gör)\b)/g, '\n')
     .split(/(?<=[.!?])\s+(?=(?:[A-ZÅÄÖ0-9]|tershine|gyeon|barebells)\b)/)
     .reduce((groups, sentence) => {
@@ -690,6 +797,35 @@ function sentenceParagraphs(body) {
 
       return groups;
     }, []);
+
+  return sentences.flatMap((paragraph) => splitLongParagraph(paragraph));
+}
+
+function splitLongParagraph(paragraph) {
+  if (paragraph.length <= 460) {
+    return [paragraph];
+  }
+
+  const parts = paragraph
+    .split(/(?<=,)\s+|\s+(?=(?:och|samt|men|vilket|där|när|för att|utan att|medan)\b)/i)
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (parts.length < 2) {
+    return [paragraph];
+  }
+
+  return parts.reduce((groups, part) => {
+    const last = groups[groups.length - 1] || '';
+
+    if (!last || last.length + part.length > 360) {
+      groups.push(part);
+    } else {
+      groups[groups.length - 1] = `${last} ${part}`;
+    }
+
+    return groups;
+  }, []);
 }
 
 function renderBodyText(body) {
@@ -1276,6 +1412,7 @@ function updateMemberStatus(session = accountSession) {
   const dashboardMembership = document.querySelector('[data-dashboard-membership]');
   const dashboardDiscount = document.querySelector('[data-dashboard-discount]');
   const dashboardOrders = document.querySelector('[data-dashboard-orders]');
+  const dashboardPoints = document.querySelector('[data-dashboard-points]');
 
   if (!session || !session.authenticated) {
     status.textContent = 'Ej inloggad';
@@ -1319,6 +1456,7 @@ function updateMemberStatus(session = accountSession) {
   if (dashboardMembership) dashboardMembership.textContent = hasMemberDiscount ? 'Aktivt' : 'Ej aktivt';
   if (dashboardDiscount) dashboardDiscount.textContent = hasMemberDiscount ? 'Upplåsta' : 'Låsta';
   if (dashboardOrders) dashboardOrders.textContent = String(orderCount);
+  if (dashboardPoints) dashboardPoints.textContent = String(session.customer.points || 0);
   if (logoutButton) logoutButton.hidden = false;
   if (membershipLink) membershipLink.hidden = hasMemberDiscount;
   renderOrders(session.customer.orders);
@@ -1943,20 +2081,24 @@ if (adminForm) {
             <div class="admin-row">
               <strong>${escapeHtml(member.name || member.email)}</strong>
               <span>${escapeHtml(member.email || '')}</span>
-              <small>${escapeHtml(member.amountSpent)} · ${escapeHtml(member.numberOfOrders)} orders</small>
+              <small>${escapeHtml(member.amountSpent)} · ${escapeHtml(member.numberOfOrders)} orders · ${escapeHtml(String(member.points || 0))} poäng</small>
             </div>
           `).join('') : '<div class="empty-state"><span>Inga taggade medlemmar</span><p>ReCharge kan ändå ha aktiva subscriptions.</p></div>'}
         </div>
       </article>
 
-      <article class="account-card">
+      <article class="account-card admin-card-wide">
         <h2>Produkter</h2>
         <div class="admin-table compact-table">
           ${products.length ? products.map((product) => `
             <div class="admin-row">
               <strong>${escapeHtml(product.title)}</strong>
-              <span>${escapeHtml(product.price)} ${product.compareAtPrice ? `· ${escapeHtml(product.compareAtPrice)}` : ''}</span>
+              <span>${escapeHtml(product.vendor || 'Okänt varumärke')} · ${escapeHtml(product.price)} ${product.compareAtPrice ? `· ${escapeHtml(product.compareAtPrice)}` : ''}</span>
               <small>${escapeHtml(product.status)} · lager ${escapeHtml(String(product.inventory ?? 'okänt'))}</small>
+              <div class="admin-flag-actions">
+                <button class="flag-toggle ${product.flags && product.flags.fewLeft ? 'active' : ''}" type="button" data-product-flag="fewLeft" data-product-handle="${escapeHtml(product.handle)}" data-enabled="${product.flags && product.flags.fewLeft ? 'true' : 'false'}">Få antal kvar</button>
+                <button class="flag-toggle ${product.flags && product.flags.greatPrice ? 'active' : ''}" type="button" data-product-flag="greatPrice" data-product-handle="${escapeHtml(product.handle)}" data-enabled="${product.flags && product.flags.greatPrice ? 'true' : 'false'}">Grymt pris</button>
+              </div>
             </div>
           `).join('') : '<div class="empty-state"><span>Inga produkter</span><p>Kontrollera Shopify-access.</p></div>'}
         </div>
@@ -2014,6 +2156,86 @@ if (adminForm) {
       }
     });
   }
+
+  if (dashboard) {
+    dashboard.addEventListener('click', async (event) => {
+      const button = event.target.closest('[data-product-flag]');
+
+      if (!button) {
+        return;
+      }
+
+      const enabled = button.dataset.enabled !== 'true';
+      button.disabled = true;
+      button.textContent = enabled ? 'Sparar...' : 'Tar bort...';
+
+      try {
+        const response = await fetch('/api/admin-product-tags', {
+          method: 'POST',
+          headers: {
+            ...adminHeaders(),
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            handle: button.dataset.productHandle,
+            flag: button.dataset.productFlag,
+            enabled,
+          }),
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+          if (message) message.textContent = data.error || 'Kunde inte spara markeringen.';
+          button.disabled = false;
+          button.textContent = button.dataset.productFlag === 'fewLeft' ? 'Få antal kvar' : 'Grymt pris';
+          return;
+        }
+
+        if (message) message.textContent = data.status || 'Produktmarkering uppdaterad.';
+        await loadAdminDashboard();
+      } catch (error) {
+        if (message) message.textContent = 'Kunde inte kontakta servern.';
+        button.disabled = false;
+      }
+    });
+  }
+}
+
+const suggestionForm = document.querySelector('[data-suggestion-form]');
+
+if (suggestionForm) {
+  const suggestionMessage = document.querySelector('[data-suggestion-message]');
+
+  suggestionForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const formData = new FormData(suggestionForm);
+    const button = suggestionForm.querySelector('button');
+
+    if (button) button.disabled = true;
+    if (suggestionMessage) suggestionMessage.textContent = 'Skickar förslag...';
+
+    try {
+      const { response, data } = await postJson('/api/account', {
+        action: 'suggest_product',
+        product: formData.get('product'),
+        category: formData.get('category'),
+        link: formData.get('link'),
+        message: formData.get('message'),
+      });
+
+      if (suggestionMessage) {
+        suggestionMessage.textContent = response.ok ? data.status : (data.error || 'Kunde inte skicka förslaget.');
+      }
+
+      if (response.ok) {
+        suggestionForm.reset();
+      }
+    } catch (error) {
+      if (suggestionMessage) suggestionMessage.textContent = 'Kunde inte kontakta servern.';
+    } finally {
+      if (button) button.disabled = false;
+    }
+  });
 }
 
 function renderSiteFooter() {

@@ -8,7 +8,7 @@
 <script>try{if(!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260428-product-variants">
+<link rel="stylesheet" href="styles.css?v=20260428-launch-drops">
 </head>
 
 <body class="auth-loading">
@@ -29,12 +29,12 @@
   <div class="glow"></div>
 
   <div class="hero-content">
-    <div class="badge">Endast för medlemmar</div>
+    <div class="badge">Nya deals varje torsdag</div>
 
-    <h1>Få tillgång till priser andra inte ser</h1>
+    <h1>Medlemspriser på det du faktiskt vill ha</h1>
 
     <p>
-      Bli medlem och handla premiumprodukter billigare än i vanliga butiker.
+      Veckans produkter släpps torsdag 12:00. Medlemmar föreslår vad som ska jagas in nästa gång.
     </p>
 
     <a class="cta" href="medlemskap.html">Starta medlemskap</a>
@@ -50,45 +50,36 @@
     <h1 data-member-home-title>Välkommen tillbaka</h1>
 
     <p>
-      Dina medlemspriser är upplåsta. Fyll kundkorgen och gå vidare till checkout när du är klar.
+      Dina medlemspriser är upplåsta. Handla veckans deals, samla poäng och föreslå nästa drop.
     </p>
 
-    <a class="cta" href="produkter.html">Handla produkter</a>
+    <a class="cta" href="produkter.html">Handla veckans deals</a>
   </div>
 </header>
 
 <section class="section fade" id="produkter" data-guest-home>
-  <h2>Medlemspriser som känns direkt</h2>
+  <h2>En butik som formas av medlemmarna</h2>
   <p class="section-sub">
-    Se exempel på hur mycket billigare produkter kan bli när du handlar som medlem.
+    Bilvård och träning är första droppet. Efter det styr förslagen vad vi letar efter till nästa torsdag.
   </p>
 
-  <div class="cards">
-    <article class="card">
-      <div class="card-top"></div>
-      <h3>Nocco flak</h3>
-      <div class="price-row">
-        <span class="old">300 kr</span>
-        <span class="new">189 kr</span>
-      </div>
+  <div class="concept-grid">
+    <article class="concept-card">
+      <span>Torsdag 12:00</span>
+      <h3>Nya produkter</h3>
+      <p>Veckans deals öppnas samtidigt för alla medlemmar.</p>
     </article>
 
-    <article class="card">
-      <div class="card-top"></div>
-      <h3>Proteinpulver</h3>
-      <div class="price-row">
-        <span class="old">499 kr</span>
-        <span class="new">329 kr</span>
-      </div>
+    <article class="concept-card">
+      <span>Medlemsförslag</span>
+      <h3>Du påverkar sortimentet</h3>
+      <p>Skicka in produkter du vill se billigare hos Versen.</p>
     </article>
 
-    <article class="card">
-      <div class="card-top"></div>
-      <h3>Energidryck</h3>
-      <div class="price-row">
-        <span class="old">25 kr</span>
-        <span class="new">15 kr</span>
-      </div>
+    <article class="concept-card">
+      <span>2 poäng / kr</span>
+      <h3>Varje köp räknas</h3>
+      <p>Dina poäng samlas på kontot och följer din aktivitet.</p>
     </article>
   </div>
 </section>
@@ -102,6 +93,14 @@
   <div class="member-product-strip" data-member-products></div>
 </section>
 
+<section class="section member-shopping fade" data-member-home hidden>
+  <h2>Påverka nästa drop</h2>
+  <p class="section-sub">
+    Saknar du något? Skicka ett produktförslag så tar vi med det inför nästa torsdagslansering.
+  </p>
+  <a class="cta" href="forslag.html">Föreslå produkt</a>
+</section>
+
 <section class="section fade" data-guest-home>
   <h2>Så funkar det</h2>
   <p class="section-sub">
@@ -112,19 +111,19 @@
     <article class="step">
       <div class="step-number">1</div>
       <h3>Bli medlem</h3>
-      <p>Starta ditt medlemskap på några sekunder.</p>
+      <p>Lås upp butiken och veckans medlemspriser.</p>
     </article>
 
     <article class="step">
       <div class="step-number">2</div>
-      <h3>Få tillgång</h3>
-      <p>Lås upp alla produkter och priser direkt.</p>
+      <h3>Handla torsdagens deals</h3>
+      <p>Produkterna skickas från måndag när helgen är preppad.</p>
     </article>
 
     <article class="step">
       <div class="step-number">3</div>
-      <h3>Handla billigare</h3>
-      <p>Spara pengar varje gång du köper.</p>
+      <h3>Samla poäng</h3>
+      <p>Varje krona ger 2 poäng på ditt konto.</p>
     </article>
   </div>
 </section>
@@ -145,6 +144,6 @@
   <a class="cta" href="medlemskap.html">Starta medlemskap</a>
 </section>
 
-<script src="script.js?v=20260428-product-variants"></script>
+<script src="script.js?v=20260428-launch-drops"></script>
 </body>
 </html>
