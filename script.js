@@ -572,7 +572,7 @@ function splitProductSections(description) {
   const titlePattern = PRODUCT_SECTION_TITLES
     .map((title) => title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
     .join('|');
-  const headingRegex = new RegExp(`\\b(${titlePattern})\\b:?`, 'gi');
+  const headingRegex = new RegExp(`\\b(${titlePattern})\\b:?`, 'g');
   const matches = Array.from(text.matchAll(headingRegex));
 
   if (!matches.length) {
