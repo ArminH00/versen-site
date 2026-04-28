@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f5f3ed">
+<meta name="color-scheme" content="light dark">
+<script>try{const p=localStorage.getItem('versenThemePreference')||'auto';const d=p==='dark'||(p==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=d?'dark':'light';document.documentElement.dataset.themePreference=p;}catch(e){document.documentElement.dataset.theme='light';}</script>
+<script>try{if(Date.now()<1777500060000&&!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
+<title>Versen - Inställningar</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=20260429-membership-settings">
+</head>
+
+<body class="auth-loading">
+
+<nav class="nav">
+  <a class="logo" href="index.html">VERSEN</a>
+
+  <div class="menu" aria-label="Huvudmeny">
+    <a href="index.html">Hem</a>
+    <a href="produkter.html">Produkter</a>
+    <a href="medlemskap.html">Medlemskap</a>
+    <a class="active" href="konto.html">Konto</a>
+    <a href="kundkorg.html">Kundkorg <span data-cart-count></span></a>
+  </div>
+</nav>
+
+<main>
+  <header class="page-hero fade">
+    <div class="glow"></div>
+    <div class="page-hero-content">
+      <div class="badge">Inställningar</div>
+      <h1>Konto och medlemskap</h1>
+      <p>Hantera theme, medlemsstatus och prenumeration. Allt här ligger lite mer low key.</p>
+    </div>
+  </header>
+
+  <section class="account-grid settings-grid fade" aria-label="Kontoinställningar" data-settings-page>
+    <article class="account-card settings-card">
+      <h2>Utseende</h2>
+      <p>Välj om Versen ska följa enheten eller alltid visas ljust/mörkt.</p>
+      <div class="theme-switcher" aria-label="Välj theme">
+        <button type="button" data-theme-option="auto">Auto</button>
+        <button type="button" data-theme-option="light">Ljust</button>
+        <button type="button" data-theme-option="dark">Mörkt</button>
+      </div>
+    </article>
+
+    <article class="account-card settings-card">
+      <h2>Medlemskap</h2>
+      <div class="activation-status settings-status" data-settings-membership-status>
+        <span>Status</span>
+        <strong>Kontrollerar</strong>
+        <p>Vi hämtar medlemsstatus från Shopify och ReCharge.</p>
+      </div>
+      <button class="remove-btn danger-link" type="button" data-cancel-membership hidden>Avsluta prenumeration</button>
+      <p class="form-message" data-settings-message></p>
+    </article>
+
+    <a class="product-btn secondary settings-back" href="konto.html">Tillbaka till konto</a>
+  </section>
+</main>
+
+<script src="script.js?v=20260429-membership-settings"></script>
+</body>
+</html>

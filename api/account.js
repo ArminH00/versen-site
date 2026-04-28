@@ -10,7 +10,7 @@ const {
   setCustomerCookie,
   shopifyFetch,
 } = require('./shopify');
-const { getCustomerSession } = require('./membership');
+const { getCustomerSession, getRechargeMembershipByEmail } = require('./membership');
 
 const CUSTOMER_CREATE_MUTATION = `
   mutation VersenCustomerCreate($input: CustomerCreateInput!) {
@@ -530,6 +530,193 @@ async function sendProductSuggestionEmail(req, res, body) {
   sendJson(res, 200, { status: saved.ok ? 'Förslaget är sparat i admin.' : 'Förslaget är skickat. Vi tar med det inför nästa drop.' });
 }
 
+function fallbackActiveUntil() {
+  const date = new Date();
+  date.setDate(date.getDate() + 30);
+  return date.toISOString().slice(0, 10);
+}
+
+async function cancelRechargeSubscription(subscriptionId) {
+  const token = process.env.RECHARGE_API_TOKEN;
+
+  if (!token) {
+    return {
+      ok: false,
+      status: 503,
+      body: { error: 'RECHARGE_API_TOKEN saknas' },
+    };
+  }
+
+  if (!subscriptionId) {
+    return {
+      ok: false,
+      status: 404,
+      body: { error: 'Ingen aktiv ReCharge-prenumeration hittades.' },
+    };
+  }
+
+  const response = await fetch(`https://api.rechargeapps.com/subscriptions/${encodeURIComponent(subscriptionId)}/cancel`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'X-Recharge-Access-Token': token,
+      'X-Recharge-Version': process.env.RECHARGE_API_VERSION || '2021-11',
+    },
+    body: JSON.stringify({
+      cancellation_reason: 'Kunden avslutade via Versen',
+      cancellation_reason_comments: 'Avslutat från kundens kontoinställningar.',
+      send_email: true,
+    }),
+  });
+
+  let body = null;
+
+  try {
+    body = await response.json();
+  } catch (error) {
+    body = { error: 'Recharge svarade inte med JSON' };
+  }
+
+  if (!response.ok) {
+    return {
+      ok: false,
+      status: response.status,
+      body: {
+        error: body.error || body.message || 'Kunde inte avsluta prenumerationen i ReCharge.',
+        details: body,
+      },
+    };
+  }
+
+  return { ok: true, status: 200, body };
+}
+
+async function saveMembershipCancellation(customerId, cancellation) {
+  if (!customerId) {
+    return {
+      ok: false,
+      status: 401,
+      body: { error: 'Kund saknas' },
+    };
+  }
+
+  const result = await adminFetch(METAFIELDS_SET_MUTATION, {
+    metafields: [{
+      ownerId: customerId,
+      namespace: 'versen',
+      key: 'membership_cancellation',
+      type: 'json',
+      value: JSON.stringify(cancellation),
+    }],
+  });
+
+  if (!result.ok) {
+    return result;
+  }
+
+  const errors = result.body.data.metafieldsSet.userErrors || [];
+
+  if (errors.length) {
+    return {
+      ok: false,
+      status: 400,
+      body: { error: errors.map((item) => item.message).join(', ') },
+    };
+  }
+
+  return { ok: true, status: 200, body: { status: 'Uppsägningen är sparad.' } };
+}
+
+async function saveCustomerPreferences(req, res, body) {
+  const session = await getCustomerSession(getCookie(req, 'versen_customer_token'));
+
+  if (!session.authenticated || !session.customer) {
+    sendJson(res, 200, { status: 'Inställningen sparas på den här enheten.' });
+    return;
+  }
+
+  const theme = ['auto', 'light', 'dark'].includes(body.theme) ? body.theme : 'auto';
+  const result = await adminFetch(METAFIELDS_SET_MUTATION, {
+    metafields: [{
+      ownerId: session.customer.id,
+      namespace: 'versen',
+      key: 'preferences',
+      type: 'json',
+      value: JSON.stringify({ theme }),
+    }],
+  });
+
+  if (!result.ok) {
+    sendJson(res, 200, { status: 'Inställningen sparas på den här enheten.' });
+    return;
+  }
+
+  const errors = result.body.data.metafieldsSet.userErrors || [];
+
+  if (errors.length) {
+    sendJson(res, 200, { status: 'Inställningen sparas på den här enheten.' });
+    return;
+  }
+
+  sendJson(res, 200, { status: 'Inställningen är sparad på kontot.' });
+}
+
+async function cancelMembership(req, res) {
+  const session = await getCustomerSession(getCookie(req, 'versen_customer_token'));
+
+  if (!session.authenticated || !session.customer) {
+    sendJson(res, 401, { error: 'Logga in först.' });
+    return;
+  }
+
+  const recharge = await getRechargeMembershipByEmail(session.customer.email);
+  const subscription = recharge && recharge.subscription;
+
+  if (!subscription || !subscription.id) {
+    if (session.customer.membership && session.customer.membership.cancellationRequested) {
+      sendJson(res, 200, {
+        status: 'Prenumerationen är redan avslutad för kommande period.',
+        session,
+      });
+      return;
+    }
+
+    sendJson(res, 404, { error: 'Ingen aktiv ReCharge-prenumeration hittades.' });
+    return;
+  }
+
+  const activeUntil = subscription.next_charge_scheduled_at || fallbackActiveUntil();
+  const cancelResult = await cancelRechargeSubscription(subscription.id);
+
+  if (!cancelResult.ok) {
+    sendJson(res, cancelResult.status, cancelResult.body);
+    return;
+  }
+
+  const cancellation = {
+    status: 'cancelled',
+    provider: 'Recharge',
+    subscriptionId: subscription.id,
+    activeUntil,
+    cancelledAt: new Date().toISOString(),
+  };
+  const saved = await saveMembershipCancellation(session.customer.id, cancellation);
+
+  if (!saved.ok) {
+    sendJson(res, saved.status || 500, saved.body || { error: 'Kunde inte spara uppsägningen på kontot.' });
+    return;
+  }
+
+  const updatedSession = await getCustomerSession(getCookie(req, 'versen_customer_token'));
+
+  sendJson(res, 200, {
+    status: 'Prenumerationen är avslutad. Medlemskapet är aktivt till sista datumet.',
+    activeUntil,
+    session: updatedSession,
+  });
+}
+
 function parseSuggestionList(value) {
   try {
     const parsed = JSON.parse(value || '[]');
@@ -722,6 +909,16 @@ module.exports = async function handler(req, res) {
 
   if (body.action === 'suggest_product') {
     await sendProductSuggestionEmail(req, res, body);
+    return;
+  }
+
+  if (body.action === 'cancel_membership') {
+    await cancelMembership(req, res);
+    return;
+  }
+
+  if (body.action === 'save_preferences') {
+    await saveCustomerPreferences(req, res, body);
     return;
   }
 

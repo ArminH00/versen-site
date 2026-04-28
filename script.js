@@ -5,6 +5,8 @@ const ADMIN_SECRET_KEY = 'versenAdminSecret';
 const MEMBERSHIP_REVEAL_KEY = 'versenMembershipRevealSeen';
 const LAUNCH_GATE_KEY = 'versenLaunchAccess';
 const POINTS_INTRO_KEY = 'versenPointsIntroSeen';
+const THEME_KEY = 'versenThemePreference';
+const LAUNCH_OPEN_AT = new Date('2026-04-30T00:01:00+02:00').getTime();
 const LAUNCH_GATE_CODE = '6363';
 let accountSession = null;
 let catalogSort = 'brand';
@@ -19,7 +21,54 @@ const isLaunchPage = window.location.pathname.endsWith('/snart.html') || window.
 let catalogProducts = [];
 let selectedCatalogCategory = null;
 
-if (!isLaunchPage && localStorage.getItem(LAUNCH_GATE_KEY) !== '1') {
+function getThemePreference() {
+  const saved = localStorage.getItem(THEME_KEY);
+  return ['auto', 'light', 'dark'].includes(saved) ? saved : 'auto';
+}
+
+function resolveTheme(preference = getThemePreference()) {
+  if (preference === 'dark') return 'dark';
+  if (preference === 'light') return 'light';
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function applyTheme(preference = getThemePreference()) {
+  const theme = resolveTheme(preference);
+  document.documentElement.dataset.theme = theme;
+  document.documentElement.dataset.themePreference = preference;
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#050609' : '#f5f3ed');
+
+  document.querySelectorAll('[data-theme-option]').forEach((button) => {
+    button.classList.toggle('active', button.dataset.themeOption === preference);
+  });
+}
+
+function setThemePreference(preference) {
+  const next = ['auto', 'light', 'dark'].includes(preference) ? preference : 'auto';
+  localStorage.setItem(THEME_KEY, next);
+  applyTheme(next);
+
+  postJson('/api/account', {
+    action: 'save_preferences',
+    theme: next,
+  }).catch(() => {});
+}
+
+applyTheme();
+
+if (window.matchMedia) {
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if (getThemePreference() === 'auto') {
+      applyTheme('auto');
+    }
+  });
+}
+
+function isLaunchOpen() {
+  return Date.now() >= LAUNCH_OPEN_AT;
+}
+
+if (!isLaunchPage && !isLaunchOpen() && localStorage.getItem(LAUNCH_GATE_KEY) !== '1') {
   const currentPage = `${window.location.pathname.split('/').pop() || 'index.html'}${window.location.search}${window.location.hash}`;
   window.location.replace(`snart.html?next=${encodeURIComponent(currentPage)}`);
 }
@@ -97,6 +146,22 @@ function formatSek(value) {
   return `${Math.round(value)} kr`;
 }
 
+function formatDate(value) {
+  if (!value) return '';
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  return [
+    String(date.getDate()).padStart(2, '0'),
+    String(date.getMonth() + 1).padStart(2, '0'),
+    date.getFullYear(),
+  ].join('-');
+}
+
 async function postJson(url, payload) {
   const response = await fetch(url, {
     method: 'POST',
@@ -170,16 +235,36 @@ function prepareCheckoutWindow() {
   return checkoutWindow;
 }
 
+function checkoutReturnUrl(type) {
+  const page = type === 'medlemskap'
+    ? 'medlemskap-aktivt.html?checkout=medlemskap'
+    : `order.html?checkout=${encodeURIComponent(type || 'produkt')}`;
+  return new URL(page, window.location.href).href;
+}
+
+function addCheckoutReturnParams(checkoutUrl, type) {
+  try {
+    const url = new URL(checkoutUrl);
+    const target = checkoutReturnUrl(type);
+    url.searchParams.set('return_url', target);
+    url.searchParams.set('return_to', target);
+    return url.href;
+  } catch (error) {
+    return checkoutUrl;
+  }
+}
+
 function openCheckout(checkoutUrl, type, checkoutWindow = null) {
-  rememberCheckout(type, checkoutUrl);
+  const checkoutWithReturn = addCheckoutReturnParams(checkoutUrl, type);
+  rememberCheckout(type, checkoutWithReturn);
   const opened = checkoutWindow || window.open('', '_blank');
 
   if (!opened) {
-    window.location.href = checkoutUrl;
+    window.location.href = checkoutWithReturn;
     return;
   }
 
-  opened.location.href = checkoutUrl;
+  opened.location.href = checkoutWithReturn;
   window.location.href = type === 'medlemskap'
     ? 'medlemskap-aktivt.html?checkout=medlemskap'
     : `order.html?checkout=${encodeURIComponent(type || 'produkt')}`;
@@ -227,17 +312,38 @@ function applyGlobalSessionUi(session = accountSession) {
   });
 
   setText('[data-member-home-title]', firstName ? `Välkommen tillbaka, ${firstName}` : 'Välkommen tillbaka');
-  setText('[data-account-hero-title]', member ? 'Ditt medlemskonto' : 'Din medlemsyta');
-  setText(
-    '[data-account-hero-copy]',
-    member
-      ? 'Medlemskapet är aktivt. Här ser du status, rabatter och senaste aktivitet.'
-      : 'Verifiera email, skapa lösenord och hantera medlemskap kopplat till Shopify.'
-  );
+  if (verificationToken) {
+    setText('[data-account-hero-title]', 'Skapa lösenord');
+    setText('[data-account-hero-copy]', 'Emailen är verifierad. Välj ett lösenord med minst 8 tecken, så skickas du vidare för att starta medlemskapet.');
+  } else if (resetToken) {
+    setText('[data-account-hero-title]', 'Nytt lösenord');
+    setText('[data-account-hero-copy]', 'Välj ett nytt lösenord för ditt konto.');
+  } else {
+    setText('[data-account-hero-title]', member ? 'Ditt medlemskonto' : 'Din medlemsyta');
+    setText(
+      '[data-account-hero-copy]',
+      member
+        ? 'Medlemskapet är aktivt. Här ser du status, rabatter och senaste aktivitet.'
+        : 'Verifiera email, skapa lösenord och hantera medlemskap kopplat till Shopify.'
+    );
+  }
 
   document.querySelectorAll('.menu a[href="konto.html"]').forEach((link) => {
     link.textContent = authenticated && firstName ? firstName : 'Konto';
   });
+}
+
+function syncThemeFromProfile(session = accountSession) {
+  const profileTheme = session
+    && session.authenticated
+    && session.customer
+    && session.customer.preferences
+    && session.customer.preferences.theme;
+
+  if (!localStorage.getItem(THEME_KEY) && ['auto', 'light', 'dark'].includes(profileTheme)) {
+    localStorage.setItem(THEME_KEY, profileTheme);
+    applyTheme(profileTheme);
+  }
 }
 
 function syncShoppingAccess() {
@@ -1504,12 +1610,14 @@ function pendingCheckoutTime(pending) {
 }
 
 function updateMemberStatus(session = accountSession) {
+  syncThemeFromProfile(session);
   applyGlobalSessionUi(session);
   syncShoppingAccess();
 
   const status = document.querySelector('[data-member-status]');
 
   if (!status) {
+    renderSettingsPage(session);
     return;
   }
 
@@ -1520,6 +1628,7 @@ function updateMemberStatus(session = accountSession) {
   const email = document.querySelector('[data-account-email]');
   const logoutButton = document.querySelector('[data-logout-button]');
   const membershipLink = document.querySelector('[data-membership-link]');
+  const settingsLink = document.querySelector('[data-settings-link]');
   const greeting = document.querySelector('[data-account-greeting]');
   const summary = document.querySelector('[data-account-summary]');
   const memberNote = document.querySelector('[data-member-note]');
@@ -1527,6 +1636,7 @@ function updateMemberStatus(session = accountSession) {
   const dashboardDiscount = document.querySelector('[data-dashboard-discount]');
   const dashboardOrders = document.querySelector('[data-dashboard-orders]');
   const dashboardPoints = document.querySelector('[data-dashboard-points]');
+  const dashboardRenewal = document.querySelector('[data-dashboard-renewal]');
 
   if (!session || !session.authenticated) {
     status.textContent = 'Ej inloggad';
@@ -1541,13 +1651,17 @@ function updateMemberStatus(session = accountSession) {
     if (email) email.textContent = 'Logga in för att se kontot.';
     if (logoutButton) logoutButton.hidden = true;
     if (membershipLink) membershipLink.hidden = true;
+    if (settingsLink) settingsLink.hidden = true;
     renderOrders([]);
+    renderSettingsPage(session);
     return;
   }
 
   const firstName = session.customer.firstName || (session.customer.displayName || '').split(' ')[0] || 'där';
   const orderCount = Number(session.customer.numberOfOrders || 0);
   const hasMemberDiscount = Boolean(session.customer.member);
+  const membership = session.customer.membership || {};
+  const nextDate = formatDate(membership.activeUntil || membership.nextChargeScheduledAt);
 
   if (accountFlow) accountFlow.hidden = true;
   if (authCard) authCard.hidden = false;
@@ -1564,17 +1678,26 @@ function updateMemberStatus(session = accountSession) {
   if (email) email.textContent = session.customer.email;
   if (memberNote) {
     memberNote.textContent = hasMemberDiscount
-      ? 'Medlemsrabatten är aktiv och används automatiskt i checkout.'
+      ? (membership.cancellationRequested
+        ? `Medlemskapet är avslutat men aktivt till ${nextDate || 'sista perioden'}.`
+        : `Medlemsrabatten är aktiv. ${nextDate ? `Nästa dragning är ${nextDate}.` : 'Den används automatiskt i checkout.'}`)
       : 'Starta medlemskap för att låsa upp rabatterade priser i checkout.';
   }
-  if (dashboardMembership) dashboardMembership.textContent = hasMemberDiscount ? 'Aktivt' : 'Ej aktivt';
+  if (dashboardMembership) dashboardMembership.textContent = hasMemberDiscount
+    ? (membership.cancellationRequested ? 'Aktivt till slutdatum' : 'Aktivt')
+    : 'Ej aktivt';
   if (dashboardDiscount) dashboardDiscount.textContent = hasMemberDiscount ? 'Upplåsta' : 'Låsta';
   if (dashboardOrders) dashboardOrders.textContent = String(orderCount);
   if (dashboardPoints) dashboardPoints.textContent = String(session.customer.points || 0);
+  if (dashboardRenewal) dashboardRenewal.textContent = hasMemberDiscount
+    ? (nextDate || 'Aktivt')
+    : 'Ej aktivt';
   showPointsIntroIfNeeded(session);
   if (logoutButton) logoutButton.hidden = false;
   if (membershipLink) membershipLink.hidden = hasMemberDiscount;
+  if (settingsLink) settingsLink.hidden = false;
   renderOrders(session.customer.orders);
+  renderSettingsPage(session);
 }
 
 function showPointsIntroIfNeeded(session) {
@@ -1582,15 +1705,14 @@ function showPointsIntroIfNeeded(session) {
     return;
   }
 
-  const points = Number(session.customer.points || 0);
   const email = session.customer.email || '';
   const storageKey = `${POINTS_INTRO_KEY}:${email}`;
 
-  if (points > 0 || sessionStorage.getItem(storageKey) === '1') {
+  if (!session.customer.member || localStorage.getItem(storageKey) === '1') {
     return;
   }
 
-  sessionStorage.setItem(storageKey, '1');
+  localStorage.setItem(storageKey, '1');
 
   const modal = document.createElement('div');
   modal.className = 'points-popover';
@@ -1611,13 +1733,62 @@ function showPointsIntroIfNeeded(session) {
   });
 }
 
+function renderSettingsPage(session = accountSession) {
+  const shell = document.querySelector('[data-settings-page]');
+
+  if (!shell) {
+    return;
+  }
+
+  const status = document.querySelector('[data-settings-membership-status]');
+  const cancelButton = document.querySelector('[data-cancel-membership]');
+  const message = document.querySelector('[data-settings-message]');
+  const member = isActiveMember(session);
+  const membership = session && session.customer && session.customer.membership ? session.customer.membership : {};
+  const date = formatDate(membership.activeUntil || membership.nextChargeScheduledAt);
+
+  if (!session || !session.authenticated) {
+    if (status) {
+      status.innerHTML = `
+        <span>Inte inloggad</span>
+        <strong>Logga in för medlemsinställningar</strong>
+        <p>Theme-valet sparas på den här enheten tills du loggar in.</p>
+      `;
+    }
+    if (cancelButton) cancelButton.hidden = true;
+    return;
+  }
+
+  if (status) {
+    status.innerHTML = member
+      ? `
+        <span>${membership.cancellationRequested ? 'Avslutas' : 'Aktivt medlemskap'}</span>
+        <strong>${membership.cancellationRequested ? `Aktivt till ${date || 'sista perioden'}` : (date ? `Nästa dragning ${date}` : 'Aktivt')}</strong>
+        <p>${membership.cancellationRequested ? 'Du behåller medlemspriserna till slutdatumet. Ingen ny dragning görs.' : 'Du kan avsluta prenumerationen här. Medlemskapet ligger kvar till sista betalda datumet.'}</p>
+      `
+      : `
+        <span>Ej aktivt</span>
+        <strong>Inget medlemskap</strong>
+        <p>Starta medlemskap för att låsa upp produkter, poäng och checkout.</p>
+      `;
+  }
+
+  if (cancelButton) {
+    cancelButton.hidden = !member || Boolean(membership.cancellationRequested) || !membership.subscriptionId;
+  }
+
+  if (message && membership.cancellationRequested) {
+    message.textContent = `Prenumerationen är avslutad. Access ligger kvar till ${date || 'sista perioden'}.`;
+  }
+}
+
 function completeAccountIntent() {
   if (isActiveMember()) {
     window.location.href = 'index.html';
-  } else if (accountNext === 'membership') {
+  } else if (accountNext === 'membership' || verificationToken) {
     window.location.href = 'medlemskap.html?ready=1';
   } else {
-    window.location.href = 'index.html';
+    window.location.href = 'medlemskap.html?ready=1';
   }
 }
 
@@ -1754,6 +1925,14 @@ const loginCard = document.querySelector('[data-login-card]');
 const createCard = document.querySelector('[data-create-card]');
 const resetCard = document.querySelector('[data-reset-card]');
 
+function setAccountFlowStep(activeStep) {
+  document.querySelectorAll('[data-account-flow] .flow-step').forEach((step, index) => {
+    const current = index + 1;
+    step.classList.toggle('active', current === activeStep);
+    step.classList.toggle('done', current < activeStep);
+  });
+}
+
 if (accountNext === 'membership' && createCard) {
   createCard.classList.add('is-priority');
   if (loginCard) loginCard.hidden = true;
@@ -1765,6 +1944,15 @@ if (verificationToken && registerForm) {
   if (verificationForm) verificationForm.hidden = true;
   if (loginCard) loginCard.hidden = true;
   if (createCard) createCard.classList.add('is-priority');
+  setAccountFlowStep(2);
+  setText('[data-account-hero-title]', 'Skapa lösenord');
+  setText('[data-account-hero-copy]', 'Emailen är verifierad. Välj ett lösenord med minst 8 tecken, så skickas du vidare för att starta medlemskapet.');
+  const createTitle = createCard && createCard.querySelector('h2');
+  const createCopy = createCard && createCard.querySelector('p');
+  const submit = registerForm.querySelector('button');
+  if (createTitle) createTitle.textContent = 'Skriv in lösenord';
+  if (createCopy) createCopy.textContent = 'Du är på steg 2. Fyll i ett lösenord för ditt konto, minst 8 tecken. Efter det öppnas medlemskapssidan.';
+  if (submit) submit.textContent = 'Fortsätt till medlemskap';
   if (message) message.textContent = 'Email verifierad. Välj lösenord för att skapa kontot.';
 }
 
@@ -1939,6 +2127,60 @@ if (logoutButton) {
   });
 }
 
+document.querySelectorAll('[data-theme-option]').forEach((button) => {
+  button.addEventListener('click', async () => {
+    setThemePreference(button.dataset.themeOption);
+    const message = document.querySelector('[data-settings-message]');
+
+    if (message) {
+      message.textContent = button.dataset.themeOption === 'auto'
+        ? 'Theme följer enhetens inställning.'
+        : `Theme sparat som ${button.dataset.themeOption === 'light' ? 'ljust' : 'mörkt'}.`;
+    }
+  });
+});
+
+applyTheme();
+
+const cancelMembershipButton = document.querySelector('[data-cancel-membership]');
+
+if (cancelMembershipButton) {
+  cancelMembershipButton.addEventListener('click', async () => {
+    const message = document.querySelector('[data-settings-message]');
+
+    cancelMembershipButton.disabled = true;
+    cancelMembershipButton.textContent = 'Avslutar...';
+    if (message) message.textContent = 'Kontaktar ReCharge...';
+
+    try {
+      const { response, data } = await postJson('/api/account', {
+        action: 'cancel_membership',
+      });
+
+      if (!response.ok) {
+        if (message) message.textContent = data.error || 'Kunde inte avsluta prenumerationen.';
+        cancelMembershipButton.disabled = false;
+        cancelMembershipButton.textContent = 'Avsluta prenumeration';
+        return;
+      }
+
+      accountSession = data.session || accountSession;
+      updateMemberStatus(accountSession);
+      if (message) {
+        const date = formatDate(data.activeUntil);
+        message.textContent = date
+          ? `Prenumerationen är avslutad. Medlemskapet gäller till ${date}.`
+          : (data.status || 'Prenumerationen är avslutad.');
+      }
+      cancelMembershipButton.textContent = 'Avslutad';
+    } catch (error) {
+      if (message) message.textContent = 'Kunde inte kontakta servern.';
+      cancelMembershipButton.disabled = false;
+      cancelMembershipButton.textContent = 'Avsluta prenumeration';
+    }
+  });
+}
+
 const membershipCheckoutButton = document.querySelector('[data-membership-checkout]');
 
 if (membershipCheckoutButton) {
@@ -2101,6 +2343,40 @@ document.addEventListener('click', (event) => {
 });
 
 const launchForm = document.querySelector('[data-launch-form]');
+const launchCountdown = document.querySelector('[data-launch-countdown]');
+
+function updateLaunchCountdown() {
+  if (!launchCountdown) {
+    return;
+  }
+
+  const distance = Math.max(0, LAUNCH_OPEN_AT - Date.now());
+  const days = Math.floor(distance / 86400000);
+  const hours = Math.floor((distance % 86400000) / 3600000);
+  const minutes = Math.floor((distance % 3600000) / 60000);
+  const seconds = Math.floor((distance % 60000) / 1000);
+
+  launchCountdown.innerHTML = `
+    <div><strong>${String(days).padStart(2, '0')}</strong><span>dagar</span></div>
+    <div><strong>${String(hours).padStart(2, '0')}</strong><span>timmar</span></div>
+    <div><strong>${String(minutes).padStart(2, '0')}</strong><span>min</span></div>
+    <div><strong>${String(seconds).padStart(2, '0')}</strong><span>sek</span></div>
+  `;
+
+  if (distance === 0) {
+    localStorage.setItem(LAUNCH_GATE_KEY, '1');
+    if (isLaunchPage) {
+      window.setTimeout(() => {
+        unlockLaunchGate(pageParams.get('next') || 'index.html');
+      }, 800);
+    }
+  }
+}
+
+if (launchCountdown) {
+  updateLaunchCountdown();
+  window.setInterval(updateLaunchCountdown, 1000);
+}
 
 if (launchForm) {
   const input = launchForm.querySelector('[data-launch-input]');

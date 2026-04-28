@@ -4,11 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#050609">
-<meta name="color-scheme" content="dark">
-<script>try{if(!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
+<meta name="color-scheme" content="light dark">
+<script>try{const p=localStorage.getItem("versenThemePreference")||"auto";const d=p==="dark"||(p==="auto"&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.dataset.theme=d?"dark":"light";document.documentElement.dataset.themePreference=p;}catch(e){document.documentElement.dataset.theme="light";}</script>
+<script>try{if(Date.now()<1777500060000&&!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen - Konto</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260428-live-card-even">
+<link rel="stylesheet" href="styles.css?v=20260429-membership-settings">
 </head>
 
 <body class="auth-loading">
@@ -64,6 +65,10 @@
         <div class="account-metric">
           <span>Rabatter</span>
           <strong data-dashboard-discount>Låsta</strong>
+        </div>
+        <div class="account-metric">
+          <span>Nästa datum</span>
+          <strong data-dashboard-renewal>Ej aktivt</strong>
         </div>
         <div class="account-metric">
           <span>Ordrar</span>
@@ -124,6 +129,7 @@
         <a class="product-btn secondary" href="medlemskap.html" data-membership-link hidden>Starta medlemskap</a>
         <button class="product-btn secondary" type="button" data-logout-button hidden>Logga ut</button>
       </div>
+      <a class="account-link account-settings-link" href="installningar.html" data-settings-link hidden>Inställningar</a>
     </article>
 
     <article class="account-card order-card" data-orders-card hidden>
@@ -136,6 +142,6 @@
   </section>
 </main>
 
-<script src="script.js?v=20260428-live-card-even"></script>
+<script src="script.js?v=20260429-membership-settings"></script>
 </body>
 </html>

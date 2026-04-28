@@ -275,6 +275,29 @@ body.auth-loading [data-discount-form]{
   padding-top:34px;
 }
 
+.member-hero{
+  padding-bottom:24px;
+}
+
+.member-hero .hero-content{
+  margin-top:18px;
+}
+
+.member-hero h1{
+  font-size:30px;
+  max-width:420px;
+}
+
+.member-hero p{
+  max-width:500px;
+  margin-top:12px;
+  font-size:14px;
+}
+
+.member-hero .cta{
+  margin-top:18px;
+}
+
 .section h2{
   font-size:28px;
   line-height:1.14;
@@ -1397,6 +1420,16 @@ body.auth-loading [data-discount-form]{
   color:white;
 }
 
+.flow-step.done{
+  border-color:rgba(130,247,210,.2);
+  color:rgba(130,247,210,.82);
+}
+
+.flow-step.done span{
+  background:rgba(130,247,210,.16);
+  color:rgba(216,255,242,.96);
+}
+
 .login-card .product-btn{
   margin-top:18px;
 }
@@ -1571,6 +1604,66 @@ body.auth-loading [data-discount-form]{
 .account-actions .product-btn{
   width:100%;
   margin-top:0;
+}
+
+.account-settings-link{
+  width:max-content;
+  max-width:100%;
+  margin-top:2px;
+  color:rgba(255,255,255,.48);
+  font-size:13px;
+}
+
+.settings-grid{
+  max-width:980px;
+  margin:0 auto;
+}
+
+.settings-card{
+  display:grid;
+  gap:14px;
+}
+
+.theme-switcher{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  padding:6px;
+  border-radius:18px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.1);
+}
+
+.theme-switcher button{
+  min-height:44px;
+  border:0;
+  border-radius:14px;
+  background:transparent;
+  color:rgba(255,255,255,.58);
+  font:inherit;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.theme-switcher button.active{
+  background:rgba(255,255,255,.14);
+  color:white;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+.settings-status{
+  margin-top:0;
+}
+
+.danger-link{
+  width:max-content;
+  max-width:100%;
+  color:rgba(255,150,150,.82);
+  border-color:rgba(255,88,88,.22);
+}
+
+.settings-back{
+  width:100%;
 }
 
 .member-form{
@@ -1980,6 +2073,39 @@ body.auth-loading [data-discount-form]{
   color:rgba(255,255,255,.68);
   line-height:1.62;
   font-size:16px;
+}
+
+.launch-countdown{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  max-width:500px;
+  margin:24px auto 6px;
+}
+
+.launch-countdown div{
+  min-height:78px;
+  display:grid;
+  align-content:center;
+  gap:4px;
+  border-radius:20px;
+  background:linear-gradient(145deg,rgba(255,255,255,.1),rgba(255,255,255,.035));
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 16px 44px rgba(0,0,0,.16);
+}
+
+.launch-countdown strong{
+  color:white;
+  font-size:24px;
+  line-height:1;
+}
+
+.launch-countdown span{
+  color:rgba(255,255,255,.52);
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.7px;
+  text-transform:uppercase;
 }
 
 .launch-lines{
@@ -2549,6 +2675,217 @@ body.auth-loading [data-discount-form]{
   transform:translateY(0);
 }
 
+html[data-theme="light"]{
+  --page-bg:#f5f3ed;
+  --page-bg-deep:#eee9df;
+  color-scheme:light;
+  background:#eee9df;
+}
+
+html[data-theme="light"] body{
+  background:#eee9df;
+  color:#0b0d10;
+}
+
+html[data-theme="light"] body::before{
+  background:
+    radial-gradient(circle at 50% -8%, rgba(130,247,210,.22), transparent 31rem),
+    radial-gradient(circle at 12% 16%, rgba(125,112,255,.11), transparent 24rem),
+    radial-gradient(circle at 86% 8%, rgba(255,255,255,.92), transparent 26rem),
+    linear-gradient(180deg,#f7f4ec 0%,#eee9df 48%,#e9e4d9 100%);
+}
+
+html[data-theme="light"] body::after{
+  background:linear-gradient(180deg,rgba(238,233,223,0),rgba(238,233,223,.88));
+}
+
+html[data-theme="light"] .nav{
+  background:rgba(247,244,236,.88);
+  box-shadow:0 1px 0 rgba(10,12,16,.08), 0 18px 42px rgba(80,72,56,.1);
+}
+
+html[data-theme="light"] .nav::after{
+  background:linear-gradient(180deg,rgba(247,244,236,.7),rgba(247,244,236,0));
+}
+
+html[data-theme="light"] .menu a{
+  color:#0b0d10;
+  opacity:.58;
+}
+
+html[data-theme="light"] .menu a.active{
+  opacity:1;
+  background:rgba(12,14,18,.08);
+  border-color:rgba(12,14,18,.12);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7);
+}
+
+html[data-theme="light"] .hero p,
+html[data-theme="light"] .page-hero p,
+html[data-theme="light"] .membership-hero p,
+html[data-theme="light"] .product-detail p,
+html[data-theme="light"] .section-sub,
+html[data-theme="light"] .card p,
+html[data-theme="light"] .info-card p,
+html[data-theme="light"] .legal-card p,
+html[data-theme="light"] .account-card p,
+html[data-theme="light"] .empty-state p,
+html[data-theme="light"] .order-row p,
+html[data-theme="light"] .product-copy-section p,
+html[data-theme="light"] .launch-copy{
+  color:rgba(12,14,18,.62);
+}
+
+html[data-theme="light"] .badge,
+html[data-theme="light"] .status-pill,
+html[data-theme="light"] .sort-pill,
+html[data-theme="light"] .filter-pill,
+html[data-theme="light"] .flow-step,
+html[data-theme="light"] .account-metric,
+html[data-theme="light"] .activation-status,
+html[data-theme="light"] .theme-switcher,
+html[data-theme="light"] .launch-countdown div{
+  background:rgba(255,255,255,.58);
+  border-color:rgba(12,14,18,.1);
+  color:rgba(12,14,18,.62);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.62);
+}
+
+html[data-theme="light"] .card,
+html[data-theme="light"] .step,
+html[data-theme="light"] .product-card,
+html[data-theme="light"] .info-card,
+html[data-theme="light"] .legal-card,
+html[data-theme="light"] .account-card,
+html[data-theme="light"] .membership-panel,
+html[data-theme="light"] .lock-box,
+html[data-theme="light"] .cart-panel,
+html[data-theme="light"] .activation-panel,
+html[data-theme="light"] .category-launch-card,
+html[data-theme="light"] .product-copy-section,
+html[data-theme="light"] .live-product-card{
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.82),rgba(255,255,255,.42)),
+    rgba(255,255,255,.36);
+  border-color:rgba(12,14,18,.1);
+  box-shadow:0 22px 70px rgba(84,78,62,.12), inset 0 1px 0 rgba(255,255,255,.66);
+}
+
+html[data-theme="light"] .membership-highlights div,
+html[data-theme="light"] .points-metric{
+  background:linear-gradient(135deg,rgba(130,247,210,.28),rgba(255,255,255,.62));
+  border-color:rgba(26,145,106,.18);
+}
+
+html[data-theme="light"] .badge,
+html[data-theme="light"] .account-metric span,
+html[data-theme="light"] .account-metric small,
+html[data-theme="light"] .product-category,
+html[data-theme="light"] .product-card-meta span,
+html[data-theme="light"] .order-row small,
+html[data-theme="light"] .order-row span,
+html[data-theme="light"] .launch-lines span,
+html[data-theme="light"] .launch-countdown span,
+html[data-theme="light"] .activation-status span{
+  color:rgba(12,14,18,.54);
+}
+
+html[data-theme="light"] .card h3,
+html[data-theme="light"] .step h3,
+html[data-theme="light"] .product-card h3,
+html[data-theme="light"] .legal-card h2,
+html[data-theme="light"] .info-card h2,
+html[data-theme="light"] .product-copy-section h2,
+html[data-theme="light"] .account-metric strong,
+html[data-theme="light"] .account-card h2,
+html[data-theme="light"] .membership-highlights strong,
+html[data-theme="light"] .activation-status strong,
+html[data-theme="light"] .launch-countdown strong,
+html[data-theme="light"] .launch-kicker,
+html[data-theme="light"] .points-popover-card h2,
+html[data-theme="light"] .points-popover-card strong,
+html[data-theme="light"] .live-product-info strong{
+  color:#0b0d10;
+}
+
+html[data-theme="light"] .member-form input,
+html[data-theme="light"] .member-form select,
+html[data-theme="light"] .member-form textarea,
+html[data-theme="light"] .launch-input-row input,
+html[data-theme="light"] .discount-form input{
+  background:rgba(255,255,255,.72);
+  border-color:rgba(12,14,18,.14);
+  color:#0b0d10;
+}
+
+html[data-theme="light"] .theme-switcher button{
+  color:rgba(12,14,18,.52);
+}
+
+html[data-theme="light"] .theme-switcher button.active{
+  background:rgba(12,14,18,.09);
+  color:#0b0d10;
+}
+
+html[data-theme="light"] .points-popover-card{
+  background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(236,232,222,.96));
+  border-color:rgba(26,145,106,.18);
+  box-shadow:0 20px 70px rgba(84,78,62,.18),0 0 42px rgba(130,247,210,.16);
+}
+
+html[data-theme="light"] .points-popover-card p{
+  color:rgba(12,14,18,.62);
+}
+
+html[data-theme="light"] .launch-body::before{
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.72) 0%,rgba(255,255,255,0) 26%,rgba(255,255,255,0) 68%,rgba(238,233,223,.82) 100%),
+    radial-gradient(circle at 50% 0%, rgba(130,247,210,.2), transparent 24rem),
+    radial-gradient(circle at 16% 38%, rgba(125,112,255,.13), transparent 24rem),
+    linear-gradient(180deg,#f7f4ec 0%,#edf2e7 44%,#ebe4d8 100%);
+}
+
+html[data-theme="light"] .launch-gate::before{
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.5) 0%,rgba(255,255,255,0) 30%,rgba(235,228,216,.58) 100%),
+    radial-gradient(circle at 50% 18%, rgba(130,247,210,.22), transparent 20rem),
+    radial-gradient(circle at 20% 72%, rgba(125,112,255,.14), transparent 19rem),
+    radial-gradient(circle at 82% 78%, rgba(255,255,255,.72), transparent 18rem);
+}
+
+html[data-theme="light"] .launch-panel{
+  background:
+    linear-gradient(90deg,rgba(12,14,18,0),rgba(12,14,18,.12),rgba(12,14,18,0)) top / 100% 1px no-repeat,
+    linear-gradient(90deg,rgba(12,14,18,0),rgba(12,14,18,.08),rgba(12,14,18,0)) bottom / 100% 1px no-repeat;
+}
+
+html[data-theme="light"] .launch-orbit span,
+html[data-theme="light"] .activation-rings span{
+  border-color:rgba(12,14,18,.08);
+}
+
+html[data-theme="light"] .cta,
+html[data-theme="light"] .product-btn,
+html[data-theme="light"] .launch-input-row button,
+html[data-theme="light"] .points-popover-card button{
+  background:linear-gradient(180deg,#0f1215,#050609);
+  color:#fff;
+  box-shadow:0 16px 44px rgba(80,72,56,.16), 0 0 34px rgba(120,255,190,.1);
+}
+
+html[data-theme="light"] .product-btn.secondary,
+html[data-theme="light"] .remove-btn,
+html[data-theme="light"] .account-link{
+  color:rgba(12,14,18,.62);
+  border-color:rgba(12,14,18,.12);
+  background:rgba(255,255,255,.4);
+}
+
+html[data-theme="light"] .danger-link{
+  color:#a83d3d;
+  border-color:rgba(168,61,61,.2);
+}
+
 @media(min-width:768px){
   :root{
     --nav-height:70px;
@@ -2612,6 +2949,19 @@ body.auth-loading [data-discount-form]{
   .page-hero h1,
   .membership-hero h1{
     font-size:74px;
+  }
+
+  .member-hero{
+    min-height:calc(56vh - 70px);
+    padding:34px 20px 26px;
+  }
+
+  .member-hero h1{
+    font-size:48px;
+  }
+
+  .member-hero p{
+    font-size:16px;
   }
 
   .product-detail h1{

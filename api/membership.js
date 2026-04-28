@@ -57,6 +57,19 @@ const CUSTOMER_ORDERS_QUERY = `
   }
 `;
 
+const CUSTOMER_MEMBERSHIP_META_QUERY = `
+  query VersenCustomerMembershipMeta($id: ID!) {
+    customer(id: $id) {
+      membershipCancellation: metafield(namespace: "versen", key: "membership_cancellation") {
+        value
+      }
+      preferences: metafield(namespace: "versen", key: "preferences") {
+        value
+      }
+    }
+  }
+`;
+
 function membershipTags() {
   return (process.env.VERSEN_MEMBER_TAG || 'versen_member,member,medlem')
     .split(',')
@@ -106,6 +119,30 @@ function normalizeAdminOrders(orders) {
   }));
 }
 
+function parseJson(value, fallback = null) {
+  try {
+    return value ? JSON.parse(value) : fallback;
+  } catch (error) {
+    return fallback;
+  }
+}
+
+function dateTime(value) {
+  const time = value ? new Date(value).getTime() : 0;
+  return Number.isNaN(time) ? 0 : time;
+}
+
+function isFutureOrToday(value) {
+  if (!value) return false;
+
+  const end = dateTime(value);
+  if (!end) return false;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return end >= today.getTime();
+}
+
 function orderAmount(order) {
   const amount = order
     && order.currentTotalPriceSet
@@ -116,7 +153,48 @@ function orderAmount(order) {
   return Number.isNaN(value) ? 0 : value;
 }
 
-function normalizeCustomer(customer, rechargeActive = false, adminOrders = null) {
+function normalizeRechargeSubscription(subscription) {
+  if (!subscription) {
+    return null;
+  }
+
+  return {
+    id: subscription.id,
+    status: subscription.status || '',
+    productTitle: subscription.product_title || subscription.product_name || 'Medlemskap',
+    nextChargeScheduledAt: subscription.next_charge_scheduled_at || null,
+  };
+}
+
+async function getCustomerMeta(customerId) {
+  if (!customerId) {
+    return {
+      cancellation: null,
+      preferences: {},
+    };
+  }
+
+  const result = await adminFetch(CUSTOMER_MEMBERSHIP_META_QUERY, { id: customerId });
+
+  if (!result.ok) {
+    return {
+      cancellation: null,
+      preferences: {},
+    };
+  }
+
+  const customer = result.body.data.customer || {};
+  const cancellationValue = customer.membershipCancellation && customer.membershipCancellation.value;
+  const preferencesValue = customer.preferences && customer.preferences.value;
+
+  return {
+    cancellation: parseJson(cancellationValue, null),
+    preferences: parseJson(preferencesValue, {}) || {},
+  };
+}
+
+function normalizeCustomer(customer, rechargeInfo = {}, adminOrders = null, meta = {}) {
+  const cancellation = meta.cancellation || null;
   const tags = customer.tags || [];
   const tagMatch = tags.some((tag) => membershipTags().includes(String(tag).toLowerCase()));
   const email = String(customer.email || '').toLowerCase();
@@ -124,10 +202,20 @@ function normalizeCustomer(customer, rechargeActive = false, adminOrders = null)
   const forcedNonMembers = emailList(process.env.VERSEN_TEST_NON_MEMBER_EMAILS, 'armin.hurtic@icloud.com');
   const forcedMember = forcedMembers.includes(email);
   const forcedNonMember = forcedNonMembers.includes(email);
-  const member = Boolean(rechargeActive || (!forcedNonMember && (tagMatch || forcedMember)));
-  const membershipSource = rechargeActive ? 'Recharge' : (forcedMember ? 'Test' : (tagMatch ? 'Shopify' : null));
+  const cancelledButActive = cancellation
+    && cancellation.status === 'cancelled'
+    && isFutureOrToday(cancellation.activeUntil);
+  const rechargeActive = Boolean(rechargeInfo && rechargeInfo.active);
+  const member = Boolean(cancelledButActive || rechargeActive || (!forcedNonMember && (tagMatch || forcedMember)));
+  const membershipSource = cancelledButActive
+    ? 'Avslutas'
+    : (rechargeActive ? 'Recharge' : (forcedMember ? 'Test' : (tagMatch ? 'Shopify' : null)));
   const orderSpend = adminOrders ? adminOrders.reduce((sum, order) => sum + orderAmount(order), 0) : 0;
   const points = Math.floor(orderSpend * 2);
+  const subscription = rechargeInfo && rechargeInfo.subscription ? normalizeRechargeSubscription(rechargeInfo.subscription) : null;
+  const activeUntil = cancelledButActive
+    ? cancellation.activeUntil
+    : (subscription && subscription.nextChargeScheduledAt ? subscription.nextChargeScheduledAt : null);
 
   return {
     id: customer.id,
@@ -138,7 +226,16 @@ function normalizeCustomer(customer, rechargeActive = false, adminOrders = null)
     tags,
     member,
     membershipSource,
-    membershipStatus: member ? 'Aktiv medlem' : 'Inget aktivt medlemskap',
+    membershipStatus: cancelledButActive ? 'Aktiv till uppsägning' : (member ? 'Aktiv medlem' : 'Inget aktivt medlemskap'),
+    membership: {
+      source: membershipSource,
+      subscriptionId: subscription && subscription.id ? subscription.id : (cancellation && cancellation.subscriptionId ? cancellation.subscriptionId : null),
+      nextChargeScheduledAt: subscription && subscription.nextChargeScheduledAt ? subscription.nextChargeScheduledAt : null,
+      activeUntil,
+      cancellationRequested: Boolean(cancelledButActive),
+      cancelledAt: cancellation && cancellation.cancelledAt ? cancellation.cancelledAt : null,
+    },
+    preferences: meta.preferences || {},
     numberOfOrders: Math.max(Number(customer.numberOfOrders || 0), adminOrders ? adminOrders.length : 0),
     points,
     pointsBaseAmount: Math.round(orderSpend),
@@ -160,11 +257,14 @@ async function getRecentOrdersByEmail(email) {
   return result.body.data.orders.nodes || [];
 }
 
-async function checkRechargeMembership(email) {
+async function getRechargeMembershipByEmail(email) {
   const token = process.env.RECHARGE_API_TOKEN;
 
   if (!token || !email) {
-    return false;
+    return {
+      active: false,
+      subscription: null,
+    };
   }
 
   const headers = {
@@ -198,18 +298,24 @@ async function checkRechargeMembership(email) {
     const productId = process.env.RECHARGE_MEMBERSHIP_PRODUCT_ID;
     const variantId = process.env.RECHARGE_MEMBERSHIP_VARIANT_ID;
 
-    if (!productId && !variantId) {
-      return subscriptions.length > 0;
-    }
+    const subscription = !productId && !variantId
+      ? subscriptions[0]
+      : subscriptions.find((item) => (
+        String(item.product_id || '') === String(productId || '')
+        || String(item.external_product_id && item.external_product_id.ecommerce || '') === String(productId || '')
+        || String(item.variant_id || '') === String(variantId || '')
+        || String(item.external_variant_id && item.external_variant_id.ecommerce || '') === String(variantId || '')
+      ));
 
-    return subscriptions.some((subscription) => (
-      String(subscription.product_id || '') === String(productId || '')
-      || String(subscription.external_product_id && subscription.external_product_id.ecommerce || '') === String(productId || '')
-      || String(subscription.variant_id || '') === String(variantId || '')
-      || String(subscription.external_variant_id && subscription.external_variant_id.ecommerce || '') === String(variantId || '')
-    ));
+    return {
+      active: Boolean(subscription),
+      subscription: subscription || null,
+    };
   } catch (error) {
-    return false;
+    return {
+      active: false,
+      subscription: null,
+    };
   }
 }
 
@@ -230,14 +336,15 @@ async function getCustomerSession(customerAccessToken) {
     };
   }
 
-  const [rechargeActive, adminOrders] = await Promise.all([
-    checkRechargeMembership(result.body.data.customer.email),
+  const [rechargeInfo, adminOrders, meta] = await Promise.all([
+    getRechargeMembershipByEmail(result.body.data.customer.email),
     getRecentOrdersByEmail(result.body.data.customer.email),
+    getCustomerMeta(result.body.data.customer.id),
   ]);
 
   return {
     authenticated: true,
-    customer: normalizeCustomer(result.body.data.customer, rechargeActive, adminOrders),
+    customer: normalizeCustomer(result.body.data.customer, rechargeInfo, adminOrders, meta),
   };
 }
 
@@ -255,6 +362,10 @@ async function handler(req, res) {
 
 handler.getCustomerSession = getCustomerSession;
 handler.membershipTags = membershipTags;
-handler.checkRechargeMembership = checkRechargeMembership;
+handler.checkRechargeMembership = async (email) => {
+  const result = await getRechargeMembershipByEmail(email);
+  return Boolean(result.active);
+};
+handler.getRechargeMembershipByEmail = getRechargeMembershipByEmail;
 
 module.exports = handler;
