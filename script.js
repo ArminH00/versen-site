@@ -2170,13 +2170,14 @@ if (adminForm) {
       button.textContent = enabled ? 'Sparar...' : 'Tar bort...';
 
       try {
-        const response = await fetch('/api/admin-product-tags', {
+        const response = await fetch('/api/admin-members', {
           method: 'POST',
           headers: {
             ...adminHeaders(),
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
+            action: 'update_product_flag',
             handle: button.dataset.productHandle,
             flag: button.dataset.productFlag,
             enabled,
