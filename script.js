@@ -389,12 +389,12 @@ function productCard(product) {
   const vendor = product.vendor || product.category || 'Versen';
   const flags = product.flags || {};
   const badges = [
-    flags.greatPrice ? '<span>Grymt pris</span>' : '',
-    flags.fewLeft ? '<span>Få kvar</span>' : '',
+    flags.greatPrice ? '<span class="great-price">Grymt pris</span>' : '',
+    flags.fewLeft ? '<span class="few-left">Få kvar</span>' : '',
   ].filter(Boolean).join('');
 
   return `
-    <article class="product-card" role="link" tabindex="0" data-product-url="${escapeHtml(productUrl)}" data-category="${escapeHtml(product.category)}" data-product-handle="${escapeHtml(product.handle)}" data-variant-id="${escapeHtml(product.variantId || '')}" data-product-title="${escapeHtml(product.title)}" data-product-price="${escapeHtml(memberPrice)}" data-product-compare-at-price="${escapeHtml(compareAtPrice)}" data-product-image-url="${escapeHtml(product.image && product.image.url ? product.image.url : '')}" data-product-image-alt="${escapeHtml(product.image && product.image.altText ? product.image.altText : product.title)}">
+    <article class="product-card ${flags.greatPrice ? 'has-great-price' : ''} ${flags.fewLeft ? 'has-few-left' : ''}" role="link" tabindex="0" data-product-url="${escapeHtml(productUrl)}" data-category="${escapeHtml(product.category)}" data-product-handle="${escapeHtml(product.handle)}" data-variant-id="${escapeHtml(product.variantId || '')}" data-product-title="${escapeHtml(product.title)}" data-product-price="${escapeHtml(memberPrice)}" data-product-compare-at-price="${escapeHtml(compareAtPrice)}" data-product-image-url="${escapeHtml(product.image && product.image.url ? product.image.url : '')}" data-product-image-alt="${escapeHtml(product.image && product.image.altText ? product.image.altText : product.title)}">
       <div class="product-image">${image}</div>
       <div class="product-info">
         ${badges ? `<div class="product-badges">${badges}</div>` : ''}
@@ -2096,8 +2096,8 @@ if (adminForm) {
               <span>${escapeHtml(product.vendor || 'Okänt varumärke')} · ${escapeHtml(product.price)} ${product.compareAtPrice ? `· ${escapeHtml(product.compareAtPrice)}` : ''}</span>
               <small>${escapeHtml(product.status)} · lager ${escapeHtml(String(product.inventory ?? 'okänt'))}</small>
               <div class="admin-flag-actions">
-                <button class="flag-toggle ${product.flags && product.flags.fewLeft ? 'active' : ''}" type="button" data-product-flag="fewLeft" data-product-handle="${escapeHtml(product.handle)}" data-enabled="${product.flags && product.flags.fewLeft ? 'true' : 'false'}">Få antal kvar</button>
-                <button class="flag-toggle ${product.flags && product.flags.greatPrice ? 'active' : ''}" type="button" data-product-flag="greatPrice" data-product-handle="${escapeHtml(product.handle)}" data-enabled="${product.flags && product.flags.greatPrice ? 'true' : 'false'}">Grymt pris</button>
+                <button class="flag-toggle few-left ${product.flags && product.flags.fewLeft ? 'active' : ''}" type="button" data-product-flag="fewLeft" data-product-handle="${escapeHtml(product.handle)}" data-enabled="${product.flags && product.flags.fewLeft ? 'true' : 'false'}">Få antal kvar</button>
+                <button class="flag-toggle great-price ${product.flags && product.flags.greatPrice ? 'active' : ''}" type="button" data-product-flag="greatPrice" data-product-handle="${escapeHtml(product.handle)}" data-enabled="${product.flags && product.flags.greatPrice ? 'true' : 'false'}">Grymt pris</button>
               </div>
             </div>
           `).join('') : '<div class="empty-state"><span>Inga produkter</span><p>Kontrollera Shopify-access.</p></div>'}
