@@ -4,16 +4,55 @@
   box-sizing:border-box;
 }
 
+:root{
+  --page-bg:#050609;
+  --page-bg-deep:#020304;
+  --nav-height:112px;
+}
+
+html{
+  min-height:100%;
+  background:var(--page-bg-deep);
+  color-scheme:dark;
+  overscroll-behavior-y:none;
+}
+
 body{
   font-family:'Inter',sans-serif;
-  background:
-    radial-gradient(circle at 50% -12%, rgba(120,105,255,.18), transparent 34rem),
-    radial-gradient(circle at 12% 18%, rgba(90,255,190,.055), transparent 24rem),
-    linear-gradient(180deg,#090a0d 0%,#0b0b0d 42%,#070707 100%);
+  min-height:100svh;
+  background:var(--page-bg-deep);
   color:white;
-  padding-top:100px;
+  padding-top:var(--nav-height);
   overflow-x:hidden;
+  overscroll-behavior-y:none;
+  position:relative;
+  isolation:isolate;
   text-rendering:geometricPrecision;
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:-26vh -18vw;
+  z-index:-2;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 50% -6%, rgba(120,105,255,.18), transparent 34rem),
+    radial-gradient(circle at 12% 18%, rgba(90,255,190,.065), transparent 25rem),
+    radial-gradient(circle at 88% 8%, rgba(125,112,255,.07), transparent 28rem),
+    linear-gradient(180deg,#0b0d12 0%,#080a0d 45%,#050606 100%);
+}
+
+body::after{
+  content:"";
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  height:34vh;
+  z-index:-1;
+  pointer-events:none;
+  background:linear-gradient(180deg,rgba(2,3,4,0),rgba(2,3,4,.9));
 }
 
 a{
@@ -57,17 +96,29 @@ body.auth-loading [data-discount-form]{
   top:0;
   left:0;
   width:100%;
-  min-height:58px;
+  min-height:var(--nav-height);
   display:flex;
   flex-wrap:wrap;
   align-items:center;
   justify-content:center;
   gap:8px 10px;
   padding:10px 12px 11px;
-  background:rgba(5,6,9,0.76);
-  border-bottom:1px solid rgba(255,255,255,.075);
+  background:rgba(4,5,9,.9);
+  border-bottom:0;
+  box-shadow:0 1px 0 rgba(255,255,255,.055), 0 18px 42px rgba(0,0,0,.32);
   backdrop-filter:blur(18px);
   z-index:100;
+}
+
+.nav::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:-34px;
+  height:34px;
+  pointer-events:none;
+  background:linear-gradient(180deg,rgba(4,5,9,.62),rgba(4,5,9,0));
 }
 
 .logo{
@@ -127,7 +178,7 @@ body.auth-loading [data-discount-form]{
 
 .hero{
   position:relative;
-  padding:30px 20px 22px;
+  padding:28px 20px 42px;
   text-align:center;
   overflow:hidden;
 }
@@ -150,7 +201,7 @@ body.auth-loading [data-discount-form]{
   position:relative;
   z-index:1;
   width:min(720px,100%);
-  margin:54px auto 0;
+  margin:38px auto 0;
 }
 
 .badge{
@@ -206,12 +257,12 @@ body.auth-loading [data-discount-form]{
   font-size:15px;
   cursor:pointer;
   transition:.25s;
-  box-shadow:0 14px 50px rgba(255,255,255,.08);
+  box-shadow:0 16px 44px rgba(0,0,0,.36), 0 0 34px rgba(120,255,190,.075);
 }
 
 .cta:hover{
   transform:translateY(-2px) scale(1.03);
-  box-shadow:0 18px 50px rgba(255,255,255,.16);
+  box-shadow:0 18px 52px rgba(0,0,0,.4), 0 0 42px rgba(120,255,190,.12);
 }
 
 .section{
@@ -224,7 +275,7 @@ body.auth-loading [data-discount-form]{
 }
 
 .member-shopping{
-  padding-top:24px;
+  padding-top:34px;
 }
 
 .section h2{
@@ -609,7 +660,7 @@ body.auth-loading [data-discount-form]{
 
 .membership-hero{
   position:relative;
-  min-height:calc(100vh - 58px);
+  min-height:calc(100svh - var(--nav-height));
   display:flex;
   align-items:center;
   justify-content:center;
@@ -916,7 +967,7 @@ body.auth-loading [data-discount-form]{
 
 .activation-stage{
   position:relative;
-  min-height:calc(100vh - 100px);
+  min-height:calc(100svh - var(--nav-height));
   display:grid;
   place-items:center;
   overflow:hidden;
@@ -1164,7 +1215,7 @@ body.auth-loading [data-discount-form]{
 .site-footer{
   padding:42px 20px 48px;
   border-top:1px solid rgba(255,255,255,.08);
-  background:linear-gradient(180deg,rgba(255,255,255,.018),rgba(255,255,255,.045));
+  background:linear-gradient(180deg,rgba(8,10,14,.16),rgba(2,3,4,.72));
 }
 
 .site-footer-inner{
@@ -1495,12 +1546,16 @@ body.auth-loading [data-discount-form]{
 }
 
 @media(min-width:768px){
+  :root{
+    --nav-height:70px;
+  }
+
   body{
-    padding-top:70px;
+    padding-top:var(--nav-height);
   }
 
   .nav{
-    min-height:70px;
+    min-height:var(--nav-height);
     flex-wrap:nowrap;
     justify-content:space-between;
     padding:0 64px;
@@ -1712,7 +1767,7 @@ body.auth-loading [data-discount-form]{
   }
 
   .membership-hero{
-    min-height:calc(100vh - 70px);
+    min-height:calc(100svh - var(--nav-height));
     padding:64px 64px 82px;
   }
 
@@ -1721,7 +1776,7 @@ body.auth-loading [data-discount-form]{
   }
 
   .activation-stage{
-    min-height:calc(100vh - 70px);
+    min-height:calc(100svh - var(--nav-height));
     padding:64px 64px 92px;
   }
 
