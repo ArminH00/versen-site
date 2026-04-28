@@ -65,6 +65,31 @@ const CUSTOMER_EXISTS_QUERY = `
   }
 `;
 
+const CUSTOMER_SUGGESTIONS_QUERY = `
+  query VersenCustomerSuggestions($id: ID!) {
+    customer(id: $id) {
+      metafield(namespace: "versen", key: "product_suggestions") {
+        value
+      }
+    }
+  }
+`;
+
+const METAFIELDS_SET_MUTATION = `
+  mutation VersenMetafieldsSet($metafields: [MetafieldsSetInput!]!) {
+    metafieldsSet(metafields: $metafields) {
+      metafields {
+        id
+        key
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
+
 function normalizeEmail(email) {
   return String(email || '').trim().toLowerCase();
 }
@@ -436,12 +461,28 @@ async function sendProductSuggestionEmail(req, res, body) {
     return;
   }
 
+  const suggestion = {
+    id: crypto.randomBytes(8).toString('hex'),
+    product,
+    category,
+    link,
+    message,
+    email,
+    name: name || email,
+    member: Boolean(session.authenticated && session.customer && session.customer.member),
+    submittedAt: new Date().toISOString(),
+  };
+
+  const saved = session.authenticated && session.customer
+    ? await saveProductSuggestion(session.customer.id, suggestion)
+    : { ok: false };
+
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.VERSEN_EMAIL_FROM || 'Versen <hej@versen.se>';
   const supportEmail = process.env.VERSEN_SUPPORT_EMAIL || 'hej@versen.se';
 
   if (!apiKey) {
-    sendJson(res, 200, { status: 'Förslaget är sparat i flödet.' });
+    sendJson(res, 200, { status: saved.ok ? 'Förslaget är sparat i admin.' : 'Förslaget är mottaget.' });
     return;
   }
 
@@ -482,11 +523,51 @@ async function sendProductSuggestionEmail(req, res, body) {
   });
 
   if (!response.ok) {
-    sendJson(res, 200, { status: 'Förslaget är mottaget.' });
+    sendJson(res, 200, { status: saved.ok ? 'Förslaget är sparat i admin.' : 'Förslaget är mottaget.' });
     return;
   }
 
-  sendJson(res, 200, { status: 'Förslaget är skickat. Vi tar med det inför nästa drop.' });
+  sendJson(res, 200, { status: saved.ok ? 'Förslaget är sparat i admin.' : 'Förslaget är skickat. Vi tar med det inför nästa drop.' });
+}
+
+function parseSuggestionList(value) {
+  try {
+    const parsed = JSON.parse(value || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+async function saveProductSuggestion(customerId, suggestion) {
+  if (!customerId) {
+    return { ok: false };
+  }
+
+  const current = await adminFetch(CUSTOMER_SUGGESTIONS_QUERY, { id: customerId });
+  const existing = current.ok
+    ? parseSuggestionList(current.body.data.customer && current.body.data.customer.metafield && current.body.data.customer.metafield.value)
+    : [];
+  const next = [suggestion, ...existing].slice(0, 50);
+  const result = await adminFetch(METAFIELDS_SET_MUTATION, {
+    metafields: [{
+      ownerId: customerId,
+      namespace: 'versen',
+      key: 'product_suggestions',
+      type: 'json',
+      value: JSON.stringify(next),
+    }],
+  });
+
+  if (!result.ok) {
+    return { ok: false, error: result.body };
+  }
+
+  const errors = result.body.data.metafieldsSet.userErrors || [];
+  return {
+    ok: !errors.length,
+    errors,
+  };
 }
 
 async function loginCustomer(res, email, password) {

@@ -71,6 +71,21 @@ const PRODUCTS_QUERY = `
   }
 `;
 
+const SUGGESTIONS_QUERY = `
+  query VersenProductSuggestions {
+    customers(first: 100, sortKey: UPDATED_AT, reverse: true) {
+      nodes {
+        id
+        displayName
+        email
+        metafield(namespace: "versen", key: "product_suggestions") {
+          value
+        }
+      }
+    }
+  }
+`;
+
 const PRODUCT_BY_HANDLE_QUERY = `
   query VersenAdminProductByHandle($query: String!) {
     products(first: 1, query: $query) {
@@ -248,6 +263,30 @@ function normalizeOrder(order) {
   };
 }
 
+function parseSuggestions(value, customer) {
+  try {
+    const parsed = JSON.parse(value || '[]');
+
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed.map((suggestion) => ({
+      id: suggestion.id || `${customer.id}-${suggestion.submittedAt || Math.random()}`,
+      product: suggestion.product || '',
+      category: suggestion.category || 'Övrigt',
+      link: suggestion.link || '',
+      message: suggestion.message || '',
+      email: suggestion.email || customer.email || '',
+      name: suggestion.name || customer.displayName || customer.email || '',
+      member: Boolean(suggestion.member),
+      submittedAt: suggestion.submittedAt || '',
+    })).filter((suggestion) => suggestion.product);
+  } catch (error) {
+    return [];
+  }
+}
+
 async function updateProductFlag(res, body) {
   const handle = String(body.handle || '').trim();
   const tag = PRODUCT_FLAGS[body.flag];
@@ -370,6 +409,15 @@ module.exports = async function handler(req, res) {
       compareAtPrice: variant.compareAtPrice ? `${Math.round(Number(variant.compareAtPrice))} kr` : '',
     };
   }) : [];
+  const suggestionsResult = await adminFetch(SUGGESTIONS_QUERY);
+  const suggestionCustomers = suggestionsResult.ok && suggestionsResult.body.data && suggestionsResult.body.data.customers
+    ? suggestionsResult.body.data.customers.nodes
+    : [];
+  const suggestions = suggestionCustomers.length
+    ? suggestionCustomers.flatMap((customer) => (
+      parseSuggestions(customer.metafield && customer.metafield.value, customer)
+    )).sort((a, b) => new Date(b.submittedAt || 0).getTime() - new Date(a.submittedAt || 0).getTime())
+    : [];
   const membershipHandle = process.env.VERSEN_MEMBERSHIP_PRODUCT_HANDLE || 'medlemskap';
   const membershipResult = await shopifyFetch(MEMBERSHIP_PRODUCT_QUERY, { handle: membershipHandle });
   const membershipProduct = membershipResult.ok && membershipResult.body.data.product
@@ -395,16 +443,19 @@ module.exports = async function handler(req, res) {
     members,
     orders,
     products,
+    suggestions,
     membershipProduct,
     recharge,
     customerCheck,
     diagnostics: {
       ordersWorking: orderResult.ok,
       productsWorking: productResult.ok,
+      suggestionsWorking: suggestionsResult.ok,
       membershipProductWorking: membershipResult.ok,
       rechargeWorking: recharge.lookupWorking,
       orderError: orderResult.ok ? null : orderResult.body,
       productError: productResult.ok ? null : productResult.body,
+      suggestionError: suggestionsResult.ok ? null : suggestionsResult.body,
       membershipProductError: membershipResult.ok ? null : membershipResult.body,
     },
   });

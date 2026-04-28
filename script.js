@@ -4,8 +4,10 @@ const CHECKOUT_KEY = 'versenCheckoutPending';
 const ADMIN_SECRET_KEY = 'versenAdminSecret';
 const MEMBERSHIP_REVEAL_KEY = 'versenMembershipRevealSeen';
 const LAUNCH_GATE_KEY = 'versenLaunchAccess';
+const POINTS_INTRO_KEY = 'versenPointsIntroSeen';
 const LAUNCH_GATE_CODE = '6363';
 let accountSession = null;
+let catalogSort = 'brand';
 const pageParams = new URLSearchParams(window.location.search);
 const accountNext = pageParams.get('next') || '';
 const verificationToken = pageParams.get('verify') || '';
@@ -45,6 +47,16 @@ function escapeHtml(value) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
+}
+
+function normalizeExternalUrl(value) {
+  const url = String(value || '').trim();
+
+  if (!url) {
+    return '#';
+  }
+
+  return /^https?:\/\//i.test(url) ? url : `https://${url}`;
 }
 
 function readCart() {
@@ -180,26 +192,6 @@ function applyGlobalSessionUi(session = accountSession) {
 
   document.body.classList.toggle('is-authenticated', authenticated);
   document.body.classList.toggle('is-member', member);
-
-  document.querySelectorAll('.menu').forEach((menu) => {
-    if (!menu.querySelector('a[href="forslag.html"]')) {
-      const accountLink = menu.querySelector('a[href="konto.html"]');
-      const suggestionLink = document.createElement('a');
-      suggestionLink.href = 'forslag.html';
-      suggestionLink.textContent = 'Förslag';
-      suggestionLink.hidden = !member;
-
-      if (window.location.pathname.endsWith('/forslag.html') || window.location.pathname.endsWith('forslag.html')) {
-        suggestionLink.classList.add('active');
-      }
-
-      menu.insertBefore(suggestionLink, accountLink || null);
-    }
-  });
-
-  document.querySelectorAll('.menu a[href="forslag.html"]').forEach((link) => {
-    link.hidden = !member;
-  });
 
   document.querySelectorAll('a[href="medlemskap.html"], a[href^="medlemskap.html?"]').forEach((link) => {
     link.hidden = member;
@@ -372,6 +364,8 @@ document.querySelectorAll('.sort-pill').forEach((button) => {
   button.addEventListener('click', () => {
     document.querySelectorAll('.sort-pill').forEach((item) => item.classList.remove('active'));
     button.classList.add('active');
+    catalogSort = button.dataset.sort || 'brand';
+    renderCatalogProducts(selectedCatalogCategory);
   });
 });
 
@@ -450,7 +444,7 @@ function renderCatalogProducts(category) {
     return;
   }
 
-  const products = catalogProducts.filter((product) => product.category === category);
+  const products = sortCatalogProducts(catalogProducts.filter((product) => product.category === category));
 
   if (!products.length) {
     grid.innerHTML = `
@@ -465,6 +459,16 @@ function renderCatalogProducts(category) {
   grid.innerHTML = products.map(productCard).join('');
   prepareProductCardLinks(grid);
   syncShoppingAccess();
+}
+
+function sortCatalogProducts(products) {
+  return [...products].sort((a, b) => {
+    if (catalogSort === 'price') {
+      return parsePrice(a.price) - parsePrice(b.price);
+    }
+
+    return `${a.vendor || ''} ${a.title || ''}`.localeCompare(`${b.vendor || ''} ${b.title || ''}`, 'sv');
+  });
 }
 
 function selectCatalogCategory(category, options = {}) {
@@ -1457,9 +1461,44 @@ function updateMemberStatus(session = accountSession) {
   if (dashboardDiscount) dashboardDiscount.textContent = hasMemberDiscount ? 'Upplåsta' : 'Låsta';
   if (dashboardOrders) dashboardOrders.textContent = String(orderCount);
   if (dashboardPoints) dashboardPoints.textContent = String(session.customer.points || 0);
+  showPointsIntroIfNeeded(session);
   if (logoutButton) logoutButton.hidden = false;
   if (membershipLink) membershipLink.hidden = hasMemberDiscount;
   renderOrders(session.customer.orders);
+}
+
+function showPointsIntroIfNeeded(session) {
+  if (!document.querySelector('[data-dashboard-points]') || !session || !session.customer) {
+    return;
+  }
+
+  const points = Number(session.customer.points || 0);
+  const email = session.customer.email || '';
+  const storageKey = `${POINTS_INTRO_KEY}:${email}`;
+
+  if (points > 0 || sessionStorage.getItem(storageKey) === '1') {
+    return;
+  }
+
+  sessionStorage.setItem(storageKey, '1');
+
+  const modal = document.createElement('div');
+  modal.className = 'points-popover';
+  modal.innerHTML = `
+    <div class="points-popover-card">
+      <span>Versen poäng</span>
+      <h2>Poäng blir rabatt och inflytande</h2>
+      <p>Varje krona du handlar för ger 2 poäng. Poängen kan växlas mot direkt rabatt vid köp, och ju mer du samlar desto mer väger dina produktförslag inför kommande drops.</p>
+      <button class="product-btn" type="button">Jag fattar</button>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  window.setTimeout(() => modal.classList.add('show'), 50);
+  modal.querySelector('button')?.addEventListener('click', () => {
+    modal.classList.remove('show');
+    window.setTimeout(() => modal.remove(), 240);
+  });
 }
 
 function completeAccountIntent() {
@@ -2027,6 +2066,7 @@ if (adminForm) {
     const activeRecharge = data.recharge && data.recharge.activeCount ? data.recharge.activeCount : 0;
     const recentOrders = data.orders || [];
     const products = data.products || [];
+    const suggestions = data.suggestions || [];
     const check = data.customerCheck;
 
     dashboard.innerHTML = `
@@ -2058,6 +2098,21 @@ if (adminForm) {
           </div>
         </article>
       ` : ''}
+
+      <article class="account-card admin-card-wide">
+        <h2>Produktförslag</h2>
+        <div class="admin-table">
+          ${suggestions.length ? suggestions.map((suggestion) => `
+            <div class="admin-row suggestion-admin-row">
+              <strong>${escapeHtml(suggestion.product)}</strong>
+              <span>${escapeHtml(suggestion.category)} · ${escapeHtml(suggestion.name || suggestion.email || '')}</span>
+              <small>${escapeHtml(suggestion.email || '')} · ${suggestion.submittedAt ? escapeHtml(new Date(suggestion.submittedAt).toLocaleString('sv-SE')) : 'Tid saknas'}</small>
+              ${suggestion.link ? `<a class="admin-inline-link" href="${escapeHtml(normalizeExternalUrl(suggestion.link))}" target="_blank" rel="noopener noreferrer">${escapeHtml(suggestion.link)}</a>` : ''}
+              ${suggestion.message ? `<p>${escapeHtml(suggestion.message)}</p>` : ''}
+            </div>
+          `).join('') : '<div class="empty-state"><span>Inga förslag ännu</span><p>När medlemmar skickar produktförslag visas de här.</p></div>'}
+        </div>
+      </article>
 
       <article class="account-card admin-card-wide">
         <h2>Senaste orders</h2>

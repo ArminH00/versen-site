@@ -8,7 +8,7 @@
 <script>try{if(!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen - Konto</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260428-suggestion-link-fix">
+<link rel="stylesheet" href="styles.css?v=20260428-admin-suggestions-points">
 </head>
 
 <body class="auth-loading">
@@ -69,9 +69,10 @@
           <span>Ordrar</span>
           <strong data-dashboard-orders>0</strong>
         </div>
-        <div class="account-metric">
+        <div class="account-metric points-metric">
           <span>Poäng</span>
           <strong data-dashboard-points>0</strong>
+          <small>Kan växlas mot rabatt</small>
         </div>
       </div>
     </article>
@@ -135,6 +136,6 @@
   </section>
 </main>
 
-<script src="script.js?v=20260428-suggestion-link-fix"></script>
+<script src="script.js?v=20260428-admin-suggestions-points"></script>
 </body>
 </html>

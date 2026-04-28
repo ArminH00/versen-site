@@ -594,6 +594,10 @@ body.auth-loading [data-discount-form]{
   font-size:12px;
 }
 
+.catalog-tools .sort-control{
+  justify-self:end;
+}
+
 .product-grid{
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
@@ -1186,6 +1190,103 @@ body.auth-loading [data-discount-form]{
   overflow-wrap:anywhere;
 }
 
+.account-metric small{
+  color:rgba(255,255,255,.48);
+  font-size:11px;
+  line-height:1.3;
+}
+
+.points-metric{
+  position:relative;
+  overflow:hidden;
+  border-color:rgba(130,247,210,.28);
+  background:linear-gradient(135deg,rgba(130,247,210,.12),rgba(255,255,255,.055) 54%,rgba(255,255,255,.045));
+  box-shadow:0 0 28px rgba(130,247,210,.08), inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+.points-metric::after{
+  content:"";
+  position:absolute;
+  inset:-45% 25% auto auto;
+  width:120px;
+  height:120px;
+  border-radius:50%;
+  background:rgba(130,247,210,.12);
+  filter:blur(34px);
+  pointer-events:none;
+}
+
+.points-metric strong,
+.points-metric span,
+.points-metric small{
+  position:relative;
+  z-index:1;
+}
+
+.points-popover{
+  position:fixed;
+  inset:auto 14px calc(18px + env(safe-area-inset-bottom)) 14px;
+  z-index:80;
+  display:none;
+}
+
+.points-popover.show{
+  display:block;
+}
+
+.points-popover-card{
+  max-width:520px;
+  margin:0 auto;
+  padding:18px;
+  border-radius:26px;
+  border:1px solid rgba(130,247,210,.2);
+  background:linear-gradient(145deg,rgba(24,30,29,.96),rgba(8,9,13,.98));
+  box-shadow:0 20px 70px rgba(0,0,0,.48),0 0 42px rgba(130,247,210,.1);
+}
+
+.points-popover-card strong{
+  display:block;
+  color:white;
+  font-size:18px;
+  margin-bottom:6px;
+}
+
+.points-popover-card span{
+  display:block;
+  color:rgba(130,247,210,.78);
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:1.3px;
+  margin-bottom:7px;
+  text-transform:uppercase;
+}
+
+.points-popover-card h2{
+  margin:0 0 7px;
+  color:white;
+  font-size:20px;
+  line-height:1.1;
+  letter-spacing:0;
+}
+
+.points-popover-card p{
+  color:rgba(255,255,255,.64);
+  line-height:1.5;
+  margin:0 0 14px;
+}
+
+.points-popover-card button{
+  width:100%;
+  min-height:46px;
+  border:0;
+  border-radius:999px;
+  background:white;
+  color:#07080c;
+  font:inherit;
+  font-weight:800;
+  cursor:pointer;
+}
+
 .member-card{
   display:grid;
   gap:12px;
@@ -1230,6 +1331,14 @@ body.auth-loading [data-discount-form]{
 .member-form textarea{
   padding-top:14px;
   border-radius:22px;
+}
+
+.suggestion-panel .member-form textarea{
+  min-height:132px;
+  padding:16px;
+  border-radius:24px;
+  line-height:1.45;
+  resize:vertical;
 }
 
 .member-form select{
@@ -1889,6 +1998,31 @@ body.auth-loading [data-discount-form]{
   line-height:1.4;
 }
 
+.admin-row p{
+  color:rgba(255,255,255,.66);
+  line-height:1.45;
+  margin:2px 0 0;
+}
+
+.admin-inline-link{
+  display:block;
+  width:max-content;
+  max-width:100%;
+  color:rgba(130,247,210,.82);
+  font-weight:700;
+  overflow-wrap:anywhere;
+  text-decoration:none;
+}
+
+.admin-inline-link:hover{
+  color:white;
+}
+
+.suggestion-admin-row{
+  border-color:rgba(130,247,210,.14);
+  background:linear-gradient(135deg,rgba(130,247,210,.07),rgba(255,255,255,.045) 42%,rgba(255,255,255,.035));
+}
+
 .admin-flag-actions{
   display:flex;
   flex-wrap:wrap;
@@ -2279,7 +2413,11 @@ body.auth-loading [data-discount-form]{
   .catalog-tools{
     flex-direction:row;
     align-items:center;
-    justify-content:space-between;
+    justify-content:flex-end;
+  }
+
+  .sort-control{
+    margin-left:auto;
   }
 
   .product-grid{

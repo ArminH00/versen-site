@@ -8,7 +8,7 @@
 <script>try{if(!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen - Produkter</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260428-suggestion-link-fix">
+<link rel="stylesheet" href="styles.css?v=20260428-admin-suggestions-points">
 </head>
 
 <body class="auth-loading">
@@ -53,15 +53,10 @@
 
   <section class="catalog-section fade" aria-label="Produktkatalog">
     <div class="catalog-tools">
-      <div class="filter-row" aria-label="Filtrera produkter">
-        <button class="filter" type="button" data-filter="Bilvård">Bilvård</button>
-        <button class="filter" type="button" data-filter="Träning & hälsa">Träning & hälsa</button>
-      </div>
-
       <div class="sort-control" aria-label="Sortering">
         <span>Sortera</span>
-        <button class="sort-pill active" type="button">Populärast</button>
-        <button class="sort-pill" type="button">Pris</button>
+        <button class="sort-pill active" type="button" data-sort="brand">Märke</button>
+        <button class="sort-pill" type="button" data-sort="price">Pris</button>
       </div>
     </div>
 
@@ -74,6 +69,6 @@
   </section>
 </main>
 
-<script src="script.js?v=20260428-suggestion-link-fix"></script>
+<script src="script.js?v=20260428-admin-suggestions-points"></script>
 </body>
 </html>
