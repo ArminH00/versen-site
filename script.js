@@ -8,6 +8,8 @@ const POINTS_INTRO_KEY = 'versenPointsIntroSeen';
 const LAUNCH_GATE_CODE = '6363';
 let accountSession = null;
 let catalogSort = 'brand';
+let memberLiveProducts = [];
+let memberLiveTimer = null;
 const pageParams = new URLSearchParams(window.location.search);
 const accountNext = pageParams.get('next') || '';
 const verificationToken = pageParams.get('verify') || '';
@@ -429,6 +431,38 @@ function productCard(product) {
   `;
 }
 
+function liveProductCard(product, index = 0) {
+  const viewers = randomInt(3, 11);
+  const offset = [-8, 9, -3][index % 3];
+  const image = product.image && product.image.url
+    ? `<img src="${escapeHtml(product.image.url)}" alt="${escapeHtml(product.image.altText || product.title)}">`
+    : '';
+  const vendor = product.vendor || product.category || 'Versen';
+  const memberPrice = product.price || 'Medlemspris';
+
+  return `
+    <article class="live-product-card" style="--float-offset:${offset}px">
+      <div class="live-viewers">${viewers} personer tittar på denna just nu</div>
+      <div class="live-product-image">${image}</div>
+      <div class="live-product-info">
+        <small>${escapeHtml(vendor)}</small>
+        <strong>${escapeHtml(product.title)}</strong>
+        <span>${escapeHtml(memberPrice)}</span>
+      </div>
+    </article>
+  `;
+}
+
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function pickRandomProducts(products, count = 3) {
+  return [...products]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, count);
+}
+
 function renderCategoryLaunch(products) {
   document.querySelectorAll('[data-category-count]').forEach((element) => {
     const count = products.filter((product) => product.category === element.dataset.categoryCount).length;
@@ -495,6 +529,16 @@ function selectCatalogCategory(category, options = {}) {
     return;
   }
 
+  if (document.querySelector('[data-category-launch]') && accountSession === null && document.body.classList.contains('auth-loading')) {
+    window.setTimeout(() => selectCatalogCategory(category, options), 120);
+    return;
+  }
+
+  if (document.querySelector('[data-category-launch]') && !isActiveMember()) {
+    showCategoryMembershipGate();
+    return;
+  }
+
   selectedCatalogCategory = category;
 
   document.querySelectorAll('[data-filter]').forEach((button) => {
@@ -517,6 +561,36 @@ document.querySelectorAll('[data-category-select]').forEach((button) => {
     selectCatalogCategory(button.dataset.categorySelect);
   });
 });
+
+function showCategoryMembershipGate() {
+  if (document.querySelector('.category-lock-popover')) {
+    return;
+  }
+
+  const modal = document.createElement('div');
+  modal.className = 'category-lock-popover';
+  modal.innerHTML = `
+    <div class="category-lock-card">
+      <div class="badge">Medlemskatalog</div>
+      <h2>Bli medlem för att öppna veckans deals</h2>
+      <p>Medlemskap låser upp produktlistan, lägre priser och poäng som kan ge extra rabatt ovanpå medlemspriserna.</p>
+      <div class="category-lock-actions">
+        <a class="product-btn" href="medlemskap.html">Starta medlemskap</a>
+        <button class="product-btn secondary" type="button" data-close-category-lock>Inte nu</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  window.setTimeout(() => modal.classList.add('show'), 20);
+
+  modal.addEventListener('click', (event) => {
+    if (event.target === modal || event.target.closest('[data-close-category-lock]')) {
+      modal.classList.remove('show');
+      window.setTimeout(() => modal.remove(), 200);
+    }
+  });
+}
 
 function prepareProductCardLinks(root = document) {
   root.querySelectorAll('.product-card').forEach((card) => {
@@ -628,23 +702,29 @@ async function loadMemberHomeProducts() {
     }
 
     const data = await response.json();
-    const products = (data.products || [])
-      .filter((product) => product.handle !== 'medlemskap')
-      .slice(0, 3);
+    memberLiveProducts = (data.products || [])
+      .filter((product) => product.handle !== 'medlemskap');
 
-    if (!products.length) {
+    if (!memberLiveProducts.length) {
       return;
     }
 
-    grid.innerHTML = products.map(productCard).join('');
-    prepareProductCardLinks(grid);
-    syncShoppingAccess();
+    renderMemberLiveProducts(grid);
+
+    if (!memberLiveTimer) {
+      memberLiveTimer = window.setInterval(() => renderMemberLiveProducts(grid), 60000);
+    }
   } catch (error) {
     return;
   }
 }
 
 loadMemberHomeProducts();
+
+function renderMemberLiveProducts(grid) {
+  const products = pickRandomProducts(memberLiveProducts, 3);
+  grid.innerHTML = products.map(liveProductCard).join('');
+}
 
 function setText(selector, value) {
   const element = document.querySelector(selector);
@@ -1506,8 +1586,8 @@ function showPointsIntroIfNeeded(session) {
   modal.innerHTML = `
     <div class="points-popover-card">
       <span>Versen poäng</span>
-      <h2>Poäng blir rabatt och inflytande</h2>
-      <p>Varje krona du handlar för ger 2 poäng. Poängen kan växlas mot direkt rabatt vid köp, och ju mer du samlar desto mer väger dina produktförslag inför kommande drops.</p>
+      <h2>Poäng blir extra rabatt och inflytande</h2>
+      <p>Varje krona du handlar för ger 2 poäng. Poängen kan växlas mot extra rabatt ovanpå medlemspriserna, och ju mer du samlar desto mer väger dina produktförslag inför kommande drops.</p>
       <button class="product-btn" type="button">Jag fattar</button>
     </div>
   `;

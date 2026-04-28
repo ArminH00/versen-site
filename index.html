@@ -8,7 +8,7 @@
 <script>try{if(!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260428-member-suggestions-page">
+<link rel="stylesheet" href="styles.css?v=20260428-live-member-lock">
 </head>
 
 <body class="auth-loading">
@@ -79,18 +79,19 @@
     <article class="concept-card">
       <span>2 poäng / kr</span>
       <h3>Varje köp räknas</h3>
-      <p>Byt poäng mot direkt rabatt och låt dina förslag väga tyngre.</p>
+      <p>Byt poäng mot extra rabatt och låt dina förslag väga tyngre.</p>
     </article>
   </div>
 </section>
 
 <section class="section member-shopping fade" data-member-home hidden>
-  <h2>Populärt för medlemmar</h2>
+  <h2>Populärt bland medlemmar</h2>
   <p class="section-sub">
-    Snabba val med medlemspris direkt. Lägg till flera produkter och slutför allt i kundkorgen.
+    Några produkter som får extra mycket uppmärksamhet just nu.
   </p>
 
-  <div class="member-product-strip" data-member-products></div>
+  <div class="member-live-strip" data-member-products></div>
+  <a class="cta member-live-cta" href="produkter.html">Ta mig dit</a>
 </section>
 
 <section class="section member-shopping fade" data-member-home hidden>
@@ -144,6 +145,6 @@
   <a class="cta" href="medlemskap.html">Starta medlemskap</a>
 </section>
 
-<script src="script.js?v=20260428-member-suggestions-page"></script>
+<script src="script.js?v=20260428-live-member-lock"></script>
 </body>
 </html>
