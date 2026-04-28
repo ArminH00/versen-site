@@ -1519,7 +1519,10 @@ if (launchForm) {
     if (message) message.textContent = 'Sparar din plats...';
 
     try {
-      const { response, data } = await postJson('/api/waitlist', { email: value });
+      const { response, data } = await postJson('/api/account', {
+        action: 'waitlist',
+        email: value,
+      });
 
       if (!response.ok) {
         if (message) message.textContent = data.error || 'Kunde inte spara email just nu.';
