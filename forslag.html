@@ -8,7 +8,7 @@
 <script>try{if(!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen - Produktförslag</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260428-badge-admin-polish">
+<link rel="stylesheet" href="styles.css?v=20260428-suggestion-link-fix">
 </head>
 
 <body class="auth-loading">
@@ -47,7 +47,7 @@
           <option value="Träning & hälsa">Träning & hälsa</option>
           <option value="Annat">Annat</option>
         </select>
-        <input type="url" name="link" placeholder="Länk om du har en">
+        <input type="text" name="link" placeholder="Länk om du har en" inputmode="url" autocomplete="url">
         <textarea name="message" placeholder="Varför borde den finnas hos Versen?"></textarea>
         <button class="product-btn" type="submit">Skicka förslag</button>
       </form>
@@ -71,6 +71,6 @@
   </section>
 </main>
 
-<script src="script.js?v=20260428-badge-admin-polish"></script>
+<script src="script.js?v=20260428-suggestion-link-fix"></script>
 </body>
 </html>
