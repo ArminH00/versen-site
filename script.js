@@ -439,15 +439,25 @@ function liveProductCard(product, index = 0) {
     : '';
   const vendor = product.vendor || product.category || 'Versen';
   const memberPrice = product.price || 'Medlemspris';
+  const compareAtPrice = product.compareAtPrice && product.compareAtPrice !== product.price ? product.compareAtPrice : '';
+  const flags = product.flags || {};
+  const badges = [
+    flags.greatPrice ? '<span class="great-price">Grymt pris</span>' : '',
+    flags.fewLeft ? '<span class="few-left">Få kvar</span>' : '',
+  ].filter(Boolean).join('');
 
   return `
-    <article class="live-product-card" style="--float-offset:${offset}px">
+    <article class="live-product-card ${flags.greatPrice ? 'has-great-price' : ''}" style="--float-offset:${offset}px">
       <div class="live-viewers">${viewers} personer tittar på denna just nu</div>
       <div class="live-product-image">${image}</div>
       <div class="live-product-info">
+        ${badges ? `<div class="live-product-badges">${badges}</div>` : ''}
         <small>${escapeHtml(vendor)}</small>
         <strong>${escapeHtml(product.title)}</strong>
-        <span>${escapeHtml(memberPrice)}</span>
+        <div class="live-product-prices">
+          ${compareAtPrice ? `<span class="old">${escapeHtml(compareAtPrice)}</span>` : ''}
+          <span class="new">${escapeHtml(memberPrice)}</span>
+        </div>
       </div>
     </article>
   `;

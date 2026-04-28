@@ -312,19 +312,19 @@ body.auth-loading [data-discount-form]{
 .member-live-strip{
   display:grid;
   grid-template-columns:1fr;
-  gap:12px;
-  max-width:900px;
+  gap:14px;
+  max-width:860px;
   margin:0 auto;
 }
 
 .live-product-card{
   position:relative;
-  min-height:138px;
+  min-height:150px;
   display:grid;
   grid-template-columns:96px 1fr;
   gap:12px;
   align-items:center;
-  padding:12px;
+  padding:14px;
   border-radius:22px;
   border:1px solid rgba(255,255,255,.1);
   background:linear-gradient(135deg,rgba(255,255,255,.085),rgba(255,255,255,.03));
@@ -351,13 +351,14 @@ body.auth-loading [data-discount-form]{
   grid-column:1 / -1;
   width:max-content;
   max-width:100%;
-  padding:7px 10px;
+  padding:7px 11px;
   border-radius:999px;
   color:rgba(130,247,210,.88);
   background:rgba(130,247,210,.08);
   border:1px solid rgba(130,247,210,.14);
   font-size:11px;
   font-weight:800;
+  line-height:1.15;
 }
 
 .live-product-image{
@@ -371,13 +372,42 @@ body.auth-loading [data-discount-form]{
 .live-product-image img{
   width:100%;
   height:100%;
-  object-fit:cover;
+  object-fit:contain;
 }
 
 .live-product-info{
   display:grid;
-  gap:5px;
+  gap:6px;
   min-width:0;
+}
+
+.live-product-badges{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+}
+
+.live-product-badges span{
+  width:max-content;
+  padding:5px 8px;
+  border-radius:999px;
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:.7px;
+  text-transform:uppercase;
+}
+
+.live-product-badges .great-price{
+  background:rgba(130,247,210,.16);
+  border:1px solid rgba(130,247,210,.36);
+  color:rgba(216,255,242,.96);
+  box-shadow:0 0 20px rgba(130,247,210,.14);
+}
+
+.live-product-badges .few-left{
+  background:rgba(255,88,88,.14);
+  border:1px solid rgba(255,88,88,.34);
+  color:rgba(255,214,214,.95);
 }
 
 .live-product-info small{
@@ -394,9 +424,30 @@ body.auth-loading [data-discount-form]{
   line-height:1.16;
 }
 
-.live-product-info span{
+.live-product-prices{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  gap:8px;
+}
+
+.live-product-prices .old{
+  color:rgba(255,255,255,.42);
+  font-size:13px;
+  font-weight:700;
+  margin-right:0;
+  text-decoration:line-through;
+}
+
+.live-product-prices .new{
   color:rgba(130,247,210,.86);
+  font-size:20px;
   font-weight:800;
+}
+
+.live-product-card.has-great-price .live-product-prices .new{
+  color:#d9fff1;
+  text-shadow:0 0 16px rgba(130,247,210,.38),0 0 30px rgba(130,247,210,.14);
 }
 
 .member-live-cta{
@@ -2551,19 +2602,29 @@ body.auth-loading [data-discount-form]{
   }
 
   .member-live-strip{
-    grid-template-columns:repeat(3,1fr);
+    grid-template-columns:repeat(3,minmax(0,260px));
+    justify-content:center;
     align-items:center;
+    gap:16px;
+    max-width:900px;
   }
 
   .live-product-card{
-    min-height:230px;
+    min-height:248px;
     grid-template-columns:1fr;
     align-content:start;
+    gap:10px;
+    padding:14px;
   }
 
   .live-product-image{
     width:100%;
-    height:126px;
+    height:96px;
+    border-radius:16px;
+  }
+
+  .live-product-info strong{
+    font-size:15px;
   }
 
   .section h2{
