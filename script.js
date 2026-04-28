@@ -673,7 +673,7 @@ function sentenceParagraphs(body) {
 
   return normalized
     .replace(/\s+(?=(?:Förvaras|Produkten|Repel|Tillsätt|Använd|Blanda|Spola|Gör)\b)/g, '\n')
-    .split(/(?<=[.!?])\s+(?=[A-ZÅÄÖ0-9])/)
+    .split(/(?<=[.!?])\s+(?=(?:[A-ZÅÄÖ0-9]|tershine|gyeon|barebells)\b)/)
     .reduce((groups, sentence) => {
       const clean = sentence.trim();
       const last = groups[groups.length - 1] || '';
@@ -682,7 +682,7 @@ function sentenceParagraphs(body) {
         return groups;
       }
 
-      if (!last || last.length > 220) {
+      if (!last || last.length > 220 || last.length + clean.length > 420) {
         groups.push(clean);
       } else {
         groups[groups.length - 1] = `${last} ${clean}`;
