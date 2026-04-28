@@ -193,6 +193,25 @@ function applyGlobalSessionUi(session = accountSession) {
   document.body.classList.toggle('is-authenticated', authenticated);
   document.body.classList.toggle('is-member', member);
 
+  document.querySelectorAll('.menu').forEach((menu) => {
+    if (!menu.querySelector('a[href="forslag.html"]')) {
+      const accountLink = menu.querySelector('a[href="konto.html"]');
+      const suggestionLink = document.createElement('a');
+      suggestionLink.href = 'forslag.html';
+      suggestionLink.textContent = 'Förslag';
+
+      if (window.location.pathname.endsWith('/forslag.html') || window.location.pathname.endsWith('forslag.html')) {
+        suggestionLink.classList.add('active');
+      }
+
+      menu.insertBefore(suggestionLink, accountLink || null);
+    }
+  });
+
+  document.querySelectorAll('.menu a[href="forslag.html"]').forEach((link) => {
+    link.hidden = !member;
+  });
+
   document.querySelectorAll('a[href="medlemskap.html"], a[href^="medlemskap.html?"]').forEach((link) => {
     link.hidden = member;
   });

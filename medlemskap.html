@@ -8,7 +8,7 @@
 <script>try{if(!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen - Medlemskap</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260428-admin-suggestions-points">
+<link rel="stylesheet" href="styles.css?v=20260428-member-suggestions-page">
 </head>
 
 <body class="auth-loading">
@@ -30,14 +30,29 @@
     <div class="glow"></div>
     <div class="membership-panel">
       <div class="badge">Versen medlemskap</div>
-      <h1>Lås upp medlemspriser varje månad</h1>
+      <h1>Medlemspriser på det du vill handla</h1>
       <p>
-        Betala för tillgången. Handla billigare när du vill.
+        Lås upp lägre priser, samla poäng på varje köp och hjälp oss välja vad som ska droppa nästa torsdag.
       </p>
 
       <div class="membership-price">
         <span>99 kr</span>
         <small>per månad</small>
+      </div>
+
+      <div class="membership-highlights" aria-label="Medlemsfördelar">
+        <div>
+          <strong>2 poäng</strong>
+          <span>per krona</span>
+        </div>
+        <div>
+          <strong>Torsdag</strong>
+          <span>nya drops</span>
+        </div>
+        <div>
+          <strong>Rabatt</strong>
+          <span>via poäng</span>
+        </div>
       </div>
 
       <button class="cta" type="button" data-membership-checkout>Starta medlemskap</button>
@@ -46,30 +61,35 @@
   </header>
 
   <section class="section fade">
-    <h2>Det ingår</h2>
+    <h2>Det här låser du upp</h2>
     <p class="section-sub">
-      En premiumupplevelse byggd runt tillgång, prisfördelar och enkel shopping.
+      Versen är byggt för att medlemmarna ska handla billigare och samtidigt påverka vad som tas in.
     </p>
 
     <div class="cards benefit-cards">
       <article class="card">
         <h3>Medlemspriser</h3>
-        <p>Se priser som inte visas för vanliga besökare.</p>
+        <p>Aktiva medlemmar kan lägga varor i kundkorgen och gå vidare till checkout med Versen-priser.</p>
       </article>
 
       <article class="card">
-        <h3>Utvalda produkter</h3>
-        <p>Få tillgång till ett kurerat sortiment inom dryck, protein och tech.</p>
+        <h3>Poäng som räknas</h3>
+        <p>Varje 1 kr du handlar för ger 2 poäng. Poängen kan användas för direkt rabatt och mer inflytande.</p>
       </article>
 
       <article class="card">
-        <h3>Redo för checkout</h3>
-        <p>Strukturen är förberedd för varukorg, medlemsstatus och betalning.</p>
+        <h3>Föreslå nästa drop</h3>
+        <p>Skicka produkter, länkar eller idéer. Vi går igenom förslagen inför nästa veckas lansering.</p>
+      </article>
+
+      <article class="card">
+        <h3>Nya släpp varje vecka</h3>
+        <p>Torsdagar kl 12 fylls butiken på. Du handlar när du vill, vi skickar när nästa packrunda startar.</p>
       </article>
     </div>
   </section>
 </main>
 
-<script src="script.js?v=20260428-admin-suggestions-points"></script>
+<script src="script.js?v=20260428-member-suggestions-page"></script>
 </body>
 </html>

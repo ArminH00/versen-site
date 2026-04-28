@@ -1087,6 +1087,34 @@ body.auth-loading [data-discount-form]{
   color:rgba(255,255,255,.52);
 }
 
+.membership-highlights{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+  margin:24px 0 6px;
+}
+
+.membership-highlights div{
+  display:grid;
+  gap:3px;
+  padding:14px 16px;
+  border-radius:18px;
+  border:1px solid rgba(130,247,210,.16);
+  background:linear-gradient(135deg,rgba(130,247,210,.08),rgba(255,255,255,.045));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+.membership-highlights strong{
+  color:white;
+  font-size:18px;
+  line-height:1.1;
+}
+
+.membership-highlights span{
+  color:rgba(255,255,255,.54);
+  font-size:12px;
+}
+
 .benefit-cards .card{
   min-height:150px;
 }
@@ -2549,6 +2577,10 @@ body.auth-loading [data-discount-form]{
 
   .membership-panel{
     padding:50px 42px;
+  }
+
+  .membership-highlights{
+    grid-template-columns:repeat(3,1fr);
   }
 
   .activation-stage{
