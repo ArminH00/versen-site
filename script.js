@@ -370,12 +370,18 @@ function productCard(product) {
   const compareAtPrice = product.compareAtPrice || product.price || '';
   const memberPrice = product.price || 'Pris kommer';
   const productUrl = `produkt.html?handle=${encodeURIComponent(product.handle)}`;
+  const variantText = product.variants && product.variants.length > 1
+    ? `<span>${product.variants.length} val</span>`
+    : '';
 
   return `
     <article class="product-card" role="link" tabindex="0" data-product-url="${escapeHtml(productUrl)}" data-category="${escapeHtml(product.category)}" data-product-handle="${escapeHtml(product.handle)}" data-variant-id="${escapeHtml(product.variantId || '')}" data-product-title="${escapeHtml(product.title)}" data-product-price="${escapeHtml(memberPrice)}" data-product-compare-at-price="${escapeHtml(compareAtPrice)}" data-product-image-url="${escapeHtml(product.image && product.image.url ? product.image.url : '')}" data-product-image-alt="${escapeHtml(product.image && product.image.altText ? product.image.altText : product.title)}">
       <div class="product-image">${image}</div>
       <div class="product-info">
-        <div class="product-category">${escapeHtml(product.category)}</div>
+        <div class="product-card-meta">
+          <div class="product-category">${escapeHtml(product.category)}</div>
+          ${variantText}
+        </div>
         <h3>${escapeHtml(product.title)}</h3>
         <div class="product-prices">
           <span class="old">${escapeHtml(compareAtPrice)}</span>
@@ -524,6 +530,7 @@ const PRODUCT_SECTION_TITLES = [
   'Ingredienser',
   'Rekommenderad användning',
   'Autodudes snabbmanual',
+  'Rengörings- och underhållsinstruktioner',
   'Användning',
   'Dosering',
   'Förvaring',
@@ -547,6 +554,9 @@ const PRODUCT_FEATURE_PHRASES = [
   'Utvecklat i Sverige',
   'Ej märkningspliktig enligt CLP-förordningen (EG) 1272/2008',
   'Förvaras oåtkomligt för barn',
+  'Bra absorptionsförmåga',
+  'Smart söm i handskens inre för bättre grepp',
+  'Tål att tvättas (40-60 grader, utan mjuk- och tvättmedel)',
 ];
 
 function normalizeProductText(value) {
@@ -741,6 +751,98 @@ function setProductDescription(product) {
   element.innerHTML = renderProductDescription(product.description || 'Produktinformation hämtas från Shopify.');
 }
 
+function variantLabel(variant) {
+  if (!variant) {
+    return '';
+  }
+
+  if (variant.label) {
+    return variant.label;
+  }
+
+  const options = variant.selectedOptions || [];
+  return options.map((option) => option.value).filter(Boolean).join(' / ');
+}
+
+function variantDisplayTitle(product, variant) {
+  const label = variantLabel(variant);
+
+  return label ? `${product.title} - ${label}` : product.title;
+}
+
+function updateProductVariant(product, variant) {
+  const detail = document.querySelector('[data-product-detail]');
+
+  if (!detail || !product || !variant) {
+    return;
+  }
+
+  const image = variant.image || product.image;
+  const price = variant.price || product.price || 'Pris kommer';
+  const compareAtPrice = variant.compareAtPrice || product.compareAtPrice || price;
+
+  detail.dataset.variantId = variant.id || product.variantId || '';
+  detail.dataset.cartHandle = product.handle || '';
+  detail.dataset.cartTitle = variantDisplayTitle(product, variant);
+  detail.dataset.cartCategory = product.category || '';
+  detail.dataset.cartPrice = price;
+  detail.dataset.cartCompareAtPrice = compareAtPrice;
+  detail.dataset.cartImageUrl = image && image.url ? image.url : '';
+  detail.dataset.cartImageAlt = image && image.altText ? image.altText : product.title || '';
+
+  setText('[data-product-compare-price]', compareAtPrice);
+  setText('[data-product-price]', price);
+
+  const imageElement = document.querySelector('[data-product-image]');
+  if (imageElement && image && image.url) {
+    imageElement.innerHTML = `<img src="${escapeHtml(image.url)}" alt="${escapeHtml(image.altText || product.title)}">`;
+  }
+}
+
+function renderVariantPicker(product) {
+  const picker = document.querySelector('[data-variant-picker]');
+  const variants = (product.variants || []).filter((variant) => variant && variant.id);
+  const selectedId = document.querySelector('[data-product-detail]')?.dataset.variantId;
+
+  if (!picker) {
+    return;
+  }
+
+  if (variants.length <= 1) {
+    picker.hidden = true;
+    picker.innerHTML = '';
+    return;
+  }
+
+  const optionName = (variants[0].selectedOptions || [])[0]?.name || 'Välj';
+
+  picker.hidden = false;
+  picker.innerHTML = `
+    <p>${escapeHtml(optionName)}</p>
+    <div class="variant-options">
+      ${variants.map((variant, index) => `
+        <button class="variant-option ${variant.id === selectedId || (!selectedId && index === 0) ? 'active' : ''}" type="button" data-variant-option="${escapeHtml(variant.id)}" ${variant.availableForSale ? '' : 'disabled'}>
+          ${escapeHtml(variantLabel(variant) || `Val ${index + 1}`)}
+        </button>
+      `).join('')}
+    </div>
+  `;
+
+  picker.querySelectorAll('[data-variant-option]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const nextVariant = variants.find((variant) => variant.id === button.dataset.variantOption);
+
+      if (!nextVariant) {
+        return;
+      }
+
+      picker.querySelectorAll('[data-variant-option]').forEach((item) => item.classList.remove('active'));
+      button.classList.add('active');
+      updateProductVariant(product, nextVariant);
+    });
+  });
+}
+
 function setProductDetail(product) {
   const detail = document.querySelector('[data-product-detail]');
 
@@ -748,25 +850,19 @@ function setProductDetail(product) {
     return;
   }
 
-  detail.dataset.variantId = product.variantId || '';
-  detail.dataset.cartHandle = product.handle || '';
-  detail.dataset.cartTitle = product.title || '';
-  detail.dataset.cartCategory = product.category || '';
-  detail.dataset.cartPrice = product.price || '';
-  detail.dataset.cartCompareAtPrice = product.compareAtPrice || product.price || '';
-  detail.dataset.cartImageUrl = product.image && product.image.url ? product.image.url : '';
-  detail.dataset.cartImageAlt = product.image && product.image.altText ? product.image.altText : product.title || '';
+  const variants = (product.variants || []).filter((variant) => variant && variant.id);
+  const selectedVariant = variants.find((variant) => variant.id === product.variantId) || variants[0] || {
+    id: product.variantId,
+    price: product.price,
+    compareAtPrice: product.compareAtPrice,
+    image: product.image,
+  };
 
   setText('[data-product-category]', product.category);
   setText('[data-product-title]', product.title);
   setProductDescription(product);
-  setText('[data-product-compare-price]', product.compareAtPrice || product.price);
-  setText('[data-product-price]', product.price || 'Pris kommer');
-
-  const image = document.querySelector('[data-product-image]');
-  if (image && product.image && product.image.url) {
-    image.innerHTML = `<img src="${escapeHtml(product.image.url)}" alt="${escapeHtml(product.image.altText || product.title)}">`;
-  }
+  updateProductVariant(product, selectedVariant);
+  renderVariantPicker(product);
 
   syncShoppingAccess();
 }

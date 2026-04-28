@@ -7,16 +7,25 @@ const PRODUCTS_QUERY = `
         id
         title
         handle
+        tags
         productType
         featuredImage {
           url
           altText
         }
-        variants(first: 1) {
+        variants(first: 20) {
           nodes {
             id
             title
             availableForSale
+            selectedOptions {
+              name
+              value
+            }
+            image {
+              url
+              altText
+            }
             price {
               amount
               currencyCode
@@ -39,16 +48,25 @@ const PRODUCT_BY_HANDLE_QUERY = `
       title
       handle
       description
+      tags
       productType
       featuredImage {
         url
         altText
       }
-      variants(first: 1) {
+      variants(first: 20) {
         nodes {
           id
           title
           availableForSale
+          selectedOptions {
+            name
+            value
+          }
+          image {
+            url
+            altText
+          }
           price {
             amount
             currencyCode
@@ -76,20 +94,58 @@ function formatPrice(price) {
   return `${Math.round(amount)} ${currency}`;
 }
 
-function normalizeProduct(product) {
-  const variant = product.variants.nodes[0];
+function categoryForProduct(product) {
+  const source = [
+    product.productType,
+    product.title,
+    product.handle,
+    ...(product.tags || []),
+  ].join(' ').toLowerCase();
 
-    return {
+  if (/(tershine|gyeon|bilschampo|spolar|däck|dack|avfettning|tvätt|tvatt|torkhandduk|mikrofiber|glasrengöring|snabbvax|bilvård|bilvard|wash mitt|drying towel|wetcoat|repel|purify|relive|dissolve|vision)/i.test(source)) {
+    return 'Bilvård';
+  }
+
+  if (/(barebells|protein|shake|nocco|träning|traning|hälsa|halsa|dryck|nutrition)/i.test(source)) {
+    return 'Träning & hälsa';
+  }
+
+  return product.productType && product.productType !== 'Produkt' ? product.productType : 'Övrigt';
+}
+
+function normalizeVariant(variant, product) {
+  const image = variant && variant.image ? variant.image : product.featuredImage;
+
+  return {
+    id: variant ? variant.id : null,
+    title: variant ? variant.title : '',
+    label: variant && variant.title && variant.title !== 'Default Title' ? variant.title : '',
+    availableForSale: variant ? variant.availableForSale : false,
+    selectedOptions: variant ? variant.selectedOptions || [] : [],
+    image,
+    price: formatPrice(variant && variant.price),
+    compareAtPrice: formatPrice(variant && variant.compareAtPrice),
+  };
+}
+
+function normalizeProduct(product) {
+  const variants = (product.variants.nodes || []).map((variant) => normalizeVariant(variant, product));
+  const variant = variants.find((item) => item.availableForSale) || variants[0] || {};
+  const image = variant.image || product.featuredImage;
+
+  return {
     id: product.id,
     title: product.title,
     handle: product.handle,
     description: product.description || '',
-    category: product.productType || 'Produkt',
-    image: product.featuredImage,
-    variantId: variant ? variant.id : null,
-    availableForSale: variant ? variant.availableForSale : false,
-    price: formatPrice(variant && variant.price),
-    compareAtPrice: formatPrice(variant && variant.compareAtPrice),
+    category: categoryForProduct(product),
+    tags: product.tags || [],
+    image,
+    variantId: variant.id || null,
+    availableForSale: Boolean(variant.availableForSale),
+    price: variant.price || null,
+    compareAtPrice: variant.compareAtPrice || null,
+    variants,
   };
 }
 
@@ -119,7 +175,7 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const result = await shopifyFetch(PRODUCTS_QUERY, { first: 24 });
+  const result = await shopifyFetch(PRODUCTS_QUERY, { first: 100 });
 
   if (!result.ok) {
     sendJson(res, result.status, result.body);
