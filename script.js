@@ -518,6 +518,229 @@ function setText(selector, value) {
   }
 }
 
+const PRODUCT_SECTION_TITLES = [
+  'Egenskaper',
+  'Innehåll',
+  'Ingredienser',
+  'Rekommenderad användning',
+  'Autodudes snabbmanual',
+  'Användning',
+  'Dosering',
+  'Förvaring',
+  'Säkerhet',
+];
+
+const PRODUCT_SPEC_LABELS = [
+  'Produkt',
+  'Användningsområde',
+  'Förpackning',
+  'Blandningsförhållande',
+  'Utspädning',
+  'Storlek',
+  'Doft',
+  'Volym',
+  'Material',
+  'Färg',
+];
+
+const PRODUCT_FEATURE_PHRASES = [
+  'Utvecklat i Sverige',
+  'Ej märkningspliktig enligt CLP-förordningen (EG) 1272/2008',
+  'Förvaras oåtkomligt för barn',
+];
+
+function normalizeProductText(value) {
+  return String(value || '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/\r/g, '\n')
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n\s+/g, '\n')
+    .trim();
+}
+
+function splitProductSections(description) {
+  const text = normalizeProductText(description);
+
+  if (!text) {
+    return [];
+  }
+
+  const titlePattern = PRODUCT_SECTION_TITLES
+    .map((title) => title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('|');
+  const headingRegex = new RegExp(`\\b(${titlePattern})\\b:?`, 'gi');
+  const matches = Array.from(text.matchAll(headingRegex));
+
+  if (!matches.length) {
+    return [{ title: '', body: text }];
+  }
+
+  const sections = [];
+  const firstIndex = matches[0].index || 0;
+
+  if (firstIndex > 0) {
+    sections.push({ title: '', body: text.slice(0, firstIndex).trim() });
+  }
+
+  matches.forEach((match, index) => {
+    const next = matches[index + 1];
+    const start = (match.index || 0) + match[0].length;
+    const end = next ? next.index : text.length;
+    sections.push({
+      title: match[1],
+      body: text.slice(start, end).replace(/^:\s*/, '').trim(),
+    });
+  });
+
+  return sections.filter((section) => section.body);
+}
+
+function parseSpecRows(body) {
+  const labelPattern = PRODUCT_SPEC_LABELS
+    .map((label) => label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('|');
+  const regex = new RegExp(`\\b(${labelPattern}):\\s*`, 'gi');
+  const matches = Array.from(body.matchAll(regex));
+
+  if (!matches.length) {
+    return { rows: [], rest: body, notes: [] };
+  }
+
+  const notes = [];
+  const featurePattern = PRODUCT_FEATURE_PHRASES
+    .map((phrase) => phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('|');
+  const featureRegex = new RegExp(`\\b(${featurePattern})\\.?`, 'i');
+  const collectFeatureNotes = (value) => {
+    PRODUCT_FEATURE_PHRASES.forEach((phrase) => {
+      if (value.includes(phrase) && !notes.includes(phrase)) {
+        notes.push(phrase);
+      }
+    });
+  };
+
+  const rows = matches.map((match, index) => {
+    const next = matches[index + 1];
+    const start = (match.index || 0) + match[0].length;
+    const end = next ? next.index : body.length;
+    let value = body.slice(start, end).trim().replace(/[.,]\s*$/, '');
+    const featureMatch = value.match(featureRegex);
+
+    if (featureMatch) {
+      const noteText = value.slice(featureMatch.index).trim().replace(/\s+/g, ' ');
+      value = value.slice(0, featureMatch.index).trim().replace(/[.,]\s*$/, '');
+      collectFeatureNotes(noteText);
+    }
+
+    return {
+      label: match[1],
+      value,
+    };
+  }).filter((row) => row.value);
+
+  const firstIndex = matches[0].index || 0;
+  const rest = firstIndex > 0 ? body.slice(0, firstIndex).trim() : '';
+
+  return { rows, rest, notes };
+}
+
+function sentenceParagraphs(body) {
+  const normalized = normalizeProductText(body);
+
+  if (!normalized) {
+    return [];
+  }
+
+  const lineParts = normalized.split(/\n+/).map((part) => part.trim()).filter(Boolean);
+
+  if (lineParts.length > 1) {
+    return lineParts;
+  }
+
+  return normalized
+    .replace(/\s+(?=(?:Förvaras|Produkten|Repel|Tillsätt|Använd|Blanda|Spola|Gör)\b)/g, '\n')
+    .split(/(?<=[.!?])\s+(?=[A-ZÅÄÖ0-9])/)
+    .reduce((groups, sentence) => {
+      const clean = sentence.trim();
+      const last = groups[groups.length - 1] || '';
+
+      if (!clean) {
+        return groups;
+      }
+
+      if (!last || last.length > 220) {
+        groups.push(clean);
+      } else {
+        groups[groups.length - 1] = `${last} ${clean}`;
+      }
+
+      return groups;
+    }, []);
+}
+
+function renderBodyText(body) {
+  return sentenceParagraphs(body)
+    .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+    .join('');
+}
+
+function renderProductDescription(description) {
+  const sections = splitProductSections(description);
+
+  if (!sections.length) {
+    return '<p>Produktinformation hämtas från Shopify.</p>';
+  }
+
+  return sections.map((section, index) => {
+    const title = section.title ? `<h3>${escapeHtml(section.title)}</h3>` : '';
+    const isSpecSection = /^Egenskaper$/i.test(section.title);
+    const isIngredientSection = /^(Innehåll|Ingredienser)$/i.test(section.title);
+
+    if (isSpecSection) {
+      const { rows, rest, notes } = parseSpecRows(section.body);
+      const specs = rows.length
+        ? `<dl class="product-spec-list">${rows.map((row) => `
+            <div>
+              <dt>${escapeHtml(row.label)}</dt>
+              <dd>${escapeHtml(row.value)}</dd>
+            </div>
+          `).join('')}</dl>`
+        : '';
+      const noteList = notes.length
+        ? `<ul class="product-note-list">${notes.map((note) => `<li>${escapeHtml(note)}</li>`).join('')}</ul>`
+        : '';
+      const restText = rest ? renderBodyText(rest) : '';
+
+      return `<section class="product-copy-section ${index === 0 ? 'is-intro' : ''}">${title}${restText}${specs}${noteList}</section>`;
+    }
+
+    if (isIngredientSection) {
+      return `
+        <section class="product-copy-section product-ingredient-section">
+          ${title}
+          <p>${escapeHtml(section.body)}</p>
+        </section>
+      `;
+    }
+
+    return `<section class="product-copy-section ${index === 0 ? 'is-intro' : ''}">${title}${renderBodyText(section.body)}</section>`;
+  }).join('');
+}
+
+function setProductDescription(product) {
+  const element = document.querySelector('[data-product-description]');
+
+  if (!element) {
+    return;
+  }
+
+  element.innerHTML = renderProductDescription(product.description || 'Produktinformation hämtas från Shopify.');
+}
+
 function setProductDetail(product) {
   const detail = document.querySelector('[data-product-detail]');
 
@@ -536,7 +759,7 @@ function setProductDetail(product) {
 
   setText('[data-product-category]', product.category);
   setText('[data-product-title]', product.title);
-  setText('[data-product-description]', product.description || 'Produktinformation hämtas från Shopify.');
+  setProductDescription(product);
   setText('[data-product-compare-price]', product.compareAtPrice || product.price);
   setText('[data-product-price]', product.price || 'Pris kommer');
 

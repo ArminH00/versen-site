@@ -630,6 +630,96 @@ body.auth-loading [data-discount-form]{
   margin-left:0;
 }
 
+.product-description-rich{
+  display:grid;
+  gap:14px;
+  margin-top:18px;
+  color:rgba(255,255,255,.66);
+}
+
+.product-copy-section{
+  display:grid;
+  gap:10px;
+  padding:16px 0;
+  border-top:1px solid rgba(255,255,255,.08);
+}
+
+.product-copy-section.is-intro{
+  padding-top:0;
+  border-top:0;
+}
+
+.product-copy-section h3{
+  color:white;
+  font-size:14px;
+  letter-spacing:1.8px;
+  text-transform:uppercase;
+}
+
+.product-copy-section p{
+  max-width:62ch;
+  margin:0;
+  line-height:1.72;
+}
+
+.product-spec-list{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:8px;
+  margin-top:2px;
+}
+
+.product-spec-list div{
+  display:grid;
+  gap:4px;
+  padding:12px 0;
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+
+.product-spec-list div:last-child{
+  border-bottom:0;
+}
+
+.product-spec-list dt{
+  color:rgba(255,255,255,.48);
+  font-size:12px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+
+.product-spec-list dd{
+  color:rgba(255,255,255,.86);
+  line-height:1.48;
+}
+
+.product-note-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  list-style:none;
+}
+
+.product-note-list li{
+  padding:8px 10px;
+  border:1px solid rgba(130,247,210,.16);
+  border-radius:14px;
+  background:rgba(130,247,210,.055);
+  color:rgba(255,255,255,.72);
+  font-size:12px;
+}
+
+.product-ingredient-section{
+  padding:16px;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:18px;
+  background:rgba(255,255,255,.045);
+}
+
+.product-ingredient-section p{
+  font-size:14px;
+  color:rgba(255,255,255,.62);
+}
+
 .detail-prices{
   justify-content:flex-start;
   margin-top:22px;
