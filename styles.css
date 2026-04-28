@@ -137,11 +137,11 @@ body.auth-loading [data-discount-form]{
   flex:0 1 auto;
   width:100%;
   min-width:0;
-  justify-content:flex-start;
+  justify-content:center;
   overflow-x:auto;
   scrollbar-width:none;
-  padding-left:4px;
-  scroll-padding-left:4px;
+  padding:0 4px;
+  scroll-padding-inline:4px;
 }
 
 .menu::-webkit-scrollbar{
@@ -162,11 +162,7 @@ body.auth-loading [data-discount-form]{
 
 .menu::after{
   content:"";
-  flex:0 0 12px;
-}
-
-.menu a:first-child{
-  margin-left:2px;
+  flex:0 0 4px;
 }
 
 .menu a.active{
@@ -512,6 +508,12 @@ body.auth-loading [data-discount-form]{
 .product-card{
   border-radius:22px;
   overflow:hidden;
+  cursor:pointer;
+}
+
+.product-card:focus-visible{
+  outline:2px solid rgba(130,247,210,.65);
+  outline-offset:4px;
 }
 
 .product-card.is-hidden{

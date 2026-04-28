@@ -348,9 +348,10 @@ function productCard(product) {
 
   const compareAtPrice = product.compareAtPrice || product.price || '';
   const memberPrice = product.price || 'Pris kommer';
+  const productUrl = `produkt.html?handle=${encodeURIComponent(product.handle)}`;
 
   return `
-    <article class="product-card" data-category="${escapeHtml(product.category)}" data-product-handle="${escapeHtml(product.handle)}" data-variant-id="${escapeHtml(product.variantId || '')}" data-product-title="${escapeHtml(product.title)}" data-product-price="${escapeHtml(memberPrice)}" data-product-compare-at-price="${escapeHtml(compareAtPrice)}" data-product-image-url="${escapeHtml(product.image && product.image.url ? product.image.url : '')}" data-product-image-alt="${escapeHtml(product.image && product.image.altText ? product.image.altText : product.title)}">
+    <article class="product-card" role="link" tabindex="0" data-product-url="${escapeHtml(productUrl)}" data-category="${escapeHtml(product.category)}" data-product-handle="${escapeHtml(product.handle)}" data-variant-id="${escapeHtml(product.variantId || '')}" data-product-title="${escapeHtml(product.title)}" data-product-price="${escapeHtml(memberPrice)}" data-product-compare-at-price="${escapeHtml(compareAtPrice)}" data-product-image-url="${escapeHtml(product.image && product.image.url ? product.image.url : '')}" data-product-image-alt="${escapeHtml(product.image && product.image.altText ? product.image.altText : product.title)}">
       <div class="product-image">${image}</div>
       <div class="product-info">
         <div class="product-category">${escapeHtml(product.category)}</div>
@@ -360,13 +361,63 @@ function productCard(product) {
           <span class="new">${escapeHtml(memberPrice)}</span>
         </div>
         <div class="product-actions">
-          <a class="product-btn" href="produkt.html?handle=${encodeURIComponent(product.handle)}">Visa produkt</a>
+          <a class="product-btn" href="${escapeHtml(productUrl)}">Visa produkt</a>
           <button class="product-btn secondary" type="button" data-catalog-add>Lägg i kundkorg</button>
         </div>
       </div>
     </article>
   `;
 }
+
+function prepareProductCardLinks(root = document) {
+  root.querySelectorAll('.product-card').forEach((card) => {
+    const link = card.querySelector('a[href*="produkt.html"]');
+
+    if (!link) {
+      return;
+    }
+
+    card.dataset.productUrl = card.dataset.productUrl || link.getAttribute('href');
+    card.setAttribute('role', 'link');
+
+    if (!card.hasAttribute('tabindex')) {
+      card.tabIndex = 0;
+    }
+  });
+}
+
+document.addEventListener('click', (event) => {
+  const card = event.target.closest('.product-card');
+
+  if (!card || event.target.closest('a, button, input, select, textarea')) {
+    return;
+  }
+
+  const url = card.dataset.productUrl;
+
+  if (url) {
+    window.location.href = url;
+  }
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key !== 'Enter' && event.key !== ' ') {
+    return;
+  }
+
+  const card = event.target.closest('.product-card');
+
+  if (!card || event.target.closest('a, button, input, select, textarea')) {
+    return;
+  }
+
+  const url = card.dataset.productUrl;
+
+  if (url) {
+    event.preventDefault();
+    window.location.href = url;
+  }
+});
 
 async function loadProducts() {
   const grid = document.querySelector('[data-products-grid]');
@@ -395,12 +446,14 @@ async function loadProducts() {
     }
 
     grid.innerHTML = visibleProducts.map(productCard).join('');
+    prepareProductCardLinks(grid);
     syncShoppingAccess();
   } catch (error) {
     return;
   }
 }
 
+prepareProductCardLinks();
 loadProducts();
 
 async function loadMemberHomeProducts() {
@@ -427,6 +480,7 @@ async function loadMemberHomeProducts() {
     }
 
     grid.innerHTML = products.map(productCard).join('');
+    prepareProductCardLinks(grid);
     syncShoppingAccess();
   } catch (error) {
     return;
