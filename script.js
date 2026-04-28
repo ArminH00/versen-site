@@ -433,7 +433,6 @@ function productCard(product) {
 
 function liveProductCard(product, index = 0) {
   const viewers = randomInt(3, 11);
-  const offset = [-8, 9, -3][index % 3];
   const image = product.image && product.image.url
     ? `<img src="${escapeHtml(product.image.url)}" alt="${escapeHtml(product.image.altText || product.title)}">`
     : '';
@@ -447,7 +446,7 @@ function liveProductCard(product, index = 0) {
   ].filter(Boolean).join('');
 
   return `
-    <article class="live-product-card ${flags.greatPrice ? 'has-great-price' : ''}" style="--float-offset:${offset}px">
+    <article class="live-product-card ${flags.greatPrice ? 'has-great-price' : ''}">
       <div class="live-product-top">
         <div class="live-viewers">${viewers} personer tittar på denna just nu</div>
         ${badges ? `<div class="live-product-badges">${badges}</div>` : ''}
