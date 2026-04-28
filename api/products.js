@@ -108,7 +108,7 @@ function categoryForProduct(product) {
     return 'Bilvård';
   }
 
-  if (/(barebells|protein|shake|nocco|träning|traning|hälsa|halsa|dryck|nutrition)/i.test(source)) {
+  if (/(barebells|protein|shake|nocco|träning|traning|hälsa|halsa|dryck|nutrition|whey|kreatin|kasein|vassle|collagen|body science|tyngre)/i.test(source)) {
     return 'Träning & hälsa';
   }
 
