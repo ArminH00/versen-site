@@ -448,10 +448,12 @@ function liveProductCard(product, index = 0) {
 
   return `
     <article class="live-product-card ${flags.greatPrice ? 'has-great-price' : ''}" style="--float-offset:${offset}px">
-      <div class="live-viewers">${viewers} personer tittar på denna just nu</div>
+      <div class="live-product-top">
+        <div class="live-viewers">${viewers} personer tittar på denna just nu</div>
+        ${badges ? `<div class="live-product-badges">${badges}</div>` : ''}
+      </div>
       <div class="live-product-image">${image}</div>
       <div class="live-product-info">
-        ${badges ? `<div class="live-product-badges">${badges}</div>` : ''}
         <small>${escapeHtml(vendor)}</small>
         <strong>${escapeHtml(product.title)}</strong>
         <div class="live-product-prices">
