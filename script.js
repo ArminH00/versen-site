@@ -1512,7 +1512,7 @@ if (launchForm) {
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-      if (message) message.textContent = 'Skriv din email eller accesskod.';
+      if (message) message.textContent = 'Skriv en giltig email.';
       return;
     }
 
