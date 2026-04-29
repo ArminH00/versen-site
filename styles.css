@@ -804,19 +804,11 @@ body.auth-loading [data-discount-form]{
 }
 
 .drop-countdown{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  margin-top:18px;
-  padding:10px 14px;
-  border:1px solid rgba(130,247,210,.24);
-  border-radius:999px;
-  background:rgba(130,247,210,.08);
-  color:rgba(170,255,215,.94);
-  font-size:13px;
+  margin-top:16px;
+  color:rgba(170,255,215,.86);
+  font-size:14px;
   font-weight:700;
-  letter-spacing:.5px;
-  box-shadow:0 12px 34px rgba(80,255,190,.08);
+  letter-spacing:.2px;
 }
 
 .category-image-row{
@@ -3589,10 +3581,7 @@ html[data-theme="light"] .sort-control{
 }
 
 html[data-theme="light"] .drop-countdown{
-  color:#075f45;
-  background:linear-gradient(180deg,rgba(227,255,243,.96),rgba(205,247,229,.86));
-  border-color:rgba(24,155,112,.24);
-  box-shadow:0 14px 36px rgba(42,148,112,.14),inset 0 1px 0 rgba(255,255,255,.94);
+  color:#087454;
 }
 
 html[data-theme="light"] .category-launch-card{
