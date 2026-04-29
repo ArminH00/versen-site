@@ -682,7 +682,30 @@ async function cancelMembership(req, res) {
       return;
     }
 
-    sendJson(res, 404, { error: 'Ingen aktiv ReCharge-prenumeration hittades.' });
+    const fallbackUntil = session.customer.membership && (session.customer.membership.activeUntil || session.customer.membership.nextChargeScheduledAt)
+      ? session.customer.membership.activeUntil || session.customer.membership.nextChargeScheduledAt
+      : fallbackActiveUntil();
+    const fallbackCancellation = {
+      status: 'cancelled',
+      provider: session.customer.membershipSource || 'Versen',
+      subscriptionId: null,
+      activeUntil: fallbackUntil,
+      cancelledAt: new Date().toISOString(),
+    };
+    const fallbackSaved = await saveMembershipCancellation(session.customer.id, fallbackCancellation);
+
+    if (!fallbackSaved.ok) {
+      sendJson(res, fallbackSaved.status || 500, fallbackSaved.body || { error: 'Kunde inte spara uppsägningen.' });
+      return;
+    }
+
+    const updatedSession = await getCustomerSession(getCookie(req, 'versen_customer_token'));
+
+    sendJson(res, 200, {
+      status: 'Medlemskapet avslutas till nästa period. Access ligger kvar till sista datumet.',
+      activeUntil: fallbackUntil,
+      session: updatedSession,
+    });
     return;
   }
 

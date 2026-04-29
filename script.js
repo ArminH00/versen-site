@@ -6,7 +6,7 @@ const MEMBERSHIP_REVEAL_KEY = 'versenMembershipRevealSeen';
 const LAUNCH_GATE_KEY = 'versenLaunchAccess';
 const POINTS_INTRO_KEY = 'versenPointsIntroSeen';
 const THEME_KEY = 'versenThemePreference';
-const LAUNCH_OPEN_AT = new Date('2026-04-30T00:01:00+02:00').getTime();
+const LAUNCH_OPEN_AT = new Date('2026-04-30T00:00:00+02:00').getTime();
 const LAUNCH_GATE_CODE = '6363';
 let accountSession = null;
 let catalogSort = 'brand';
@@ -155,11 +155,11 @@ function formatDate(value) {
     return '';
   }
 
-  return [
-    String(date.getDate()).padStart(2, '0'),
-    String(date.getMonth() + 1).padStart(2, '0'),
-    date.getFullYear(),
-  ].join('-');
+  const months = ['jan', 'feb', 'mars', 'apr', 'maj', 'juni', 'juli', 'aug', 'sep', 'okt', 'nov', 'dec'];
+  const currentYear = new Date().getFullYear();
+  const base = `${date.getDate()} ${months[date.getMonth()]}`;
+
+  return date.getFullYear() === currentYear ? base : `${base} ${date.getFullYear()}`;
 }
 
 async function postJson(url, payload) {
@@ -1680,7 +1680,7 @@ function updateMemberStatus(session = accountSession) {
     memberNote.textContent = hasMemberDiscount
       ? (membership.cancellationRequested
         ? `Medlemskapet är avslutat men aktivt till ${nextDate || 'sista perioden'}.`
-        : `Medlemsrabatten är aktiv. ${nextDate ? `Nästa dragning är ${nextDate}.` : 'Den används automatiskt i checkout.'}`)
+        : `Medlemsrabatten är aktiv. ${nextDate ? `Nästa förnyelse är ${nextDate}.` : 'Den används automatiskt i checkout.'}`)
       : 'Starta medlemskap för att låsa upp rabatterade priser i checkout.';
   }
   if (dashboardMembership) dashboardMembership.textContent = hasMemberDiscount
@@ -1763,7 +1763,7 @@ function renderSettingsPage(session = accountSession) {
     status.innerHTML = member
       ? `
         <span>${membership.cancellationRequested ? 'Avslutas' : 'Aktivt medlemskap'}</span>
-        <strong>${membership.cancellationRequested ? `Aktivt till ${date || 'sista perioden'}` : (date ? `Nästa dragning ${date}` : 'Aktivt')}</strong>
+        <strong>${membership.cancellationRequested ? `Aktivt till ${date || 'sista perioden'}` : (date ? `Nästa förnyelse ${date}` : 'Aktivt')}</strong>
         <p>${membership.cancellationRequested ? 'Du behåller medlemspriserna till slutdatumet. Ingen ny dragning görs.' : 'Du kan avsluta prenumerationen här. Medlemskapet ligger kvar till sista betalda datumet.'}</p>
       `
       : `
@@ -1774,7 +1774,7 @@ function renderSettingsPage(session = accountSession) {
   }
 
   if (cancelButton) {
-    cancelButton.hidden = !member || Boolean(membership.cancellationRequested) || !membership.subscriptionId;
+    cancelButton.hidden = !member || Boolean(membership.cancellationRequested);
   }
 
   if (message && membership.cancellationRequested) {

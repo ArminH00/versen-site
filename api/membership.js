@@ -166,6 +166,37 @@ function normalizeRechargeSubscription(subscription) {
   };
 }
 
+function addOneMonth(value) {
+  const date = value ? new Date(value) : new Date();
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  date.setMonth(date.getMonth() + 1);
+  return date.toISOString();
+}
+
+function isMembershipOrder(order) {
+  const lines = order && order.lineItems && order.lineItems.nodes ? order.lineItems.nodes : [];
+
+  return lines.some((line) => /medlemskap/i.test(String(line.name || line.title || '')));
+}
+
+function inferMembershipDate(adminOrders, subscription, member) {
+  if (subscription && subscription.nextChargeScheduledAt) {
+    return subscription.nextChargeScheduledAt;
+  }
+
+  const membershipOrder = (adminOrders || []).find(isMembershipOrder);
+
+  if (membershipOrder && membershipOrder.createdAt) {
+    return addOneMonth(membershipOrder.createdAt);
+  }
+
+  return member ? addOneMonth(new Date().toISOString()) : null;
+}
+
 async function getCustomerMeta(customerId) {
   if (!customerId) {
     return {
@@ -213,9 +244,8 @@ function normalizeCustomer(customer, rechargeInfo = {}, adminOrders = null, meta
   const orderSpend = adminOrders ? adminOrders.reduce((sum, order) => sum + orderAmount(order), 0) : 0;
   const points = Math.floor(orderSpend * 2);
   const subscription = rechargeInfo && rechargeInfo.subscription ? normalizeRechargeSubscription(rechargeInfo.subscription) : null;
-  const activeUntil = cancelledButActive
-    ? cancellation.activeUntil
-    : (subscription && subscription.nextChargeScheduledAt ? subscription.nextChargeScheduledAt : null);
+  const nextDate = inferMembershipDate(adminOrders, subscription, member);
+  const activeUntil = cancelledButActive ? cancellation.activeUntil : nextDate;
 
   return {
     id: customer.id,
@@ -230,7 +260,7 @@ function normalizeCustomer(customer, rechargeInfo = {}, adminOrders = null, meta
     membership: {
       source: membershipSource,
       subscriptionId: subscription && subscription.id ? subscription.id : (cancellation && cancellation.subscriptionId ? cancellation.subscriptionId : null),
-      nextChargeScheduledAt: subscription && subscription.nextChargeScheduledAt ? subscription.nextChargeScheduledAt : null,
+      nextChargeScheduledAt: cancelledButActive ? null : nextDate,
       activeUntil,
       cancellationRequested: Boolean(cancelledButActive),
       cancelledAt: cancellation && cancellation.cancelledAt ? cancellation.cancelledAt : null,
@@ -277,20 +307,29 @@ async function getRechargeMembershipByEmail(email) {
     const customerResponse = await fetch(`https://api.rechargeapps.com/customers?email=${encodeURIComponent(email)}`, { headers });
 
     if (!customerResponse.ok) {
-      return false;
+      return {
+        active: false,
+        subscription: null,
+      };
     }
 
     const customerPayload = await customerResponse.json();
     const customer = (customerPayload.customers || [])[0];
 
     if (!customer || !customer.id) {
-      return false;
+      return {
+        active: false,
+        subscription: null,
+      };
     }
 
     const subscriptionResponse = await fetch(`https://api.rechargeapps.com/subscriptions?customer_id=${customer.id}&status=ACTIVE`, { headers });
 
     if (!subscriptionResponse.ok) {
-      return false;
+      return {
+        active: false,
+        subscription: null,
+      };
     }
 
     const subscriptionPayload = await subscriptionResponse.json();
