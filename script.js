@@ -319,12 +319,12 @@ function applyGlobalSessionUi(session = accountSession) {
     setText('[data-account-hero-title]', 'Nytt lösenord');
     setText('[data-account-hero-copy]', 'Välj ett nytt lösenord för ditt konto.');
   } else {
-    setText('[data-account-hero-title]', member ? 'Ditt medlemskonto' : 'Din medlemsyta');
+    setText('[data-account-hero-title]', member ? 'Ditt medlemskonto' : 'Bli medlem eller logga in');
     setText(
       '[data-account-hero-copy]',
       member
         ? 'Medlemskapet är aktivt. Här ser du status, rabatter och senaste aktivitet.'
-        : 'Verifiera email, skapa lösenord och hantera medlemskap hos Versen.'
+        : 'Skapa ett konto och bli medlem hos Versen.'
     );
   }
 
@@ -388,7 +388,7 @@ function syncShoppingAccess() {
 
   if (cartHelp) {
     cartHelp.textContent = member
-      ? 'Rabattkoder kontrolleras här. Checkout öppnas i en ny flik och orderstatus visas hos Versen.'
+      ? 'Du kommer tas vidare till ett nytt fönster för betalning och kan sedan komma tillbaks hit för att se din orderstatus.'
       : 'Aktivt betalande medlemskap krävs innan du kan lägga till produkter eller gå till checkout.';
   }
 
@@ -608,7 +608,7 @@ function renderCatalogProducts(category) {
     grid.innerHTML = `
       <div class="empty-state catalog-empty">
         <span>Välj en kategori</span>
-        <p>Bilvård eller Träning & hälsa. Produkterna visas direkt här.</p>
+        <p>Välj en kategori så visas produkterna direkt här.</p>
       </div>
     `;
     return;
@@ -1022,12 +1022,12 @@ function sentenceParagraphs(body) {
 }
 
 function splitLongParagraph(paragraph) {
-  if (paragraph.length <= 460) {
+  if (paragraph.length <= 720) {
     return [paragraph];
   }
 
   const parts = paragraph
-    .split(/(?<=,)\s+|\s+(?=(?:och|samt|men|vilket|där|när|för att|utan att|medan)\b)/i)
+    .split(/(?<=[.!?])\s+/)
     .map((part) => part.trim())
     .filter(Boolean);
 
@@ -1038,7 +1038,7 @@ function splitLongParagraph(paragraph) {
   return parts.reduce((groups, part) => {
     const last = groups[groups.length - 1] || '';
 
-    if (!last || last.length + part.length > 360) {
+    if (!last || last.length + part.length > 620) {
       groups.push(part);
     } else {
       groups[groups.length - 1] = `${last} ${part}`;
@@ -1836,7 +1836,7 @@ function renderMembershipActivation(session = accountSession) {
   if (member) {
     clearPendingCheckout();
     if (badge) badge.textContent = seenReveal ? 'Medlemskap aktivt' : 'Välkommen in';
-    if (title) title.textContent = seenReveal ? 'Du är redan medlem' : `Medlemskap aktiverat${firstName ? `, ${firstName}` : ''}`;
+    if (title) title.textContent = seenReveal ? 'Du är medlem' : `Medlemskap aktiverat${firstName ? `, ${firstName}` : ''}`;
     if (copy) {
       copy.textContent = seenReveal
         ? 'Butiken är upplåst. Dina medlemspriser är redo när du vill handla.'
@@ -1951,7 +1951,7 @@ if (verificationToken && registerForm) {
   const createCopy = createCard && createCard.querySelector('p');
   const submit = registerForm.querySelector('button');
   if (createTitle) createTitle.textContent = 'Skriv in lösenord';
-  if (createCopy) createCopy.textContent = 'Du är på steg 2. Fyll i ett lösenord för ditt konto, minst 8 tecken. Efter det öppnas medlemskapssidan.';
+  if (createCopy) createCopy.textContent = 'Fyll i ett lösenord för ditt konto, minst 8 tecken. Efter det öppnas medlemskapssidan.';
   if (submit) submit.textContent = 'Fortsätt till medlemskap';
   if (message) message.textContent = 'Email verifierad. Välj lösenord för att skapa kontot.';
 }
@@ -1990,7 +1990,7 @@ if (verificationForm) {
         return;
       }
 
-      if (message) message.textContent = data.status || 'Verifieringsmail skickat. Kontrollera inkorgen.';
+      if (message) message.textContent = data.status || 'Verifieringsmail skickat. Kontrollera inkorgen och skräppost.';
     } catch (error) {
       if (message) message.textContent = 'Kunde inte kontakta servern.';
     }
@@ -2142,11 +2142,54 @@ document.querySelectorAll('[data-theme-option]').forEach((button) => {
 
 applyTheme();
 
+function showConfirmDialog({ title, message, confirmText, cancelText }) {
+  return new Promise((resolve) => {
+    const backdrop = document.createElement('div');
+    backdrop.className = 'versen-dialog-backdrop';
+    backdrop.innerHTML = `
+      <div class="versen-dialog" role="dialog" aria-modal="true" aria-labelledby="versen-dialog-title">
+        <h2 id="versen-dialog-title">${title}</h2>
+        <p>${message}</p>
+        <div class="versen-dialog-actions">
+          <button class="product-btn danger-action" type="button" data-dialog-confirm>${confirmText}</button>
+          <button class="product-btn secondary" type="button" data-dialog-cancel>${cancelText}</button>
+        </div>
+      </div>
+    `;
+
+    const close = (result) => {
+      backdrop.classList.remove('show');
+      window.setTimeout(() => {
+        backdrop.remove();
+        resolve(result);
+      }, 180);
+    };
+
+    backdrop.addEventListener('click', (event) => {
+      if (event.target === backdrop) close(false);
+    });
+    backdrop.querySelector('[data-dialog-confirm]')?.addEventListener('click', () => close(true));
+    backdrop.querySelector('[data-dialog-cancel]')?.addEventListener('click', () => close(false));
+    document.body.appendChild(backdrop);
+    window.setTimeout(() => backdrop.classList.add('show'), 20);
+  });
+}
+
 const cancelMembershipButton = document.querySelector('[data-cancel-membership]');
 
 if (cancelMembershipButton) {
   cancelMembershipButton.addEventListener('click', async () => {
     const message = document.querySelector('[data-settings-message]');
+    const confirmed = await showConfirmDialog({
+      title: 'Avsluta medlemskap?',
+      message: 'Vi vill inte se dig gå, är du säker på att du vill avsluta ditt medlemskap?',
+      confirmText: 'Avsluta medlemskap',
+      cancelText: 'Jag ångrar mig',
+    });
+
+    if (!confirmed) {
+      return;
+    }
 
     cancelMembershipButton.disabled = true;
     cancelMembershipButton.textContent = 'Avslutar...';
@@ -2344,6 +2387,42 @@ document.addEventListener('click', (event) => {
 
 const launchForm = document.querySelector('[data-launch-form]');
 const launchCountdown = document.querySelector('[data-launch-countdown]');
+const dropCountdown = document.querySelector('[data-drop-countdown]');
+
+function nextThursdayDrop() {
+  const now = new Date();
+  const target = new Date(now);
+  target.setHours(12, 0, 0, 0);
+
+  const day = now.getDay();
+  const thursday = 4;
+  let daysUntilThursday = (thursday - day + 7) % 7;
+
+  if (daysUntilThursday === 0 && now >= target) {
+    daysUntilThursday = 7;
+  }
+
+  target.setDate(now.getDate() + daysUntilThursday);
+  return target;
+}
+
+function updateDropCountdown() {
+  if (!dropCountdown) {
+    return;
+  }
+
+  const distance = Math.max(0, nextThursdayDrop().getTime() - Date.now());
+  const totalMinutes = Math.ceil(distance / 60000);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  dropCountdown.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')} till nästa torsdag 12:00`;
+}
+
+if (dropCountdown) {
+  updateDropCountdown();
+  window.setInterval(updateDropCountdown, 60000);
+}
 
 function updateLaunchCountdown() {
   if (!launchCountdown) {
