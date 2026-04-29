@@ -4329,3 +4329,64 @@ html[data-theme="light"] .site-footer{
     box-shadow:0 24px 72px rgba(30,52,44,.13),inset 0 1px 0 rgba(255,255,255,.96);
   }
 }
+
+html[data-theme="light"] .activation-stage{
+  background:
+    radial-gradient(circle at 50% 18%,rgba(57,230,174,.16),transparent 34%),
+    radial-gradient(circle at 50% 72%,rgba(104,112,255,.08),transparent 36%),
+    linear-gradient(180deg,#f8fffc 0%,#ffffff 48%,#eff8f4 100%);
+}
+
+html[data-theme="light"] .activation-glow{
+  background:radial-gradient(circle,rgba(44,226,170,.20),rgba(126,119,255,.11) 42%,transparent 72%);
+  filter:blur(46px);
+}
+
+html[data-theme="light"] .activation-panel{
+  background:
+    radial-gradient(circle at 50% 0%,rgba(53,232,174,.12),transparent 42%),
+    linear-gradient(180deg,rgba(255,255,255,.98),rgba(248,253,250,.93));
+  border-color:rgba(10,32,24,.10);
+  box-shadow:0 26px 82px rgba(29,71,55,.12),0 4px 18px rgba(23,44,35,.05),inset 0 1px 0 rgba(255,255,255,.96);
+}
+
+html[data-theme="light"] .activation-panel h1{
+  color:#070a0d;
+}
+
+html[data-theme="light"] .activation-panel > p{
+  color:#5c6863;
+}
+
+html[data-theme="light"] .activation-status{
+  background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(242,249,246,.78));
+  border-color:rgba(13,44,33,.12);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.92),0 10px 30px rgba(31,73,57,.07);
+}
+
+html[data-theme="light"] .activation-status span{
+  color:#66736f;
+}
+
+html[data-theme="light"] .activation-status strong{
+  color:#070a0d;
+}
+
+html[data-theme="light"] .activation-status p{
+  color:#58645f;
+}
+
+html[data-theme="light"] .activation-orb{
+  background:
+    radial-gradient(circle at 34% 28%,rgba(255,255,255,.98),rgba(102,244,199,.58) 24%,rgba(126,119,255,.20) 60%,rgba(255,255,255,.78) 100%);
+  box-shadow:0 0 64px rgba(48,226,172,.20),inset 0 0 24px rgba(255,255,255,.72);
+}
+
+html[data-theme="light"] .activation-orb span{
+  border-color:rgba(255,255,255,.78);
+  box-shadow:0 0 26px rgba(44,226,170,.18);
+}
+
+html[data-theme="light"] .activation-rings span{
+  border-color:rgba(16,58,43,.08);
+}
