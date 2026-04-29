@@ -4053,3 +4053,279 @@ html[data-theme="light"] .launch-body::before{
     box-shadow:0 20px 64px rgba(32,66,52,.12),inset 0 1px 0 rgba(255,255,255,.92);
   }
 }
+
+/* Light theme balance: launch polish pass for calmer glow and cleaner surfaces. */
+html[data-theme="light"]{
+  --page-bg:#f8fbf8;
+  --page-bg-deep:#eef6f1;
+  --accent:#128c6a;
+  --accent-soft:rgba(18,140,106,.10);
+  background:#eef6f1;
+}
+
+html[data-theme="light"] body{
+  background:
+    radial-gradient(circle at 50% -6%,rgba(28,210,155,.13),transparent 31rem),
+    radial-gradient(circle at 100% 28%,rgba(80,136,255,.045),transparent 28rem),
+    linear-gradient(180deg,#fbfdfb 0%,#f7fbf8 38%,#eef6f1 100%);
+  background-attachment:fixed;
+}
+
+html[data-theme="light"] body::before{
+  inset:0;
+  background:
+    radial-gradient(circle at 50% -14%,rgba(30,220,165,.12),transparent 33rem),
+    radial-gradient(circle at -8% 42%,rgba(20,140,106,.055),transparent 27rem),
+    radial-gradient(circle at 108% 68%,rgba(105,130,255,.04),transparent 29rem);
+}
+
+html[data-theme="light"] body::after{
+  display:none;
+}
+
+html[data-theme="light"] .nav{
+  background:rgba(253,254,253,.94);
+  border-bottom:1px solid rgba(10,24,20,.07);
+  box-shadow:0 1px 0 rgba(255,255,255,.9),0 16px 38px rgba(30,52,44,.08);
+}
+
+html[data-theme="light"] .nav::after{
+  background:linear-gradient(180deg,rgba(253,254,253,.8),rgba(247,251,248,0));
+}
+
+html[data-theme="light"] .menu a.active{
+  background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(242,246,243,.88));
+  border-color:rgba(10,24,20,.13);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 10px 26px rgba(30,52,44,.08);
+}
+
+html[data-theme="light"] .card,
+html[data-theme="light"] .step,
+html[data-theme="light"] .product-card,
+html[data-theme="light"] .info-card,
+html[data-theme="light"] .legal-card,
+html[data-theme="light"] .account-card,
+html[data-theme="light"] .membership-panel,
+html[data-theme="light"] .lock-box,
+html[data-theme="light"] .cart-item,
+html[data-theme="light"] .cart-summary,
+html[data-theme="light"] .empty-cart,
+html[data-theme="light"] .order-success-card,
+html[data-theme="light"] .activation-panel,
+html[data-theme="light"] .product-detail-info,
+html[data-theme="light"] .product-copy-section,
+html[data-theme="light"] .product-ingredient-section,
+html[data-theme="light"] .concept-card,
+html[data-theme="light"] .suggestion-rhythm div,
+html[data-theme="light"] .live-product-card,
+html[data-theme="light"] .admin-row,
+html[data-theme="light"] .admin-status-grid div{
+  background:linear-gradient(180deg,rgba(255,255,255,.99),rgba(250,252,250,.93));
+  border-color:rgba(10,24,20,.09);
+  box-shadow:0 18px 54px rgba(30,52,44,.10),0 3px 12px rgba(20,34,29,.035),inset 0 1px 0 rgba(255,255,255,.96);
+}
+
+html[data-theme="light"] .card:nth-child(2n),
+html[data-theme="light"] .info-card:nth-child(2n),
+html[data-theme="light"] .account-card:nth-child(2n),
+html[data-theme="light"] .suggestion-rhythm div:nth-child(2n){
+  background:linear-gradient(155deg,rgba(255,255,255,.99),rgba(246,250,248,.92));
+}
+
+html[data-theme="light"] .card:nth-child(3n),
+html[data-theme="light"] .info-card:nth-child(3n),
+html[data-theme="light"] .account-card:nth-child(3n),
+html[data-theme="light"] .suggestion-rhythm div:nth-child(3n){
+  background:linear-gradient(205deg,rgba(255,255,255,.99),rgba(247,249,252,.92));
+}
+
+html[data-theme="light"] .membership-panel,
+html[data-theme="light"] .category-launch-card{
+  background:
+    radial-gradient(circle at 24% 0%,rgba(26,210,154,.105),transparent 34%),
+    linear-gradient(180deg,rgba(255,255,255,.99),rgba(248,251,249,.92));
+  box-shadow:0 22px 68px rgba(30,52,44,.12),inset 0 1px 0 rgba(255,255,255,.96);
+}
+
+html[data-theme="light"] .category-launch-card.training-health{
+  background:
+    radial-gradient(circle at 84% 0%,rgba(112,116,255,.08),transparent 34%),
+    linear-gradient(180deg,rgba(255,255,255,.99),rgba(248,250,251,.92));
+}
+
+html[data-theme="light"] .membership-highlights div,
+html[data-theme="light"] .points-metric,
+html[data-theme="light"] .product-note-list li{
+  background:linear-gradient(135deg,rgba(236,255,248,.86),rgba(255,255,255,.92));
+  border-color:rgba(18,140,106,.18);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.94),0 10px 28px rgba(24,84,63,.045);
+}
+
+html[data-theme="light"] .live-product-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.99),rgba(249,251,250,.93));
+}
+
+html[data-theme="light"] .live-product-card:nth-child(2n){
+  background:
+    radial-gradient(circle at 100% 12%,rgba(20,140,106,.045),transparent 30%),
+    linear-gradient(155deg,rgba(255,255,255,.99),rgba(248,250,249,.93));
+}
+
+html[data-theme="light"] .live-product-card:nth-child(3n){
+  background:
+    radial-gradient(circle at 0% 86%,rgba(90,120,255,.035),transparent 34%),
+    linear-gradient(205deg,rgba(255,255,255,.99),rgba(248,250,251,.93));
+}
+
+html[data-theme="light"] .live-viewers{
+  color:#147a61;
+  background:rgba(20,155,115,.075);
+  border-color:rgba(20,155,115,.18);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.75);
+}
+
+html[data-theme="light"] .live-product-badges .great-price,
+html[data-theme="light"] .product-badges .great-price{
+  background:rgba(20,155,115,.09);
+  border-color:rgba(20,155,115,.22);
+  color:#126f58;
+  box-shadow:none;
+}
+
+html[data-theme="light"] .product-card.has-great-price .product-prices .new,
+html[data-theme="light"] .live-product-card.has-great-price .live-product-prices .new{
+  color:#137a61;
+  text-shadow:none;
+}
+
+html[data-theme="light"] .cta,
+html[data-theme="light"] .product-btn,
+html[data-theme="light"] .launch-input-row button,
+html[data-theme="light"] .points-popover-card button{
+  color:#fff;
+  background:linear-gradient(180deg,#111513,#050706);
+  border:1px solid rgba(7,18,14,.18);
+  box-shadow:0 14px 32px rgba(20,30,25,.18),inset 0 1px 0 rgba(255,255,255,.16);
+}
+
+html[data-theme="light"] .cta:hover,
+html[data-theme="light"] .product-btn:hover{
+  box-shadow:0 18px 42px rgba(20,30,25,.22),inset 0 1px 0 rgba(255,255,255,.18);
+}
+
+html[data-theme="light"] .product-btn.secondary,
+html[data-theme="light"] .remove-btn,
+html[data-theme="light"] .account-link,
+html[data-theme="light"] .settings-back{
+  color:#101513;
+  background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(246,249,247,.9));
+  border:1px solid rgba(10,24,20,.12);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.94),0 10px 26px rgba(30,52,44,.07);
+}
+
+html[data-theme="light"] .cart-checkout:disabled,
+html[data-theme="light"] .cta:disabled,
+html[data-theme="light"] .product-btn:disabled{
+  background:linear-gradient(180deg,rgba(28,33,30,.50),rgba(28,33,30,.42));
+  border-color:rgba(10,24,20,.12);
+  box-shadow:none;
+  color:rgba(255,255,255,.78);
+}
+
+html[data-theme="light"] .category-lock-popover{
+  background:rgba(237,246,241,.72);
+  backdrop-filter:blur(18px);
+}
+
+html[data-theme="light"] .category-lock-card,
+html[data-theme="light"] .points-popover-card{
+  color:#07100c;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(20,155,115,.075),transparent 38%),
+    linear-gradient(180deg,rgba(255,255,255,.99),rgba(247,251,248,.95));
+  border-color:rgba(10,24,20,.11);
+  box-shadow:0 24px 70px rgba(21,38,31,.18),inset 0 1px 0 rgba(255,255,255,.96);
+}
+
+html[data-theme="light"] .category-lock-card h2,
+html[data-theme="light"] .points-popover-card h2,
+html[data-theme="light"] .points-popover-card strong{
+  color:#07100c;
+}
+
+html[data-theme="light"] .category-lock-card p,
+html[data-theme="light"] .points-popover-card p{
+  color:#59645e;
+}
+
+html[data-theme="light"] .points-popover-card span{
+  color:#147a61;
+}
+
+html[data-theme="light"] .account-flow{
+  gap:10px;
+}
+
+html[data-theme="light"] .flow-step{
+  min-height:56px;
+  padding:10px 12px;
+  border-radius:18px;
+  background:rgba(255,255,255,.82);
+  border-color:rgba(10,24,20,.10);
+  box-shadow:0 10px 24px rgba(30,52,44,.065),inset 0 1px 0 rgba(255,255,255,.92);
+  color:#4f5b55;
+}
+
+html[data-theme="light"] .flow-step span{
+  width:34px;
+  height:34px;
+  min-width:34px;
+  font-size:15px;
+  color:#17201c;
+  background:#eef3ef;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95);
+}
+
+html[data-theme="light"] .flow-step p{
+  color:#4f5b55;
+  font-weight:750;
+}
+
+html[data-theme="light"] .flow-step.active{
+  background:rgba(255,255,255,.98);
+  border-color:rgba(10,24,20,.16);
+  box-shadow:0 12px 30px rgba(30,52,44,.08),inset 0 1px 0 rgba(255,255,255,.96);
+}
+
+html[data-theme="light"] .flow-step.active span{
+  color:#fff;
+  background:#0d1210;
+}
+
+html[data-theme="light"] .flow-step.done span{
+  color:#0d1210;
+  background:rgba(20,155,115,.12);
+}
+
+html[data-theme="light"] .section,
+html[data-theme="light"] .hero,
+html[data-theme="light"] .products-hero,
+html[data-theme="light"] .account-hero,
+html[data-theme="light"] .suggestion-hero,
+html[data-theme="light"] .membership-hero{
+  background:transparent;
+}
+
+html[data-theme="light"] .site-footer{
+  background:linear-gradient(180deg,rgba(250,253,250,.68),rgba(232,241,235,.88));
+}
+
+@media (hover: hover) and (pointer: fine){
+  html[data-theme="light"] .card:hover,
+  html[data-theme="light"] .product-card:hover,
+  html[data-theme="light"] .info-card:hover,
+  html[data-theme="light"] .account-card:hover{
+    border-color:rgba(18,140,106,.16);
+    box-shadow:0 24px 72px rgba(30,52,44,.13),inset 0 1px 0 rgba(255,255,255,.96);
+  }
+}
