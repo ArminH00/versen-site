@@ -229,8 +229,8 @@ function normalizeCustomer(customer, rechargeInfo = {}, adminOrders = null, meta
   const tags = customer.tags || [];
   const tagMatch = tags.some((tag) => membershipTags().includes(String(tag).toLowerCase()));
   const email = String(customer.email || '').toLowerCase();
-  const forcedMembers = emailList(process.env.VERSEN_TEST_MEMBER_EMAILS, 'armin@hurtic.com');
-  const forcedNonMembers = emailList(process.env.VERSEN_TEST_NON_MEMBER_EMAILS, 'armin.hurtic@icloud.com');
+  const forcedMembers = emailList(process.env.VERSEN_TEST_MEMBER_EMAILS);
+  const forcedNonMembers = emailList(process.env.VERSEN_TEST_NON_MEMBER_EMAILS);
   const forcedMember = forcedMembers.includes(email);
   const forcedNonMember = forcedNonMembers.includes(email);
   const cancelledButActive = cancellation
