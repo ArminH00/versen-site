@@ -3799,3 +3799,257 @@ html[data-theme="light"] .launch-input-row{
     box-shadow:0 18px 58px rgba(92,82,64,.12),inset 0 1px 0 rgba(255,255,255,.86);
   }
 }
+
+/* Light theme lift: cleaner, brighter and more vibrant than the warm fallback. */
+html[data-theme="light"]{
+  --page-bg:#f7fbf8;
+  --page-bg-deep:#edf6f0;
+  background:#edf6f0;
+}
+
+html[data-theme="light"] body{
+  background:#edf6f0;
+}
+
+html[data-theme="light"] body::before{
+  inset:-28vh -22vw;
+  background:
+    radial-gradient(circle at 50% -10%,rgba(50,235,176,.32),transparent 34rem),
+    radial-gradient(circle at 4% 22%,rgba(74,145,255,.10),transparent 27rem),
+    radial-gradient(circle at 96% 14%,rgba(28,214,157,.18),transparent 30rem),
+    radial-gradient(circle at 50% 72%,rgba(255,255,255,.86),transparent 38rem),
+    linear-gradient(180deg,#fbfdfb 0%,#f3faf6 36%,#edf5f1 68%,#e7eee8 100%);
+}
+
+html[data-theme="light"] body::after{
+  height:115vh;
+  background:
+    radial-gradient(circle at 50% 18%,rgba(255,255,255,0),rgba(255,255,255,.28) 48%,rgba(221,232,222,.58) 100%),
+    linear-gradient(180deg,rgba(237,246,240,0) 0%,rgba(221,232,222,.16) 45%,rgba(214,224,216,.54) 100%);
+}
+
+html[data-theme="light"] .nav{
+  background:rgba(252,254,252,.92);
+  border-bottom:1px solid rgba(9,22,18,.075);
+  box-shadow:0 1px 0 rgba(255,255,255,.82),0 18px 42px rgba(32,66,52,.10);
+}
+
+html[data-theme="light"] .nav::after{
+  height:54px;
+  bottom:-54px;
+  background:linear-gradient(180deg,rgba(252,254,252,.86),rgba(244,250,246,.34) 58%,rgba(244,250,246,0));
+}
+
+html[data-theme="light"] .menu a{
+  color:#44504a;
+  opacity:.88;
+}
+
+html[data-theme="light"] .menu a.active{
+  color:#06110d;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(49,226,170,.16),transparent 62%),
+    linear-gradient(180deg,rgba(255,255,255,.96),rgba(238,244,238,.9));
+  border-color:rgba(9,22,18,.14);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.94),0 12px 34px rgba(34,91,72,.13);
+}
+
+html[data-theme="light"] .badge,
+html[data-theme="light"] .status-pill,
+html[data-theme="light"] .flow-step,
+html[data-theme="light"] .account-metric,
+html[data-theme="light"] .theme-switcher,
+html[data-theme="light"] .quantity-control,
+html[data-theme="light"] .filter,
+html[data-theme="light"] .sort-pill,
+html[data-theme="light"] .variant-option,
+html[data-theme="light"] .activation-status,
+html[data-theme="light"] .launch-countdown div{
+  background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(241,248,243,.78));
+  border-color:rgba(8,32,24,.12);
+  color:#46544d;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 8px 26px rgba(39,78,61,.07);
+}
+
+html[data-theme="light"] .card,
+html[data-theme="light"] .step,
+html[data-theme="light"] .product-card,
+html[data-theme="light"] .info-card,
+html[data-theme="light"] .legal-card,
+html[data-theme="light"] .account-card,
+html[data-theme="light"] .membership-panel,
+html[data-theme="light"] .lock-box,
+html[data-theme="light"] .cart-item,
+html[data-theme="light"] .cart-summary,
+html[data-theme="light"] .empty-cart,
+html[data-theme="light"] .order-success-card,
+html[data-theme="light"] .activation-panel,
+html[data-theme="light"] .product-detail-info,
+html[data-theme="light"] .product-copy-section,
+html[data-theme="light"] .product-ingredient-section,
+html[data-theme="light"] .concept-card,
+html[data-theme="light"] .suggestion-rhythm div,
+html[data-theme="light"] .live-product-card,
+html[data-theme="light"] .admin-row,
+html[data-theme="light"] .admin-status-grid div{
+  background:
+    radial-gradient(circle at 18% 0%,rgba(55,228,174,.10),transparent 34%),
+    linear-gradient(180deg,rgba(255,255,255,.98),rgba(252,253,251,.86));
+  border-color:rgba(9,22,18,.095);
+  box-shadow:0 24px 82px rgba(32,66,52,.12),0 4px 16px rgba(25,44,38,.04),inset 0 1px 0 rgba(255,255,255,.94);
+}
+
+html[data-theme="light"] .membership-panel,
+html[data-theme="light"] .category-launch-card{
+  background:
+    radial-gradient(circle at 50% 0%,rgba(49,230,174,.24),transparent 36%),
+    radial-gradient(circle at 96% 18%,rgba(70,132,255,.11),transparent 36%),
+    linear-gradient(180deg,rgba(255,255,255,.99),rgba(249,253,249,.9));
+}
+
+html[data-theme="light"] .category-launch-card{
+  border-color:rgba(11,72,55,.16);
+  box-shadow:0 28px 88px rgba(37,88,68,.15),0 8px 24px rgba(23,43,36,.05),inset 0 1px 0 rgba(255,255,255,.94);
+}
+
+html[data-theme="light"] .category-launch-card.training-health{
+  background:
+    radial-gradient(circle at 88% 0%,rgba(116,102,255,.16),transparent 34%),
+    radial-gradient(circle at 18% 20%,rgba(49,230,174,.20),transparent 38%),
+    linear-gradient(180deg,rgba(255,255,255,.99),rgba(249,252,251,.9));
+}
+
+html[data-theme="light"] .category-launch-card::before{
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(51,85,72,.13));
+}
+
+html[data-theme="light"] .category-launch-card span,
+html[data-theme="light"] .concept-card span,
+html[data-theme="light"] .suggestion-rhythm span{
+  color:#05966f;
+}
+
+html[data-theme="light"] .membership-highlights div,
+html[data-theme="light"] .points-metric,
+html[data-theme="light"] .product-note-list li{
+  background:
+    radial-gradient(circle at 0% 0%,rgba(49,230,174,.22),transparent 42%),
+    linear-gradient(135deg,rgba(224,255,245,.94),rgba(255,255,255,.86));
+  border-color:rgba(20,185,132,.24);
+  color:#0a4a38;
+}
+
+html[data-theme="light"] .membership-highlights span,
+html[data-theme="light"] .points-metric small{
+  color:#53655e;
+}
+
+html[data-theme="light"] .live-product-card{
+  background:
+    radial-gradient(circle at 8% 0%,rgba(33,230,166,.16),transparent 40%),
+    linear-gradient(180deg,rgba(255,255,255,.99),rgba(252,253,251,.9));
+}
+
+html[data-theme="light"] .live-viewers{
+  color:#027a5c;
+  background:rgba(25,213,151,.13);
+  border-color:rgba(5,153,112,.22);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.72),0 0 22px rgba(39,221,164,.12);
+}
+
+html[data-theme="light"] .live-product-info small{
+  color:#65736d;
+}
+
+html[data-theme="light"] .live-product-prices .new{
+  color:#027a5c;
+  text-shadow:none;
+}
+
+html[data-theme="light"] .product-card.has-great-price .product-prices .new,
+html[data-theme="light"] .live-product-card.has-great-price .live-product-prices .new{
+  color:#018563;
+  text-shadow:0 0 22px rgba(24,210,150,.26);
+}
+
+html[data-theme="light"] .product-badges .great-price,
+html[data-theme="light"] .live-product-badges .great-price{
+  background:rgba(20,200,140,.13);
+  border-color:rgba(5,153,112,.25);
+  color:#027a5c;
+  box-shadow:0 0 22px rgba(24,210,150,.16);
+}
+
+html[data-theme="light"] .cta,
+html[data-theme="light"] .product-btn,
+html[data-theme="light"] .launch-input-row button,
+html[data-theme="light"] .points-popover-card button{
+  color:#fff;
+  background:
+    radial-gradient(circle at 50% -90%,rgba(72,255,190,.48),transparent 54%),
+    linear-gradient(180deg,#101915,#030806);
+  border:1px solid rgba(7,25,18,.20);
+  box-shadow:0 18px 42px rgba(16,40,31,.22),0 0 34px rgba(25,220,156,.18),inset 0 1px 0 rgba(255,255,255,.18);
+}
+
+html[data-theme="light"] .cta:hover,
+html[data-theme="light"] .product-btn:hover{
+  box-shadow:0 22px 54px rgba(16,40,31,.26),0 0 42px rgba(25,220,156,.24),inset 0 1px 0 rgba(255,255,255,.2);
+}
+
+html[data-theme="light"] .product-btn.secondary,
+html[data-theme="light"] .remove-btn,
+html[data-theme="light"] .account-link,
+html[data-theme="light"] .settings-back{
+  color:#0d1713;
+  background:
+    radial-gradient(circle at 50% -70%,rgba(44,224,166,.16),transparent 50%),
+    linear-gradient(180deg,rgba(255,255,255,.96),rgba(243,248,244,.86));
+  border:1px solid rgba(8,32,24,.13);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.92),0 12px 34px rgba(36,76,58,.09);
+}
+
+html[data-theme="light"] .danger-link{
+  color:#a62626;
+  background:linear-gradient(180deg,rgba(255,250,249,.96),rgba(255,239,237,.86));
+  border-color:rgba(190,50,50,.20);
+}
+
+html[data-theme="light"] .site-footer{
+  background:
+    radial-gradient(circle at 50% 0%,rgba(49,230,174,.12),transparent 30rem),
+    linear-gradient(180deg,rgba(250,253,250,.80),rgba(226,237,229,.92));
+  border-top-color:rgba(9,22,18,.08);
+}
+
+html[data-theme="light"] .site-footer nav a{
+  background:rgba(255,255,255,.72);
+  border-color:rgba(8,32,24,.12);
+}
+
+html[data-theme="light"] .launch-body::before{
+  background:
+    radial-gradient(circle at 50% -10%,rgba(49,230,174,.34),transparent 31rem),
+    radial-gradient(circle at 10% 72%,rgba(74,145,255,.12),transparent 24rem),
+    radial-gradient(circle at 88% 76%,rgba(255,255,255,.92),transparent 24rem),
+    linear-gradient(180deg,#fbfdfb 0%,#effaf4 48%,#e7eee8 100%);
+}
+
+@media (hover: hover) and (pointer: fine){
+  html[data-theme="light"] .card:hover,
+  html[data-theme="light"] .product-card:hover,
+  html[data-theme="light"] .info-card:hover,
+  html[data-theme="light"] .account-card:hover{
+    border-color:rgba(8,145,104,.20);
+    box-shadow:0 30px 90px rgba(32,66,52,.16),0 0 36px rgba(39,221,164,.08),inset 0 1px 0 rgba(255,255,255,.94);
+  }
+}
+
+@media (hover: none){
+  html[data-theme="light"] .card,
+  html[data-theme="light"] .product-card,
+  html[data-theme="light"] .info-card,
+  html[data-theme="light"] .account-card{
+    box-shadow:0 20px 64px rgba(32,66,52,.12),inset 0 1px 0 rgba(255,255,255,.92);
+  }
+}
