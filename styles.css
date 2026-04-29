@@ -296,16 +296,16 @@ body.auth-loading [data-discount-form]{
 
 .member-hero .cta{
   margin-top:18px;
-  box-shadow:0 18px 54px rgba(0,0,0,.38), 0 0 0 8px rgba(81,230,166,.08), 0 0 42px rgba(81,230,166,.30);
+  box-shadow:0 18px 54px rgba(0,0,0,.36), 0 0 34px rgba(81,230,166,.18);
 }
 
 .member-hero .cta:hover{
-  box-shadow:0 22px 62px rgba(0,0,0,.42), 0 0 0 10px rgba(81,230,166,.12), 0 0 58px rgba(81,230,166,.38);
+  box-shadow:0 22px 62px rgba(0,0,0,.40), 0 0 42px rgba(81,230,166,.24);
 }
 
 .member-hero .badge,
 .status-pill.is-active{
-  box-shadow:0 0 0 6px rgba(81,230,166,.07), 0 12px 36px rgba(81,230,166,.14);
+  box-shadow:0 10px 30px rgba(81,230,166,.10);
 }
 
 .section h2{
@@ -4273,7 +4273,7 @@ html[data-theme="light"] .product-btn:disabled{
 }
 
 html[data-theme="light"] .member-hero .cta{
-  box-shadow:0 18px 46px rgba(27,80,60,.18), 0 0 0 8px rgba(33,196,137,.10), 0 0 42px rgba(33,196,137,.24);
+  box-shadow:0 18px 46px rgba(27,80,60,.16), 0 0 34px rgba(33,196,137,.16);
 }
 
 html[data-theme="light"] .member-hero .badge,
@@ -4281,7 +4281,7 @@ html[data-theme="light"] .status-pill.is-active{
   color:#075f45;
   background:linear-gradient(180deg,rgba(229,255,244,.96),rgba(211,248,232,.86));
   border-color:rgba(22,148,106,.22);
-  box-shadow:0 0 0 6px rgba(33,196,137,.09), 0 12px 32px rgba(33,196,137,.14);
+  box-shadow:0 10px 26px rgba(33,196,137,.10);
 }
 
 html[data-theme="light"] .product-description-rich{

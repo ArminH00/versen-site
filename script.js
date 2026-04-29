@@ -2418,7 +2418,9 @@ function updateDropCountdown() {
   const dayText = days === 1 ? '1 dag' : `${days} dagar`;
   const hourText = hours === 1 ? '1h' : `${hours}h`;
 
-  dropCountdown.textContent = `${dayText} och ${hourText} kvar till nästa torsdag 12:00`;
+  dropCountdown.textContent = days > 0
+    ? `${dayText} och ${hourText} kvar av dessa deals`
+    : `${hourText} kvar av dessa deals`;
 }
 
 if (dropCountdown) {
