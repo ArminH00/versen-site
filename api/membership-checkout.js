@@ -104,7 +104,7 @@ module.exports = async function handler(req, res) {
   const variant = product && product.variants.nodes[0];
 
   if (!product || !variant) {
-    sendJson(res, 404, { error: 'Medlemskapsprodukten hittades inte i Shopify' });
+    sendJson(res, 404, { error: 'Medlemskapsprodukten hittades inte.' });
     return;
   }
 
@@ -113,7 +113,7 @@ module.exports = async function handler(req, res) {
 
   if (!sellingPlanId) {
     sendJson(res, 409, {
-      error: 'Medlemskapsplan saknas i Shopify. Koppla produkten till ReCharge eller ange SHOPIFY_MEMBERSHIP_SELLING_PLAN_ID innan medlemskap kan säljas.',
+      error: 'Medlemskapsplan saknas. Kontrollera prenumerationsinställningarna innan medlemskap kan säljas.',
     });
     return;
   }

@@ -551,7 +551,7 @@ async function cancelRechargeSubscription(subscriptionId) {
     return {
       ok: false,
       status: 404,
-      body: { error: 'Ingen aktiv ReCharge-prenumeration hittades.' },
+      body: { error: 'Ingen aktiv prenumeration hittades.' },
     };
   }
 
@@ -575,7 +575,7 @@ async function cancelRechargeSubscription(subscriptionId) {
   try {
     body = await response.json();
   } catch (error) {
-    body = { error: 'Recharge svarade inte med JSON' };
+    body = { error: 'Prenumerationstjänsten svarade inte korrekt' };
   }
 
   if (!response.ok) {
@@ -583,7 +583,7 @@ async function cancelRechargeSubscription(subscriptionId) {
       ok: false,
       status: response.status,
       body: {
-        error: body.error || body.message || 'Kunde inte avsluta prenumerationen i ReCharge.',
+        error: body.error || body.message || 'Kunde inte avsluta prenumerationen just nu.',
         details: body,
       },
     };
@@ -846,7 +846,7 @@ async function updateCustomerPassword(customerId, password) {
     return {
       ok: false,
       status: 500,
-      body: { error: 'Shopify Admin API saknar konfiguration för lösenordsbyte' },
+      body: { error: 'Kontotjänsten saknar konfiguration för lösenordsbyte' },
     };
   }
 
@@ -870,7 +870,7 @@ async function updateCustomerPassword(customerId, password) {
   try {
     body = await response.json();
   } catch (error) {
-    body = { error: 'Shopify svarade inte med JSON' };
+    body = { error: 'Kontotjänsten svarade inte korrekt' };
   }
 
   if (!response.ok || body.errors) {
@@ -878,7 +878,7 @@ async function updateCustomerPassword(customerId, password) {
       ok: false,
       status: response.status || 500,
       body: {
-        error: 'Kunde inte uppdatera lösenordet i Shopify',
+        error: 'Kunde inte uppdatera lösenordet',
         details: body,
       },
     };

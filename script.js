@@ -324,7 +324,7 @@ function applyGlobalSessionUi(session = accountSession) {
       '[data-account-hero-copy]',
       member
         ? 'Medlemskapet är aktivt. Här ser du status, rabatter och senaste aktivitet.'
-        : 'Verifiera email, skapa lösenord och hantera medlemskap kopplat till Shopify.'
+        : 'Verifiera email, skapa lösenord och hantera medlemskap hos Versen.'
     );
   }
 
@@ -388,7 +388,7 @@ function syncShoppingAccess() {
 
   if (cartHelp) {
     cartHelp.textContent = member
-      ? 'Rabattkoder kontrolleras här. Shopify checkout öppnas i en ny flik och orderstatus visas hos Versen.'
+      ? 'Rabattkoder kontrolleras här. Checkout öppnas i en ny flik och orderstatus visas hos Versen.'
       : 'Aktivt betalande medlemskap krävs innan du kan lägga till produkter eller gå till checkout.';
   }
 
@@ -1058,7 +1058,7 @@ function renderProductDescription(description) {
   const sections = splitProductSections(description);
 
   if (!sections.length) {
-    return '<p>Produktinformation hämtas från Shopify.</p>';
+    return '<p>Produktinformation hämtas från Versens katalog.</p>';
   }
 
   return sections.map((section, index) => {
@@ -1104,7 +1104,7 @@ function setProductDescription(product) {
     return;
   }
 
-  element.innerHTML = renderProductDescription(product.description || 'Produktinformation hämtas från Shopify.');
+  element.innerHTML = renderProductDescription(product.description || 'Produktinformation hämtas från Versens katalog.');
 }
 
 function variantLabel(variant) {
@@ -1568,7 +1568,7 @@ if (discountForm) {
         if (message) message.textContent = 'Rabattkoden gäller inte för den här kundkorgen.';
       }
     } catch (error) {
-      if (message) message.textContent = 'Kunde inte kontakta Shopify.';
+      if (message) message.textContent = 'Kunde inte kontakta orderflödet.';
     }
   });
 }
@@ -1581,7 +1581,7 @@ function renderOrders(orders) {
   }
 
   if (!orders || !orders.length) {
-    list.innerHTML = '<span>Inga ordrar ännu</span><p>Dina Shopify-köp visas här efter första checkout.</p>';
+    list.innerHTML = '<span>Inga ordrar ännu</span><p>Dina köp visas här efter första checkout.</p>';
     return;
   }
 
@@ -1867,14 +1867,14 @@ function renderMembershipActivation(session = accountSession) {
   if (title) title.textContent = 'Slutför medlemskapet';
   if (copy) {
     copy.textContent = pending
-      ? 'När betalningen är klar i Shopify aktiveras medlemskapet här automatiskt.'
+      ? 'När betalningen är klar aktiveras medlemskapet här automatiskt.'
       : 'Vi hittar ingen aktiv medlemscheckout. Starta medlemskapet igen om du inte kom vidare.';
   }
   if (status) {
     status.innerHTML = `
       <span>Status</span>
-      <strong>${pending ? 'Kontrollerar Shopify' : 'Ingen aktiv checkout'}</strong>
-      <p>${pending ? 'Den här sidan uppdateras av sig själv. Stanna här efter att checkouten är klar.' : 'Gå tillbaka till medlemskap och starta checkout när du är redo.'}</p>
+      <strong>${pending ? 'Väntar på bekräftelse' : 'Ingen aktiv checkout'}</strong>
+      <p>${pending ? 'Det kan ta några sekunder. Den här sidan uppdateras av sig själv.' : 'Gå tillbaka till medlemskap och starta checkout när du är redo.'}</p>
     `;
   }
   if (actions) {
@@ -2150,7 +2150,7 @@ if (cancelMembershipButton) {
 
     cancelMembershipButton.disabled = true;
     cancelMembershipButton.textContent = 'Avslutar...';
-    if (message) message.textContent = 'Kontaktar ReCharge...';
+    if (message) message.textContent = 'Avslutar prenumerationen...';
 
     try {
       const { response, data } = await postJson('/api/account', {
@@ -2251,13 +2251,13 @@ function renderOrderPage(session = accountSession) {
 
     clearPendingCheckout();
     if (title) title.textContent = 'Ordern är mottagen';
-    if (copy) copy.textContent = 'Vi hittade din senaste order på kontot. Du kan fortsätta handla eller öppna orderstatus från Shopify vid behov.';
+    if (copy) copy.textContent = 'Vi hittade din senaste order på kontot. Du kan fortsätta handla eller öppna orderstatus vid behov.';
     if (details) {
       details.innerHTML = `
         <div class="order-success-card">
           <span>Senaste order</span>
           <strong>${escapeHtml(latestOrder.name || 'Order')}</strong>
-          <p>${escapeHtml(latestOrder.total || '')} · ${escapeHtml((latestOrder.items || []).join(', ') || 'Produkter synkas från Shopify')}</p>
+          <p>${escapeHtml(latestOrder.total || '')} · ${escapeHtml((latestOrder.items || []).join(', ') || 'Produkter synkas')}</p>
           ${latestOrder.statusUrl ? `<a class="product-btn secondary" href="${escapeHtml(latestOrder.statusUrl)}" target="_blank" rel="noreferrer">Visa orderstatus</a>` : ''}
         </div>
       `;
@@ -2268,13 +2268,13 @@ function renderOrderPage(session = accountSession) {
   if (title) title.textContent = pending ? 'Checkout är öppnad' : 'Orderstatus';
   if (copy) {
     copy.textContent = pending
-      ? 'Slutför betalningen i Shopify-fliken. Vi väntar på nästa order från Shopify, så vi visar inte en äldre order av misstag.'
+      ? 'Slutför betalningen i checkoutfliken. Vi väntar på bekräftelsen, så vi visar inte en äldre order av misstag.'
       : 'Logga in eller gå till konto för att se senaste ordern.';
   }
   if (details) {
     details.innerHTML = `
       <div class="order-success-card">
-        <span>${pending ? 'Väntar på Shopify' : 'Ingen aktiv checkout'}</span>
+        <span>${pending ? 'Väntar på bekräftelse' : 'Ingen aktiv checkout'}</span>
         <strong>${pending && pending.type === 'medlemskap' ? 'Medlemskap' : 'Produktorder'}</strong>
         <p>${pending ? 'När betalningen är klar syns ordern här efter en kort stund. Den här rutan uppdateras automatiskt.' : 'Dina orders visas automatiskt när du är inloggad.'}</p>
         <div class="account-actions">
