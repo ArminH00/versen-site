@@ -2412,11 +2412,18 @@ function updateDropCountdown() {
   }
 
   const distance = Math.max(0, nextThursdayDrop().getTime() - Date.now());
-  const totalHours = Math.ceil(distance / 3600000);
+  const totalMinutes = Math.ceil(distance / 60000);
+  const totalHours = Math.ceil(totalMinutes / 60);
   const days = Math.floor(totalHours / 24);
   const hours = totalHours % 24;
   const dayText = days === 1 ? '1 dag' : `${days} dagar`;
   const hourText = hours === 1 ? '1h' : `${hours}h`;
+
+  if (totalMinutes < 60) {
+    const minuteText = totalMinutes === 1 ? '1 minut' : `${totalMinutes} minuter`;
+    dropCountdown.textContent = `${minuteText} kvar av dessa deals`;
+    return;
+  }
 
   dropCountdown.textContent = days > 0
     ? `${dayText} och ${hourText} kvar av dessa deals`
