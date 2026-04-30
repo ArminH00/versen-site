@@ -146,6 +146,24 @@ function formatSek(value) {
   return `${Math.round(value)} kr`;
 }
 
+function productDiscountAmount(product) {
+  const price = parsePrice(product && product.price);
+  const compareAtPrice = parsePrice(product && product.compareAtPrice);
+
+  return compareAtPrice > price ? compareAtPrice - price : 0;
+}
+
+function productDiscountPercent(product) {
+  const price = parsePrice(product && product.price);
+  const compareAtPrice = parsePrice(product && product.compareAtPrice);
+
+  if (!price || !compareAtPrice || compareAtPrice <= price) {
+    return 0;
+  }
+
+  return Math.round(((compareAtPrice - price) / compareAtPrice) * 100);
+}
+
 function formatDate(value) {
   if (!value) return '';
 
@@ -580,6 +598,49 @@ function pickRandomProducts(products, count = 3) {
     .slice(0, count);
 }
 
+function topDiscountProducts(products, count = 4) {
+  return [...products]
+    .filter((product) => product.handle !== 'medlemskap' && product.image && product.image.url && productDiscountAmount(product) > 0)
+    .sort((a, b) => (
+      productDiscountPercent(b) - productDiscountPercent(a)
+      || productDiscountAmount(b) - productDiscountAmount(a)
+    ))
+    .slice(0, count);
+}
+
+function homeDealTeaserCard(product) {
+  const productUrl = `produkt.html?handle=${encodeURIComponent(product.handle)}`;
+  const discount = productDiscountPercent(product);
+  const saveText = discount ? `-${discount}%` : 'Deal';
+
+  return `
+    <a class="home-teaser-product" href="${escapeHtml(productUrl)}" aria-label="${escapeHtml(product.title)}">
+      <img src="${escapeHtml(product.image.url)}" alt="${escapeHtml(product.image.altText || product.title)}">
+      <span class="home-teaser-save">${escapeHtml(saveText)}</span>
+      <span class="home-teaser-price">
+        ${product.compareAtPrice ? `<span>${escapeHtml(product.compareAtPrice)}</span>` : ''}
+        <strong>${escapeHtml(product.price || 'Medlemspris')}</strong>
+      </span>
+    </a>
+  `;
+}
+
+function renderHomeDealTeaser(products) {
+  const teaser = document.querySelector('[data-home-deal-teaser]');
+
+  if (!teaser) {
+    return;
+  }
+
+  const deals = topDiscountProducts(products, 4);
+
+  if (!deals.length) {
+    return;
+  }
+
+  teaser.innerHTML = deals.map(homeDealTeaserCard).join('');
+}
+
 function renderCategoryLaunch(products) {
   document.querySelectorAll('[data-category-count]').forEach((element) => {
     const count = products.filter((product) => product.category === element.dataset.categoryCount).length;
@@ -806,8 +867,9 @@ loadProducts();
 
 async function loadMemberHomeProducts() {
   const grid = document.querySelector('[data-member-products]');
+  const homeTeaser = document.querySelector('[data-home-deal-teaser]');
 
-  if (!grid) {
+  if (!grid && !homeTeaser) {
     return;
   }
 
@@ -819,8 +881,16 @@ async function loadMemberHomeProducts() {
     }
 
     const data = await response.json();
-    memberLiveProducts = (data.products || [])
+    const visibleProducts = (data.products || [])
       .filter((product) => product.handle !== 'medlemskap');
+
+    renderHomeDealTeaser(visibleProducts);
+
+    if (!grid) {
+      return;
+    }
+
+    memberLiveProducts = visibleProducts;
 
     if (!memberLiveProducts.length) {
       return;
