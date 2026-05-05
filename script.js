@@ -375,39 +375,39 @@ function syncShoppingAccess() {
   const membershipMessage = document.querySelector('[data-membership-message]');
 
   document.querySelectorAll('[data-catalog-add]').forEach((button) => {
-    button.disabled = !member;
-    button.textContent = member ? 'Lägg i kundkorg' : 'Kräver medlemskap';
+    button.disabled = false;
+    button.textContent = 'Lägg i kundkorg';
   });
 
   const detailAddButton = document.querySelector('[data-add-to-cart-button]');
   if (detailAddButton) {
-    detailAddButton.disabled = !member;
-    detailAddButton.textContent = member ? 'Lägg i kundkorg' : 'Kräver medlemskap';
+    detailAddButton.disabled = false;
+    detailAddButton.textContent = 'Lägg i kundkorg';
   }
 
   const checkoutButton = document.querySelector('[data-cart-checkout]');
   if (checkoutButton) {
-    checkoutButton.disabled = !cart.length || !member;
+    checkoutButton.disabled = !cart.length;
   }
 
   if (discountInput) {
-    discountInput.disabled = !member || !cart.length;
+    discountInput.disabled = !cart.length;
     if (!discountInput.value) discountInput.value = readDiscountCode();
   }
 
   if (discountFormButton) {
-    discountFormButton.disabled = !member || !cart.length;
+    discountFormButton.disabled = !cart.length;
   }
 
   if (cartStatus) {
-    cartStatus.textContent = member ? 'Redo för checkout' : 'Medlemskap krävs';
-    cartStatus.classList.toggle('is-active', member);
+    cartStatus.textContent = cart.length ? 'Redo för checkout' : 'Kundkorgen är tom';
+    cartStatus.classList.toggle('is-active', Boolean(cart.length));
   }
 
   if (cartHelp) {
     cartHelp.textContent = member
       ? 'Du kommer tas vidare till ett nytt fönster för betalning och kan sedan komma tillbaks hit för att se din orderstatus.'
-      : 'Aktivt betalande medlemskap krävs innan du kan lägga till produkter eller gå till checkout.';
+      : 'Du kan fylla kundkorgen fritt. Medlemskap behövs först när du går vidare till checkout.';
   }
 
   if (membershipCheckout) {
@@ -712,11 +712,6 @@ function selectCatalogCategory(category, options = {}) {
     return;
   }
 
-  if (document.querySelector('[data-category-launch]') && !isActiveMember()) {
-    showCategoryMembershipGate();
-    return;
-  }
-
   selectedCatalogCategory = category;
 
   document.querySelectorAll('[data-filter]').forEach((button) => {
@@ -740,20 +735,26 @@ document.querySelectorAll('[data-category-select]').forEach((button) => {
   });
 });
 
-function showCategoryMembershipGate() {
+function showMembershipGate(options = {}) {
   if (document.querySelector('.category-lock-popover')) {
     return;
   }
+
+  const badge = options.badge || 'Medlemskatalog';
+  const title = options.title || 'Bli medlem för att öppna veckans deals';
+  const copy = options.copy || 'Medlemskap låser upp produktlistan, lägre priser och poäng som kan ge extra rabatt ovanpå medlemspriserna.';
+  const href = options.href || 'medlemskap.html';
+  const cta = options.cta || 'Starta medlemskap';
 
   const modal = document.createElement('div');
   modal.className = 'category-lock-popover';
   modal.innerHTML = `
     <div class="category-lock-card">
-      <div class="badge">Medlemskatalog</div>
-      <h2>Bli medlem för att öppna veckans deals</h2>
-      <p>Medlemskap låser upp produktlistan, lägre priser och poäng som kan ge extra rabatt ovanpå medlemspriserna.</p>
+      <div class="badge">${escapeHtml(badge)}</div>
+      <h2>${escapeHtml(title)}</h2>
+      <p>${escapeHtml(copy)}</p>
       <div class="category-lock-actions">
-        <a class="product-btn" href="medlemskap.html">Starta medlemskap</a>
+        <a class="product-btn" href="${escapeHtml(href)}">${escapeHtml(cta)}</a>
         <button class="product-btn secondary" type="button" data-close-category-lock>Inte nu</button>
       </div>
     </div>
@@ -767,6 +768,17 @@ function showCategoryMembershipGate() {
       modal.classList.remove('show');
       window.setTimeout(() => modal.remove(), 200);
     }
+  });
+}
+
+function showCheckoutMembershipGate() {
+  const authenticated = Boolean(accountSession && accountSession.authenticated);
+  showMembershipGate({
+    badge: 'Checkout',
+    title: 'Skaffa medlemskap för att fortsätta',
+    copy: 'Din kundkorg sparas här. Starta medlemskap så kan du gå vidare till checkout med medlemspriserna.',
+    href: authenticated ? 'medlemskap.html' : 'konto.html?next=membership',
+    cta: authenticated ? 'Starta medlemskap' : 'Skapa konto och medlemskap',
   });
 }
 
@@ -1364,13 +1376,6 @@ if (addToCartButton) {
     const message = document.querySelector('[data-checkout-message]');
     const quantity = quantityInput ? Number(quantityInput.value) : 1;
 
-    if (!isActiveMember()) {
-      if (message) message.textContent = accountSession && accountSession.authenticated
-        ? 'Aktivt betalande medlemskap krävs för att lägga till produkter.'
-        : 'Logga in och starta medlemskap innan du lägger till produkter.';
-      return;
-    }
-
     if (!product) {
       if (message) message.textContent = 'Produkten är inte redo för kundkorgen ännu.';
       return;
@@ -1442,7 +1447,7 @@ function renderCart() {
 
   const checkoutButton = document.querySelector('[data-cart-checkout]');
   if (checkoutButton) {
-    checkoutButton.disabled = !cart.length || !isActiveMember();
+    checkoutButton.disabled = !cart.length;
   }
 
   updateCartCount();
@@ -1457,12 +1462,6 @@ document.addEventListener('click', (event) => {
 
   if (catalogAddButton) {
     const card = catalogAddButton.closest('[data-variant-id]');
-
-    if (!isActiveMember()) {
-      catalogAddButton.textContent = 'Medlemskap krävs';
-      window.setTimeout(syncShoppingAccess, 1200);
-      return;
-    }
 
     if (card && card.dataset.variantId) {
       addToCart({
@@ -1523,9 +1522,8 @@ if (cartCheckoutButton) {
     }
 
     if (!isActiveMember()) {
-      if (message) message.textContent = accountSession && accountSession.authenticated
-        ? 'Aktivt betalande medlemskap krävs innan checkout.'
-        : 'Logga in och starta medlemskap innan checkout.';
+      if (message) message.textContent = '';
+      showCheckoutMembershipGate();
       syncShoppingAccess();
       return;
     }
@@ -1592,7 +1590,8 @@ if (discountForm) {
     }
 
     if (!isActiveMember()) {
-      if (message) message.textContent = 'Aktivt medlemskap krävs för att använda rabattkod.';
+      writeDiscountCode(code);
+      if (message) message.textContent = code ? 'Rabattkoden sparas till checkout.' : 'Rabattkod borttagen.';
       return;
     }
 
