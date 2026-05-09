@@ -631,34 +631,63 @@ function topDiscountProducts(products, count = 4) {
 function homeDealTeaserCard(product) {
   const productUrl = `produkt.html?handle=${encodeURIComponent(product.handle)}`;
   const discount = productDiscountPercent(product);
-  const saveText = discount ? `-${discount}%` : 'Deal';
+  const saveAmount = productDiscountAmount(product);
+  const sellThrough = stableNumber(product.handle || product.title, 61, 86);
 
   return `
-    <a class="home-teaser-product" href="${escapeHtml(productUrl)}" aria-label="${escapeHtml(product.title)}">
-      <img src="${escapeHtml(product.image.url)}" alt="${escapeHtml(product.image.altText || product.title)}">
-      <span class="home-teaser-save">${escapeHtml(saveText)}</span>
-      <span class="home-teaser-price">
-        ${product.compareAtPrice ? `<span>${escapeHtml(product.compareAtPrice)}</span>` : ''}
-        <strong>${escapeHtml(product.price || 'Medlemspris')}</strong>
+    <a class="home-featured-product" href="${escapeHtml(productUrl)}" aria-label="${escapeHtml(product.title)}">
+      <span class="home-featured-badge">${discount ? `-${discount}%` : 'Veckans val'}</span>
+      <span class="home-featured-image">
+        <img src="${escapeHtml(product.image.url)}" alt="${escapeHtml(product.image.altText || product.title)}">
       </span>
+      <span class="home-featured-panel">
+        <small>${escapeHtml(product.vendor || product.category || 'Versen')}</small>
+        <strong>${escapeHtml(product.title)}</strong>
+        <span class="home-featured-prices">
+          <em>${escapeHtml(product.price || 'Medlemspris')}</em>
+          ${product.compareAtPrice ? `<del>${escapeHtml(product.compareAtPrice)}</del>` : ''}
+        </span>
+        ${saveAmount ? `<span class="home-featured-saving">Du sparar ${escapeHtml(formatSek(saveAmount))}${discount ? ` (${discount}%)` : ''}</span>` : ''}
+        <span class="home-featured-progress"><i style="width:${sellThrough}%"></i><b>${sellThrough}% sålt</b></span>
+      </span>
+    </a>
+  `;
+}
+
+function homeTrendingCard(product) {
+  const productUrl = `produkt.html?handle=${encodeURIComponent(product.handle)}`;
+  const image = product.image && product.image.url
+    ? `<img src="${escapeHtml(product.image.url)}" alt="${escapeHtml(product.image.altText || product.title)}">`
+    : '';
+
+  return `
+    <a class="home-trending-card" href="${escapeHtml(productUrl)}">
+      <span class="home-trending-image">${image}</span>
+      <small>${escapeHtml(product.vendor || product.category || 'Versen')}</small>
+      <strong>${escapeHtml(product.title)}</strong>
+      <em>${escapeHtml(product.price || 'Medlemspris')}</em>
     </a>
   `;
 }
 
 function renderHomeDealTeaser(products) {
   const teaser = document.querySelector('[data-home-deal-teaser]');
+  const trending = document.querySelector('[data-home-trending]');
 
-  if (!teaser) {
+  if (!teaser && !trending) {
     return;
   }
 
   const deals = topDiscountProducts(products, 4);
 
-  if (!deals.length) {
-    return;
+  if (teaser && deals.length) {
+    teaser.innerHTML = homeDealTeaserCard(deals[0]);
   }
 
-  teaser.innerHTML = deals.map(homeDealTeaserCard).join('');
+  if (trending) {
+    const items = (deals.length ? deals : products).slice(0, 5);
+    trending.innerHTML = items.map(homeTrendingCard).join('');
+  }
 }
 
 function renderCategoryLaunch(products) {

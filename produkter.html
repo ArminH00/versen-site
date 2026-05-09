@@ -9,7 +9,7 @@
 <script>try{if(Date.now()<1777500000000&&!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen - Produkter</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260509-launch-redesign">
+<link rel="stylesheet" href="styles.css?v=20260509-screenshot-redesign">
 </head>
 
 <body class="auth-loading">
@@ -33,33 +33,31 @@
       <div class="badge">Shop</div>
       <h1>Alla produkter</h1>
       <p>Veckans medlemspriser, samlade i ett snabbt och enkelt flöde.</p>
-      <div class="drop-countdown" data-drop-countdown>Räknar ner dessa deals</div>
     </div>
   </header>
 
   <section class="category-launch fade" aria-label="Veckans kategorier" data-category-launch>
     <div class="category-launch-header">
-      <span>Veckans kategori-val</span>
-      <strong>Välj spår för veckans drop</strong>
+      <span>Veckans kategorier</span>
     </div>
 
     <button class="category-launch-card all-products active" type="button" data-category-select="Alla">
       <span>Alla</span>
-      <strong>Hela droppet</strong>
+      <strong>Alla</strong>
       <small data-category-count="Alla">Veckans urval</small>
       <div class="category-image-row" data-category-images="Alla"></div>
     </button>
 
     <button class="category-launch-card car-care" type="button" data-category-select="Bilvård">
       <span>Bilvård</span>
-      <strong>Glans och finish</strong>
+      <strong>Bilvård</strong>
       <small data-category-count="Bilvård">Veckans urval</small>
       <div class="category-image-row" data-category-images="Bilvård"></div>
     </button>
 
     <button class="category-launch-card training-health" type="button" data-category-select="Träning & hälsa">
       <span>Träning & hälsa</span>
-      <strong>Dryck och energi</strong>
+      <strong>Träning</strong>
       <small data-category-count="Träning & hälsa">Veckans urval</small>
       <div class="category-image-row" data-category-images="Träning & hälsa"></div>
     </button>
@@ -74,7 +72,7 @@
       </div>
 
       <div class="sort-control" aria-label="Sortering">
-        <span>Sortera:</span>
+        <span>Sortera: Mest populära</span>
         <button class="sort-pill active" type="button" data-sort="brand">Märke</button>
         <button class="sort-pill" type="button" data-sort="price">Pris</button>
       </div>
@@ -89,6 +87,6 @@
   </section>
 </main>
 
-<script src="script.js?v=20260509-launch-redesign"></script>
+<script src="script.js?v=20260509-screenshot-redesign"></script>
 </body>
 </html>
