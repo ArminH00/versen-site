@@ -349,12 +349,12 @@ function applyGlobalSessionUi(session = accountSession) {
     setText('[data-account-hero-title]', 'Nytt lösenord');
     setText('[data-account-hero-copy]', 'Välj ett nytt lösenord för ditt konto.');
   } else {
-    setText('[data-account-hero-title]', member ? 'Ditt medlemskonto' : 'Bli medlem eller logga in');
+    setText('[data-account-hero-title]', member ? 'Ditt konto' : 'Skapa konto eller logga in');
     setText(
       '[data-account-hero-copy]',
       member
-        ? 'Medlemskapet är aktivt. Här ser du status, rabatter och senaste aktivitet.'
-        : 'Skapa ett konto och bli medlem hos Versen.'
+        ? 'Här ser du status, rabatter och senaste aktivitet.'
+        : 'Logga in för att se orderhistorik och spara dina uppgifter.'
     );
   }
 
@@ -419,7 +419,7 @@ function syncShoppingAccess() {
   if (cartHelp) {
     cartHelp.textContent = member
       ? 'Du kommer tas vidare till ett nytt fönster för betalning och kan sedan komma tillbaks hit för att se din orderstatus.'
-      : 'Du kan fylla kundkorgen fritt. Medlemskap behövs först när du går vidare till checkout.';
+      : 'När du är klar öppnar vi säker checkout och sparar kundkorgen här.';
   }
 
   if (membershipCheckout) {
@@ -791,9 +791,9 @@ function showMembershipGate(options = {}) {
 
   const badge = options.badge || 'Medlemskatalog';
   const title = options.title || 'Bli medlem för att öppna veckans deals';
-  const copy = options.copy || 'Medlemskap låser upp produktlistan, lägre priser och poäng som kan ge extra rabatt ovanpå medlemspriserna.';
+  const copy = options.copy || 'Din kundkorg är sparad. Fortsätt för att slutföra checkout med de här priserna.';
   const href = options.href || 'medlemskap.html';
-  const cta = options.cta || 'Starta medlemskap';
+  const cta = options.cta || 'Fortsätt';
 
   const modal = document.createElement('div');
   modal.className = 'category-lock-popover';
@@ -824,10 +824,10 @@ function showCheckoutMembershipGate() {
   const authenticated = Boolean(accountSession && accountSession.authenticated);
   showMembershipGate({
     badge: 'Checkout',
-    title: 'Skaffa medlemskap för att fortsätta',
-    copy: 'Din kundkorg sparas här. Starta medlemskap så kan du gå vidare till checkout med medlemspriserna.',
+    title: 'Bli medlem för att fortsätta',
+    copy: 'Din kundkorg är sparad. Medlemskap krävs för att slutföra checkout med de här priserna.',
     href: authenticated ? 'medlemskap.html' : 'konto.html?next=membership',
-    cta: authenticated ? 'Starta medlemskap' : 'Skapa konto och medlemskap',
+    cta: authenticated ? 'Fortsätt' : 'Skapa konto',
   });
 }
 
@@ -1794,8 +1794,8 @@ function updateMemberStatus(session = accountSession) {
     memberNote.textContent = hasMemberDiscount
       ? (membership.cancellationRequested
         ? `Medlemskapet är avslutat men aktivt till ${nextDate || 'sista perioden'}.`
-        : `Medlemsrabatten är aktiv. ${nextDate ? `Nästa förnyelse är ${nextDate}.` : 'Den används automatiskt i checkout.'}`)
-      : 'Starta medlemskap för att låsa upp rabatterade priser i checkout.';
+        : `Checkoutstatus är aktiv. ${nextDate ? `Nästa förnyelse är ${nextDate}.` : 'Den används automatiskt i checkout.'}`)
+      : 'Kontot är redo. Checkoutstatus visas när du går vidare från kundkorgen.';
   }
   if (dashboardMembership) dashboardMembership.textContent = hasMemberDiscount
     ? (membership.cancellationRequested ? 'Aktivt till slutdatum' : 'Aktivt')
@@ -2895,7 +2895,7 @@ function renderSiteFooter() {
     <div class="site-footer-inner">
       <div>
         <a class="footer-logo" href="index.html">VERSEN</a>
-        <p>Medlemsbaserad handel med priser låsta för aktiva medlemmar.</p>
+        <p>Veckans produkter, priser och drops samlade på ett ställe.</p>
       </div>
       <nav aria-label="Sidfot">
         <a href="faq.html">FAQ</a>

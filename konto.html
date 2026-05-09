@@ -9,7 +9,7 @@
 <script>try{if(Date.now()<1777500000000&&!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen - Konto</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260509-screenshot-redesign">
+<link rel="stylesheet" href="styles.css?v=20260509-cart-gate">
 </head>
 
 <body class="auth-loading">
@@ -20,7 +20,7 @@
   <div class="menu" aria-label="Huvudmeny">
     <a href="index.html">Hem</a>
     <a href="produkter.html">Produkter</a>
-    <a href="medlemskap.html">Medlemskap</a>
+
     <a class="active" href="konto.html">Konto</a>
     <a href="kundkorg.html">Kundkorg <span data-cart-count></span></a>
   </div>
@@ -31,8 +31,8 @@
     <div class="glow"></div>
     <div class="page-hero-content">
       <div class="badge">Mitt konto</div>
-      <h1 data-account-hero-title>Bli medlem eller logga in</h1>
-      <p data-account-hero-copy>Skapa ett konto och bli medlem hos Versen.</p>
+      <h1 data-account-hero-title>Skapa konto eller logga in</h1>
+      <p data-account-hero-copy>Logga in för att se orderhistorik och spara dina uppgifter.</p>
     </div>
   </header>
 
@@ -47,7 +47,7 @@
     </div>
     <div class="flow-step">
       <span>3</span>
-      <p>Starta medlemskap</p>
+      <p>Fortsätt</p>
     </div>
   </section>
 
@@ -55,7 +55,7 @@
     <article class="account-card account-overview" data-auth-card hidden>
       <div class="status-pill is-active">Inloggad</div>
       <h2 data-account-greeting>Hej</h2>
-      <p data-account-summary>Här ser du medlemskap, rabatter och senaste aktivitet.</p>
+      <p data-account-summary>Här ser du rabatter, ordrar och senaste aktivitet.</p>
 
       <div class="account-metrics">
         <div class="account-metric">
@@ -84,7 +84,7 @@
 
     <article class="account-card login-card" data-create-card>
       <h2>Skapa konto</h2>
-      <p>Börja med att verifiera din email. Sedan väljer du lösenord och kan starta medlemskapet.</p>
+      <p>Börja med att verifiera din email. Sedan väljer du lösenord och kan spara kontot.</p>
       <form class="member-form" data-verification-form>
         <input type="text" name="firstName" placeholder="Förnamn" autocomplete="given-name">
         <input type="text" name="lastName" placeholder="Efternamn" autocomplete="family-name">
@@ -121,12 +121,11 @@
     </article>
 
     <article class="account-card member-card" data-status-card hidden>
-      <h2>Medlemskap</h2>
+      <h2>Konto</h2>
       <div class="status-pill" data-member-status>Ej inloggad</div>
       <p data-account-email>Kontrollerar konto.</p>
-      <p data-member-note>Medlemsrabatten låses upp när medlemskapet är aktivt.</p>
+      <p data-member-note>Din kontostatus visas här.</p>
       <div class="account-actions">
-        <a class="product-btn secondary" href="medlemskap.html" data-membership-link hidden>Starta medlemskap</a>
         <button class="product-btn secondary" type="button" data-logout-button hidden>Logga ut</button>
       </div>
       <a class="account-link account-settings-link" href="installningar.html" data-settings-link hidden>Inställningar</a>
@@ -142,6 +141,6 @@
   </section>
 </main>
 
-<script src="script.js?v=20260509-screenshot-redesign"></script>
+<script src="script.js?v=20260509-cart-gate"></script>
 </body>
 </html>

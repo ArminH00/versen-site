@@ -9,7 +9,7 @@
 <script>try{if(Date.now()<1777500000000&&!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260509-screenshot-redesign">
+<link rel="stylesheet" href="styles.css?v=20260509-cart-gate">
 </head>
 
 <body class="auth-loading">
@@ -20,7 +20,7 @@
   <div class="menu" aria-label="Huvudmeny">
     <a class="active" href="index.html">Hem</a>
     <a href="produkter.html">Produkter</a>
-    <a href="medlemskap.html">Medlemskap</a>
+
     <a href="konto.html">Konto</a>
     <a href="kundkorg.html">Kundkorg <span data-cart-count></span></a>
   </div>
@@ -35,13 +35,13 @@
       <strong data-drop-countdown>Räknar ner</strong>
     </div>
 
-    <h1>Exklusiva produkter. Medlemspriser.</h1>
+    <h1>Exklusiva produkter. Lägre priser.</h1>
 
     <p>
-      Premiumprodukter till priser endast för medlemmar.
+      Premiumprodukter till lägre priser varje vecka.
     </p>
 
-    <a class="cta" href="medlemskap.html">Bli medlem nu</a>
+    <a class="cta" href="produkter.html">Visa produkter</a>
 
     <div class="home-deal-teaser" data-home-deal-teaser aria-label="Veckans största rabatter"></div>
   </div>
@@ -83,7 +83,7 @@
     <h1 data-member-home-title>Välkommen tillbaka</h1>
 
     <p>
-      Dina medlemspriser är upplåsta. Handla veckans deals, samla poäng och föreslå nästa drop.
+      Dina veckans priser är upplåsta. Handla veckans deals, samla poäng och föreslå nästa drop.
     </p>
 
     <a class="cta" href="produkter.html">Handla veckans deals</a>
@@ -91,22 +91,22 @@
 </header>
 
 <section class="section fade" id="produkter" data-guest-home>
-  <h2>En butik som formas av medlemmarna</h2>
+  <h2>Veckans drops, samlat på ett ställe</h2>
   <p class="section-sub">
-    Varje vecka byter vi ut produkter. Medlemmar får ge förslag som styr vad vi letar efter till nästa vecka.
+    Varje vecka byter vi ut produkter och jagar in nya priser på det som efterfrågas mest.
   </p>
 
   <div class="concept-grid">
     <article class="concept-card">
       <span>Torsdag 12:00</span>
       <h3>Nya deals varje vecka</h3>
-      <p>Veckans deals öppnas samtidigt för alla medlemmar.</p>
+      <p>Veckans deals öppnas samtidigt varje torsdag.</p>
     </article>
 
     <article class="concept-card">
-      <span>Medlemsförslag</span>
-      <h3>Du påverkar sortimentet</h3>
-      <p>Skicka in produkter du vill se billigare hos Versen.</p>
+      <span>Produktförslag</span>
+      <h3>Sortimentet rör sig</h3>
+      <p>Vi fyller på med produkter som folk faktiskt vill ha billigare.</p>
     </article>
 
     <article class="concept-card">
@@ -118,7 +118,7 @@
 </section>
 
 <section class="section member-shopping fade" data-member-home hidden>
-  <h2>Populärt bland medlemmar</h2>
+  <h2>Populärt bland kunder</h2>
   <p class="section-sub">
     Några produkter som får extra mycket uppmärksamhet just nu.
   </p>
@@ -144,40 +144,29 @@
   <div class="steps">
     <article class="step">
       <div class="step-number">1</div>
-      <h3>Bli medlem</h3>
-      <p>Lås upp butiken och veckans medlemspriser.</p>
+      <h3>Välj produkter</h3>
+      <p>Lägg dina favoriter i kundkorgen.</p>
     </article>
 
     <article class="step">
       <div class="step-number">2</div>
-      <h3>Handla veckans deals</h3>
-      <p>Lagret är begränsat, det är först till kvarn som gäller.</p>
+      <h3>Gå till checkout</h3>
+      <p>Kundkorgen sparas när du går vidare.</p>
     </article>
 
     <article class="step">
       <div class="step-number">3</div>
-      <h3>Samla poäng</h3>
-      <p>Varje krona ger 2 poäng på ditt konto.</p>
+      <h3>Slutför köpet</h3>
+      <p>Vi skickar ordern så snart checkouten är klar.</p>
     </article>
   </div>
 </section>
 
-<section class="section fade" id="medlemskap" data-guest-home>
-  <div class="lock-box">
-    <div class="lock-icon">Låst</div>
-    <h2>Butiken öppnas när du blir medlem</h2>
-    <p class="section-sub">
-      Produkter, priser och erbjudanden är låsta tills du har ett aktivt medlemskap.
-    </p>
-    <a class="cta" href="medlemskap.html">Bli medlem</a>
-  </div>
-</section>
-
 <section class="final-cta fade" data-guest-home>
-  <h2>Betala mindre. Varje gång du handlar.</h2>
-  <a class="cta" href="medlemskap.html">Starta medlemskap</a>
+  <h2>Redo för veckans drop?</h2>
+  <a class="cta" href="produkter.html">Visa produkter</a>
 </section>
 
-<script src="script.js?v=20260509-screenshot-redesign"></script>
+<script src="script.js?v=20260509-cart-gate"></script>
 </body>
 </html>
