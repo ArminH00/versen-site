@@ -23,7 +23,7 @@ let selectedCatalogCategory = null;
 
 function getThemePreference() {
   const saved = localStorage.getItem(THEME_KEY);
-  return ['auto', 'light', 'dark'].includes(saved) ? saved : 'auto';
+  return ['auto', 'light', 'dark'].includes(saved) ? saved : 'light';
 }
 
 function resolveTheme(preference = getThemePreference()) {
@@ -162,6 +162,18 @@ function productDiscountPercent(product) {
   }
 
   return Math.round(((compareAtPrice - price) / compareAtPrice) * 100);
+}
+
+function stableNumber(value, min, max) {
+  const text = String(value || 'versen');
+  let hash = 0;
+
+  for (let index = 0; index < text.length; index += 1) {
+    hash = ((hash << 5) - hash) + text.charCodeAt(index);
+    hash |= 0;
+  }
+
+  return min + (Math.abs(hash) % ((max - min) + 1));
 }
 
 function formatDate(value) {
@@ -527,8 +539,11 @@ function productCard(product) {
     : '';
   const vendor = product.vendor || product.category || 'Versen';
   const flags = product.flags || {};
+  const discount = productDiscountAmount(product);
+  const discountPercent = productDiscountPercent(product);
+  const sellThrough = stableNumber(product.handle || product.title, 51, 86);
   const badges = [
-    flags.greatPrice ? '<span class="great-price">Grymt pris</span>' : '',
+    flags.greatPrice || discountPercent >= 25 ? '<span class="great-price">Populär</span>' : '',
     flags.fewLeft ? '<span class="few-left">Få kvar</span>' : '',
   ].filter(Boolean).join('');
 
@@ -546,9 +561,14 @@ function productCard(product) {
           <span class="old">${escapeHtml(compareAtPrice)}</span>
           <span class="new">${escapeHtml(memberPrice)}</span>
         </div>
+        ${discount ? `<div class="product-saving">Du sparar ${escapeHtml(formatSek(discount))}${discountPercent ? ` (${discountPercent}%)` : ''}</div>` : ''}
+        <div class="product-progress" aria-label="${sellThrough}% sålt">
+          <span style="width:${sellThrough}%"></span>
+          <small>${sellThrough}% sålt</small>
+        </div>
         <div class="product-actions">
-          <a class="product-btn" href="${escapeHtml(productUrl)}">Visa produkt</a>
-          <button class="product-btn secondary" type="button" data-catalog-add>Lägg i kundkorg</button>
+          <a class="product-btn secondary" href="${escapeHtml(productUrl)}">Detaljer</a>
+          <button class="product-btn" type="button" data-catalog-add>Lägg i kundkorg</button>
         </div>
       </div>
     </article>
@@ -643,13 +663,19 @@ function renderHomeDealTeaser(products) {
 
 function renderCategoryLaunch(products) {
   document.querySelectorAll('[data-category-count]').forEach((element) => {
-    const count = products.filter((product) => product.category === element.dataset.categoryCount).length;
+    const count = element.dataset.categoryCount === 'Alla'
+      ? products.length
+      : products.filter((product) => product.category === element.dataset.categoryCount).length;
     element.textContent = count ? `${count} produkter denna vecka` : 'Fylls på snart';
   });
 
   document.querySelectorAll('[data-category-images]').forEach((element) => {
     const images = products
-      .filter((product) => product.category === element.dataset.categoryImages && product.image && product.image.url)
+      .filter((product) => (
+        (element.dataset.categoryImages === 'Alla' || product.category === element.dataset.categoryImages)
+        && product.image
+        && product.image.url
+      ))
       .slice(0, 4);
 
     element.innerHTML = images.map((product) => `
@@ -665,17 +691,11 @@ function renderCatalogProducts(category) {
     return;
   }
 
-  if (!category) {
-    grid.innerHTML = `
-      <div class="empty-state catalog-empty">
-        <span>Välj en kategori</span>
-        <p>Välj en kategori så visas produkterna direkt här.</p>
-      </div>
-    `;
-    return;
-  }
-
-  const products = sortCatalogProducts(catalogProducts.filter((product) => product.category === category));
+  const products = sortCatalogProducts(
+    category && category !== 'Alla'
+      ? catalogProducts.filter((product) => product.category === category)
+      : catalogProducts
+  );
 
   if (!products.length) {
     grid.innerHTML = `
@@ -862,13 +882,9 @@ async function loadProducts() {
     renderCategoryLaunch(visibleProducts);
 
     const categoryFromUrl = new URLSearchParams(window.location.search).get('kategori');
-    const initialCategory = categoryFromUrl || selectedCatalogCategory;
+    const initialCategory = categoryFromUrl || selectedCatalogCategory || 'Alla';
 
-    if (initialCategory) {
-      selectCatalogCategory(initialCategory, { scroll: false });
-    } else {
-      renderCatalogProducts(null);
-    }
+    selectCatalogCategory(initialCategory, { scroll: false });
   } catch (error) {
     return;
   }
