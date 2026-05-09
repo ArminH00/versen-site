@@ -541,7 +541,6 @@ function productCard(product) {
   const flags = product.flags || {};
   const discount = productDiscountAmount(product);
   const discountPercent = productDiscountPercent(product);
-  const sellThrough = stableNumber(product.handle || product.title, 51, 86);
   const badges = [
     flags.greatPrice || discountPercent >= 25 ? '<span class="great-price">Populär</span>' : '',
     flags.fewLeft ? '<span class="few-left">Få kvar</span>' : '',
@@ -562,10 +561,6 @@ function productCard(product) {
           <span class="new">${escapeHtml(memberPrice)}</span>
         </div>
         ${discount ? `<div class="product-saving">Du sparar ${escapeHtml(formatSek(discount))}${discountPercent ? ` (${discountPercent}%)` : ''}</div>` : ''}
-        <div class="product-progress" aria-label="${sellThrough}% sålt">
-          <span style="width:${sellThrough}%"></span>
-          <small>${sellThrough}% sålt</small>
-        </div>
         <div class="product-actions">
           <a class="product-btn secondary" href="${escapeHtml(productUrl)}">Detaljer</a>
           <button class="product-btn" type="button" data-catalog-add>Lägg i kundkorg</button>
@@ -632,7 +627,6 @@ function homeDealTeaserCard(product) {
   const productUrl = `produkt.html?handle=${encodeURIComponent(product.handle)}`;
   const discount = productDiscountPercent(product);
   const saveAmount = productDiscountAmount(product);
-  const sellThrough = stableNumber(product.handle || product.title, 61, 86);
 
   return `
     <a class="home-featured-product" href="${escapeHtml(productUrl)}" aria-label="${escapeHtml(product.title)}">
@@ -648,7 +642,6 @@ function homeDealTeaserCard(product) {
           ${product.compareAtPrice ? `<del>${escapeHtml(product.compareAtPrice)}</del>` : ''}
         </span>
         ${saveAmount ? `<span class="home-featured-saving">Du sparar ${escapeHtml(formatSek(saveAmount))}${discount ? ` (${discount}%)` : ''}</span>` : ''}
-        <span class="home-featured-progress"><i style="width:${sellThrough}%"></i><b>${sellThrough}% sålt</b></span>
       </span>
     </a>
   `;
@@ -1276,6 +1269,18 @@ function updateProductVariant(product, variant) {
   setText('[data-product-compare-price]', compareAtPrice);
   setText('[data-product-price]', price);
 
+  const savingElement = document.querySelector('[data-product-saving]');
+  if (savingElement) {
+    const savingAmount = parsePrice(compareAtPrice) - parsePrice(price);
+    const savingPercent = parsePrice(compareAtPrice)
+      ? Math.round((savingAmount / parsePrice(compareAtPrice)) * 100)
+      : 0;
+    savingElement.textContent = savingAmount > 0
+      ? `Du sparar ${formatSek(savingAmount)}${savingPercent > 0 ? ` (${savingPercent}%)` : ''}`
+      : '';
+    savingElement.hidden = savingAmount <= 0;
+  }
+
   const imageElement = document.querySelector('[data-product-image]');
   if (imageElement && image && image.url) {
     imageElement.innerHTML = `<img src="${escapeHtml(image.url)}" alt="${escapeHtml(image.altText || product.title)}">`;
@@ -1414,6 +1419,7 @@ if (quantityInput && quantityMinus && quantityPlus) {
 }
 
 const addToCartButton = document.querySelector('[data-add-to-cart-button]');
+const buyNowButton = document.querySelector('[data-buy-now-button]');
 
 if (addToCartButton) {
   addToCartButton.addEventListener('click', () => {
@@ -1433,6 +1439,22 @@ if (addToCartButton) {
     window.setTimeout(() => {
       addToCartButton.textContent = 'Lägg i kundkorg';
     }, 1400);
+  });
+}
+
+if (buyNowButton) {
+  buyNowButton.addEventListener('click', () => {
+    const product = currentProductFromDetail();
+    const message = document.querySelector('[data-checkout-message]');
+    const quantity = quantityInput ? Number(quantityInput.value) : 1;
+
+    if (!product) {
+      if (message) message.textContent = 'Produkten är inte redo för kundkorgen ännu.';
+      return;
+    }
+
+    addToCart(product, quantity);
+    window.location.href = 'kundkorg.html';
   });
 }
 

@@ -9,10 +9,10 @@
 <script>try{if(Date.now()<1777500000000&&!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen - Produkt</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260509-cart-gate">
+<link rel="stylesheet" href="styles.css?v=20260509-visual-products">
 </head>
 
-<body class="auth-loading">
+<body class="auth-loading page-product-detail">
 
 <nav class="nav">
   <a class="logo" href="index.html">VERSEN</a>
@@ -38,6 +38,7 @@
         <span class="old" data-product-compare-price>300 kr</span>
         <span class="new" data-product-price>189 kr</span>
       </div>
+      <div class="detail-saving" data-product-saving></div>
 
       <div class="variant-picker" data-variant-picker hidden></div>
 
@@ -48,10 +49,17 @@
       </div>
 
       <button class="cta" type="button" data-add-to-cart-button>Lägg i kundkorg</button>
+      <button class="product-btn detail-buy-now" type="button" data-buy-now-button>Köp nu</button>
       <p class="form-message" data-checkout-message></p>
 
       <div class="product-description-rich" data-product-description>
         Produktdata hämtas från Versens katalog.
+      </div>
+
+      <div class="detail-service-list" aria-label="Produktfördelar">
+        <span>Fri frakt på alla beställningar</span>
+        <span>30 dagars öppet köp</span>
+        <span>Äkta produkter - garanterat</span>
       </div>
     </div>
   </section>
@@ -77,6 +85,6 @@
   </section>
 </main>
 
-<script src="script.js?v=20260509-cart-gate"></script>
+<script src="script.js?v=20260509-visual-products"></script>
 </body>
 </html>
