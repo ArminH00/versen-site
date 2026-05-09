@@ -9,87 +9,116 @@
 <script>try{if(Date.now()<1777500000000&&!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen - Medlemskap</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260509-visual-products">
+<link rel="stylesheet" href="styles.css?v=20260509-launch-rebuild">
 </head>
 
-<body class="auth-loading">
+<body class="auth-loading page-membership">
 
-<nav class="nav">
+<nav class="nav launch-nav">
+  <button class="nav-mobile-menu" type="button" aria-label="Meny"></button>
   <a class="logo" href="index.html">VERSEN</a>
-
   <div class="menu" aria-label="Huvudmeny">
-    <a href="index.html">Hem</a>
-    <a href="produkter.html">Produkter</a>
-    <a href="konto.html">Konto</a>
-    <a href="kundkorg.html">Kundkorg <span data-cart-count></span></a>
+    <a href="drops.html">Drops</a>
+    <a href="produkter.html">Shop</a>
+    <a class="active" href="medlemskap.html">Medlemskap</a>
+    <a href="faq.html">Om oss</a>
   </div>
+  <div class="nav-actions" aria-label="Snabbval">
+    <a class="nav-icon nav-search" href="produkter.html" aria-label="Sök"></a>
+    <a class="nav-icon nav-account" href="konto.html" aria-label="Konto"></a>
+    <a class="nav-icon nav-wishlist" href="produkter.html" aria-label="Favoriter"></a>
+    <a class="nav-icon nav-cart" href="kundkorg.html" aria-label="Kundkorg"><span data-cart-count></span></a>
+    <a class="nav-member-cta active" href="medlemskap.html">Bli medlem</a>
+  </div>
+</nav>
+
+<nav class="bottom-nav" aria-label="Mobilmeny">
+  <a href="index.html" data-icon="home">Hem</a>
+  <a href="produkter.html" data-icon="search">Shop</a>
+  <a href="drops.html" data-icon="drop">Drops</a>
+  <a class="active" href="medlemskap.html" data-icon="club">Medlemskap</a>
+  <a href="konto.html" data-icon="account">Konto</a>
 </nav>
 
 <main>
   <header class="membership-hero fade">
-    <div class="glow"></div>
     <div class="membership-panel">
-      <div class="badge">Versen medlemskap</div>
-      <h1>Medlemspriser på det du vill handla</h1>
+      <div class="membership-copy">
+      <div class="badge">Medlemskap</div>
+      <h1>Mer än bara lägre priser. En livsstil.</h1>
       <p>
-        Lås upp lägre priser, samla poäng för extra rabatt och hjälp oss välja vad som ska droppa nästa torsdag.
+        Som medlem får du exklusiva förmåner, tidig tillgång och sparar tusentals kronor varje år.
       </p>
-
-      <div class="membership-price">
-        <span>99 kr</span>
-        <small>per månad</small>
-      </div>
-
-      <div class="membership-highlights" aria-label="Medlemsfördelar">
-        <div>
-          <strong>2 poäng</strong>
-          <span>per krona</span>
-        </div>
-        <div>
-          <strong>Varje torsdag</strong>
-          <span>nya drops</span>
-        </div>
-        <div>
-          <strong>Extra rabatt</strong>
-          <span>via poäng</span>
-        </div>
-      </div>
-
-      <button class="cta" type="button" data-membership-checkout>Starta medlemskap</button>
+      <button class="cta" type="button" data-membership-checkout>Bli medlem nu</button>
       <p class="form-message" data-membership-message></p>
+      </div>
+
+      <div class="membership-card-visual premium" aria-hidden="true">
+        <span>VERSEN</span>
+        <small>MEMBER CLUB</small>
+      </div>
     </div>
   </header>
 
-  <section class="section fade">
-    <h2>Det här låser du upp</h2>
-    <p class="section-sub">
-      Versen är byggt för att medlemmarna ska handla billigare och samtidigt påverka vad som tas in.
-    </p>
+  <section class="launch-benefits membership-benefits fade">
+    <article><span>Exklusiva priser</span><small>Upp till 60% rabatt</small></article>
+    <article><span>Tidig tillgång</span><small>Till drops varje vecka</small></article>
+    <article><span>Fri frakt</span><small>På alla beställningar</small></article>
+    <article><span>Prioriterad support</span><small>Snabbare hjälp</small></article>
+  </section>
 
-    <div class="cards benefit-cards">
-      <article class="card">
-        <h3>Medlemspriser</h3>
-        <p>Vår Versen prisgaranti innebär att du inte hittar varan billigare någon annanstans.</p>
+  <section class="membership-savings fade">
+    <h2>Så mycket sparar våra medlemmar</h2>
+    <div class="savings-grid">
+      <article>
+        <span>Ej medlem</span>
+        <strong>12 380 kr</strong>
+        <small>/ år</small>
       </article>
-
-      <article class="card">
-        <h3>Poäng som räknas</h3>
-        <p>Varje 1 kr du handlar för ger 2 poäng. Poängen kan växlas mot extra rabatt ovanpå medlemspriserna.</p>
+      <article class="highlight">
+        <span>Medlem</span>
+        <strong>8 740 kr</strong>
+        <small>/ år</small>
+        <em>Du sparar 3 640 kr / år</em>
       </article>
-
-      <article class="card">
-        <h3>Föreslå nästa drop</h3>
-        <p>Skicka produkter, länkar eller idéer. Vi går igenom förslagen inför nästa veckas lansering.</p>
+      <article>
+        <span>Medlemsdata</span>
+        <strong>98%</strong>
+        <small>nöjda medlemmar</small>
       </article>
+    </div>
+    <blockquote>
+      “Jag har sparat över 10 000 kr sedan jag blev medlem. Dessutom får man access till de bästa droppen!”
+      <span>- Viktor</span>
+    </blockquote>
+  </section>
 
-      <article class="card">
-        <h3>Nya släpp varje vecka</h3>
-        <p>Torsdagar kl 12 fylls butiken på. Du handlar när du vill, vi skickar när nästa packrunda startar.</p>
+  <section class="membership-plans fade">
+    <h2>Välj ditt medlemskap</h2>
+    <div class="plan-grid">
+      <article>
+        <span>Månad</span>
+        <strong>99 kr/mån</strong>
+        <p>Perfekt för dig som vill testa.</p>
+        <button class="product-btn secondary" type="button" data-membership-checkout>Välj månad</button>
+      </article>
+      <article class="featured">
+        <em>Populär</em>
+        <span>År - rekommenderad</span>
+        <strong>899 kr/år</strong>
+        <p>Spara 3 månader och få högsta prioritet.</p>
+        <button class="product-btn" type="button" data-membership-checkout>Välj år</button>
+      </article>
+      <article>
+        <span>Livstid</span>
+        <strong>2 999 kr</strong>
+        <p>För sneakerklubben på riktigt.</p>
+        <button class="product-btn secondary" type="button" data-membership-checkout>Välj livstid</button>
       </article>
     </div>
   </section>
 </main>
 
-<script src="script.js?v=20260509-visual-products"></script>
+<script src="script.js?v=20260509-launch-rebuild"></script>
 </body>
 </html>

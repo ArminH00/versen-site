@@ -9,21 +9,35 @@
 <script>try{if(Date.now()<1777500000000&&!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen - Produkter</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260509-visual-products">
+<link rel="stylesheet" href="styles.css?v=20260509-launch-rebuild">
 </head>
 
 <body class="auth-loading page-products">
 
-<nav class="nav">
+<nav class="nav launch-nav">
+  <button class="nav-mobile-menu" type="button" aria-label="Meny"></button>
   <a class="logo" href="index.html">VERSEN</a>
-
   <div class="menu" aria-label="Huvudmeny">
-    <a href="index.html">Hem</a>
-    <a class="active" href="produkter.html">Produkter</a>
-
-    <a href="konto.html">Konto</a>
-    <a href="kundkorg.html">Kundkorg <span data-cart-count></span></a>
+    <a href="drops.html">Drops</a>
+    <a class="active" href="produkter.html">Shop</a>
+    <a href="medlemskap.html">Medlemskap</a>
+    <a href="faq.html">Om oss</a>
   </div>
+  <div class="nav-actions" aria-label="Snabbval">
+    <a class="nav-icon nav-search" href="produkter.html" aria-label="Sök"></a>
+    <a class="nav-icon nav-account" href="konto.html" aria-label="Konto"></a>
+    <a class="nav-icon nav-wishlist" href="produkter.html" aria-label="Favoriter"></a>
+    <a class="nav-icon nav-cart" href="kundkorg.html" aria-label="Kundkorg"><span data-cart-count></span></a>
+    <a class="nav-member-cta" href="medlemskap.html">Bli medlem</a>
+  </div>
+</nav>
+
+<nav class="bottom-nav" aria-label="Mobilmeny">
+  <a href="index.html" data-icon="home">Hem</a>
+  <a class="active" href="produkter.html" data-icon="search">Shop</a>
+  <a href="drops.html" data-icon="drop">Drops</a>
+  <a href="medlemskap.html" data-icon="club">Medlemskap</a>
+  <a href="konto.html" data-icon="account">Konto</a>
 </nav>
 
 <main>
@@ -48,18 +62,39 @@
       <div class="category-image-row" data-category-images="Alla"></div>
     </button>
 
-    <button class="category-launch-card car-care" type="button" data-category-select="Bilvård">
-      <span>Bilvård</span>
-      <strong>Bilvård</strong>
-      <small data-category-count="Bilvård">Veckans urval</small>
-      <div class="category-image-row" data-category-images="Bilvård"></div>
+    <button class="category-launch-card car-care" type="button" data-category-select="Tershine">
+      <span>Tershine</span>
+      <strong>Tershine</strong>
+      <small data-category-count="Tershine">Veckans urval</small>
+      <div class="category-image-row" data-category-images="Tershine"></div>
     </button>
 
-    <button class="category-launch-card training-health" type="button" data-category-select="Träning & hälsa">
-      <span>Träning & hälsa</span>
-      <strong>Träning</strong>
-      <small data-category-count="Träning & hälsa">Veckans urval</small>
-      <div class="category-image-row" data-category-images="Träning & hälsa"></div>
+    <button class="category-launch-card training-health" type="button" data-category-select="Gyeon">
+      <span>Gyeon</span>
+      <strong>Gyeon</strong>
+      <small data-category-count="Gyeon">Veckans urval</small>
+      <div class="category-image-row" data-category-images="Gyeon"></div>
+    </button>
+
+    <button class="category-launch-card" type="button" data-category-select="NOCCO">
+      <span>NOCCO</span>
+      <strong>NOCCO</strong>
+      <small data-category-count="NOCCO">Veckans urval</small>
+      <div class="category-image-row" data-category-images="NOCCO"></div>
+    </button>
+
+    <button class="category-launch-card" type="button" data-category-select="Barebells">
+      <span>Barebells</span>
+      <strong>Barebells</strong>
+      <small data-category-count="Barebells">Veckans urval</small>
+      <div class="category-image-row" data-category-images="Barebells"></div>
+    </button>
+
+    <button class="category-launch-card" type="button" data-category-select="Body Science">
+      <span>Body Science</span>
+      <strong>Body Science</strong>
+      <small data-category-count="Body Science">Veckans urval</small>
+      <div class="category-image-row" data-category-images="Body Science"></div>
     </button>
   </section>
 
@@ -67,8 +102,11 @@
     <div class="catalog-tools">
       <div class="filter-row" aria-label="Kategorier" data-category-filters>
         <button class="filter active" type="button" data-filter="Alla">Alla</button>
-        <button class="filter" type="button" data-filter="Bilvård">Bilvård</button>
-        <button class="filter" type="button" data-filter="Träning & hälsa">Träning & hälsa</button>
+        <button class="filter" type="button" data-filter="Tershine">Tershine</button>
+        <button class="filter" type="button" data-filter="Gyeon">Gyeon</button>
+        <button class="filter" type="button" data-filter="NOCCO">NOCCO</button>
+        <button class="filter" type="button" data-filter="Barebells">Barebells</button>
+        <button class="filter" type="button" data-filter="Body Science">Body Science</button>
       </div>
 
       <div class="sort-control" aria-label="Sortering">
@@ -87,6 +125,6 @@
   </section>
 </main>
 
-<script src="script.js?v=20260509-visual-products"></script>
+<script src="script.js?v=20260509-launch-rebuild"></script>
 </body>
 </html>

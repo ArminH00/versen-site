@@ -208,7 +208,7 @@ async function postJson(url, payload) {
 function updateCartCount() {
   const count = cartQuantity();
   document.querySelectorAll('[data-cart-count]').forEach((element) => {
-    element.textContent = count ? `(${count})` : '';
+    element.textContent = count ? String(count) : '';
   });
 }
 
@@ -310,31 +310,12 @@ function applyGlobalSessionUi(session = accountSession) {
   document.body.classList.toggle('is-authenticated', authenticated);
   document.body.classList.toggle('is-member', member);
 
-  document.querySelectorAll('.menu').forEach((menu) => {
-    if (!menu.querySelector('a[href="forslag.html"]')) {
-      const accountLink = menu.querySelector('a[href="konto.html"]');
-      const suggestionLink = document.createElement('a');
-      suggestionLink.href = 'forslag.html';
-      suggestionLink.textContent = 'Förslag';
-
-      if (window.location.pathname.endsWith('/forslag.html') || window.location.pathname.endsWith('forslag.html')) {
-        suggestionLink.classList.add('active');
-      }
-
-      menu.insertBefore(suggestionLink, accountLink || null);
-    }
-  });
-
   document.querySelectorAll('.menu a[href="forslag.html"]').forEach((link) => {
     link.hidden = !member;
   });
 
   document.querySelectorAll('a[href="medlemskap.html"], a[href^="medlemskap.html?"]').forEach((link) => {
     link.hidden = member;
-  });
-
-  document.querySelectorAll('[data-guest-home]').forEach((element) => {
-    element.hidden = member;
   });
 
   document.querySelectorAll('[data-member-home]').forEach((element) => {
@@ -541,9 +522,10 @@ function productCard(product) {
   const flags = product.flags || {};
   const discount = productDiscountAmount(product);
   const discountPercent = productDiscountPercent(product);
+  const sellThrough = stableNumber(product.handle || product.title, 58, 84);
   const badges = [
     flags.greatPrice || discountPercent >= 25 ? '<span class="great-price">Populär</span>' : '',
-    flags.fewLeft ? '<span class="few-left">Få kvar</span>' : '',
+    flags.fewLeft ? '<span class="few-left">Nyhet</span>' : '',
   ].filter(Boolean).join('');
 
   return `
@@ -561,6 +543,10 @@ function productCard(product) {
           <span class="new">${escapeHtml(memberPrice)}</span>
         </div>
         ${discount ? `<div class="product-saving">Du sparar ${escapeHtml(formatSek(discount))}${discountPercent ? ` (${discountPercent}%)` : ''}</div>` : ''}
+        <div class="product-progress" aria-label="${sellThrough}% sålt">
+          <span style="width:${sellThrough}%"></span>
+          <small>${sellThrough}% sålt</small>
+        </div>
         <div class="product-actions">
           <a class="product-btn secondary" href="${escapeHtml(productUrl)}">Detaljer</a>
           <button class="product-btn" type="button" data-catalog-add>Lägg i kundkorg</button>
@@ -627,6 +613,7 @@ function homeDealTeaserCard(product) {
   const productUrl = `produkt.html?handle=${encodeURIComponent(product.handle)}`;
   const discount = productDiscountPercent(product);
   const saveAmount = productDiscountAmount(product);
+  const sellThrough = stableNumber(product.handle || product.title, 58, 84);
 
   return `
     <a class="home-featured-product" href="${escapeHtml(productUrl)}" aria-label="${escapeHtml(product.title)}">
@@ -642,6 +629,7 @@ function homeDealTeaserCard(product) {
           ${product.compareAtPrice ? `<del>${escapeHtml(product.compareAtPrice)}</del>` : ''}
         </span>
         ${saveAmount ? `<span class="home-featured-saving">Du sparar ${escapeHtml(formatSek(saveAmount))}${discount ? ` (${discount}%)` : ''}</span>` : ''}
+        <span class="home-featured-progress"><i style="width:${sellThrough}%"></i><b>${sellThrough}% sålt</b></span>
       </span>
     </a>
   `;
@@ -671,10 +659,10 @@ function renderHomeDealTeaser(products) {
     return;
   }
 
-  const deals = topDiscountProducts(products, 4);
+  const deals = topDiscountProducts(products, 8);
 
   if (teaser && deals.length) {
-    teaser.innerHTML = homeDealTeaserCard(deals[0]);
+    teaser.innerHTML = homeDealTeaserCard(pickRandomProducts(deals, 1)[0]);
   }
 
   if (trending) {
@@ -687,14 +675,14 @@ function renderCategoryLaunch(products) {
   document.querySelectorAll('[data-category-count]').forEach((element) => {
     const count = element.dataset.categoryCount === 'Alla'
       ? products.length
-      : products.filter((product) => product.category === element.dataset.categoryCount).length;
+      : products.filter((product) => product.category === element.dataset.categoryCount || product.vendor === element.dataset.categoryCount).length;
     element.textContent = count ? `${count} produkter denna vecka` : 'Fylls på snart';
   });
 
   document.querySelectorAll('[data-category-images]').forEach((element) => {
     const images = products
       .filter((product) => (
-        (element.dataset.categoryImages === 'Alla' || product.category === element.dataset.categoryImages)
+        (element.dataset.categoryImages === 'Alla' || product.category === element.dataset.categoryImages || product.vendor === element.dataset.categoryImages)
         && product.image
         && product.image.url
       ))
@@ -715,7 +703,7 @@ function renderCatalogProducts(category) {
 
   const products = sortCatalogProducts(
     category && category !== 'Alla'
-      ? catalogProducts.filter((product) => product.category === category)
+      ? catalogProducts.filter((product) => product.category === category || product.vendor === category)
       : catalogProducts
   );
 
@@ -1281,6 +1269,18 @@ function updateProductVariant(product, variant) {
     savingElement.hidden = savingAmount <= 0;
   }
 
+  const detailProgress = document.querySelector('[data-product-progress]');
+  if (detailProgress) {
+    const sellThrough = stableNumber(detail.dataset.cartHandle || product.title || '', 58, 84);
+    detailProgress.innerHTML = `<span style="width:${sellThrough}%"></span><small>${sellThrough}% sålt</small>`;
+  }
+
+  const urgency = document.querySelector('[data-product-urgency]');
+  if (urgency) {
+    const left = stableNumber(detail.dataset.cartHandle || product.title || '', 9, 18);
+    urgency.textContent = `Endast ${left} kvar i denna storlek`;
+  }
+
   const imageElement = document.querySelector('[data-product-image]');
   if (imageElement && image && image.url) {
     imageElement.innerHTML = `<img src="${escapeHtml(image.url)}" alt="${escapeHtml(image.altText || product.title)}">`;
@@ -1363,17 +1363,31 @@ async function loadProductDetail() {
   }
 
   const params = new URLSearchParams(window.location.search);
-  const handle = params.get('handle') || 'nocco-flak';
+  const requestedHandle = params.get('handle');
 
   try {
-    const response = await fetch(`/api/products?handle=${encodeURIComponent(handle)}`);
+    if (requestedHandle) {
+      const response = await fetch(`/api/products?handle=${encodeURIComponent(requestedHandle)}`);
+
+      if (response.ok) {
+        const data = await response.json();
+        setProductDetail(data.product);
+        return;
+      }
+    }
+
+    const response = await fetch('/api/products');
 
     if (!response.ok) {
       return;
     }
 
     const data = await response.json();
-    setProductDetail(data.product);
+    const product = (data.products || []).find((item) => (
+      item.handle !== 'medlemskap' && item.image && item.image.url && item.availableForSale
+    )) || (data.products || []).find((item) => item.handle !== 'medlemskap');
+
+    setProductDetail(product);
   } catch (error) {
     return;
   }
@@ -1510,6 +1524,7 @@ function renderCart() {
   }
 
   setText('[data-cart-total-items]', `${totalItems} st`);
+  setText('[data-cart-heading-items]', `${totalItems}`);
   setText('[data-cart-total]', formatSek(total));
 
   const checkoutButton = document.querySelector('[data-cart-checkout]');
@@ -1634,7 +1649,7 @@ if (cartCheckoutButton) {
       if (message) message.textContent = 'Kunde inte kontakta checkout.';
     } finally {
       cartCheckoutButton.disabled = false;
-      cartCheckoutButton.textContent = 'Öppna checkout';
+      cartCheckoutButton.textContent = 'Till kassan';
     }
   });
 }
@@ -2360,9 +2375,9 @@ if (cancelMembershipButton) {
   });
 }
 
-const membershipCheckoutButton = document.querySelector('[data-membership-checkout]');
+const membershipCheckoutButtons = document.querySelectorAll('[data-membership-checkout]');
 
-if (membershipCheckoutButton) {
+if (membershipCheckoutButtons.length) {
   const message = document.querySelector('[data-membership-message]');
 
   refreshAccount().then(() => {
@@ -2371,12 +2386,13 @@ if (membershipCheckoutButton) {
     }
   });
 
-  membershipCheckoutButton.addEventListener('click', async () => {
+  membershipCheckoutButtons.forEach((membershipCheckoutButton) => membershipCheckoutButton.addEventListener('click', async () => {
     if (!accountSession || !accountSession.authenticated) {
       window.location.href = 'konto.html?next=membership';
       return;
     }
 
+    membershipCheckoutButton.dataset.originalText = membershipCheckoutButton.textContent;
     membershipCheckoutButton.disabled = true;
     membershipCheckoutButton.textContent = 'Öppnar checkout...';
     if (message) message.textContent = '';
@@ -2401,9 +2417,9 @@ if (membershipCheckoutButton) {
       if (message) message.textContent = 'Kunde inte kontakta checkout.';
     } finally {
       membershipCheckoutButton.disabled = false;
-      membershipCheckoutButton.textContent = 'Starta medlemskap';
+      membershipCheckoutButton.textContent = membershipCheckoutButton.dataset.originalText || 'Bli medlem nu';
     }
-  });
+  }));
 }
 
 function renderOrderPage(session = accountSession) {

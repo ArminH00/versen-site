@@ -9,29 +9,43 @@
 <script>try{if(Date.now()<1777500000000&&!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen - Kundkorg</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260509-visual-products">
+<link rel="stylesheet" href="styles.css?v=20260509-launch-rebuild">
 </head>
 
-<body class="auth-loading">
+<body class="auth-loading page-cart">
 
-<nav class="nav">
+<nav class="nav launch-nav">
+  <button class="nav-mobile-menu" type="button" aria-label="Tillbaka"></button>
   <a class="logo" href="index.html">VERSEN</a>
-
   <div class="menu" aria-label="Huvudmeny">
-    <a href="index.html">Hem</a>
-    <a href="produkter.html">Produkter</a>
-
-    <a href="konto.html">Konto</a>
-    <a class="active" href="kundkorg.html">Kundkorg <span data-cart-count></span></a>
+    <a href="drops.html">Drops</a>
+    <a href="produkter.html">Shop</a>
+    <a href="medlemskap.html">Medlemskap</a>
+    <a href="faq.html">Om oss</a>
+  </div>
+  <div class="nav-actions" aria-label="Snabbval">
+    <a class="nav-icon nav-search" href="produkter.html" aria-label="Sök"></a>
+    <a class="nav-icon nav-account" href="konto.html" aria-label="Konto"></a>
+    <a class="nav-icon nav-wishlist" href="produkter.html" aria-label="Favoriter"></a>
+    <a class="nav-icon nav-cart active" href="kundkorg.html" aria-label="Kundkorg"><span data-cart-count></span></a>
+    <a class="nav-member-cta" href="medlemskap.html">Bli medlem</a>
   </div>
 </nav>
 
-<main>
+<nav class="bottom-nav" aria-label="Mobilmeny">
+  <a href="index.html" data-icon="home">Hem</a>
+  <a href="produkter.html" data-icon="search">Shop</a>
+  <a href="drops.html" data-icon="drop">Drops</a>
+  <a href="medlemskap.html" data-icon="club">Medlemskap</a>
+  <a href="konto.html" data-icon="account">Konto</a>
+</nav>
+
+<main class="cart-screen">
   <header class="page-hero fade">
     <div class="glow"></div>
     <div class="page-hero-content">
       <div class="badge">Varukorg</div>
-      <h1>Samla dina produkter innan checkout</h1>
+      <h1>Kundkorg <span data-cart-heading-items>0 st</span></h1>
       <p>Justera antal, ta bort produkter och gå vidare till checkout när allt är klart.</p>
     </div>
   </header>
@@ -50,6 +64,11 @@
         <span>Pris</span>
         <strong data-cart-total>0 kr</strong>
       </div>
+      <div class="member-saving-box">
+        <strong>Du får fri frakt som medlem!</strong>
+        <span>Bara 162 kr kvar till nästa nivå (Platinum)</span>
+        <i></i>
+      </div>
       <form class="discount-form" data-discount-form>
         <label for="discount-code">Rabattkod</label>
         <div class="discount-row">
@@ -59,12 +78,12 @@
         <p class="form-message" data-discount-message></p>
       </form>
       <p data-cart-help>Om du har en rabattkod kan du ange den i kassan.</p>
-      <button class="cta cart-checkout" type="button" data-cart-checkout>Öppna checkout</button>
+      <button class="cta cart-checkout" type="button" data-cart-checkout>Till kassan</button>
       <p class="form-message" data-cart-message></p>
     </aside>
   </section>
 </main>
 
-<script src="script.js?v=20260509-visual-products"></script>
+<script src="script.js?v=20260509-launch-rebuild"></script>
 </body>
 </html>

@@ -9,137 +9,126 @@
 <script>try{if(Date.now()<1777500000000&&!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260509-visual-products">
+<link rel="stylesheet" href="styles.css?v=20260509-launch-rebuild">
 </head>
 
-<body class="auth-loading">
+<body class="auth-loading page-home">
 
-<nav class="nav">
+<nav class="nav launch-nav">
+  <button class="nav-mobile-menu" type="button" aria-label="Meny"></button>
   <a class="logo" href="index.html">VERSEN</a>
-
   <div class="menu" aria-label="Huvudmeny">
-    <a class="active" href="index.html">Hem</a>
-    <a href="produkter.html">Produkter</a>
-
-    <a href="konto.html">Konto</a>
-    <a href="kundkorg.html">Kundkorg <span data-cart-count></span></a>
+    <a href="drops.html">Drops</a>
+    <a href="produkter.html">Shop</a>
+    <a href="medlemskap.html">Medlemskap</a>
+    <a href="faq.html">Om oss</a>
+  </div>
+  <div class="nav-actions" aria-label="Snabbval">
+    <a class="nav-icon nav-search" href="produkter.html" aria-label="Sök"></a>
+    <a class="nav-icon nav-account" href="konto.html" aria-label="Konto"></a>
+    <a class="nav-icon nav-wishlist" href="produkter.html" aria-label="Favoriter"></a>
+    <a class="nav-icon nav-cart" href="kundkorg.html" aria-label="Kundkorg"><span data-cart-count></span></a>
+    <a class="nav-member-cta" href="medlemskap.html">Bli medlem</a>
   </div>
 </nav>
 
-<header class="hero fade" data-guest-home>
-  <div class="glow"></div>
+<nav class="bottom-nav" aria-label="Mobilmeny">
+  <a class="active" href="index.html" data-icon="home">Hem</a>
+  <a href="produkter.html" data-icon="search">Shop</a>
+  <a href="drops.html" data-icon="drop">Drops</a>
+  <a href="medlemskap.html" data-icon="club">Medlemskap</a>
+  <a href="konto.html" data-icon="account">Konto</a>
+</nav>
 
-  <div class="hero-content">
-    <div class="home-countdown">
-      <span>Nästa drop om</span>
-      <strong data-drop-countdown>Räknar ner</strong>
+<main class="home-shell">
+  <section class="launch-hero fade">
+    <div class="launch-hero-copy">
+      <div class="home-countdown">
+        <span>Nästa drop om</span>
+        <strong data-drop-countdown>04d 02h 16m 38s</strong>
+      </div>
+      <h1>Exklusiva sneakers. Medlemspriser.</h1>
+      <p>Premium sneakers till priser endast för medlemmar.</p>
+      <div class="hero-actions">
+        <a class="cta" href="medlemskap.html">Bli medlem nu</a>
+        <a class="product-btn secondary" href="produkter.html">Läs mer</a>
+      </div>
     </div>
 
-    <h1>Exklusiva produkter. Lägre priser.</h1>
+    <div class="home-deal-teaser" data-home-deal-teaser aria-label="Veckans produkt"></div>
+  </section>
 
-    <p>
-      Premiumprodukter till lägre priser varje vecka.
-    </p>
-
-    <a class="cta" href="produkter.html">Visa produkter</a>
-
-    <div class="home-deal-teaser" data-home-deal-teaser aria-label="Veckans största rabatter"></div>
-  </div>
-</header>
-
-<section class="launch-benefits fade" data-guest-home>
-  <article>
-    <span>Exklusiva priser</span>
-    <small>Upp till 60% rabatt</small>
-  </article>
-  <article>
-    <span>Tidig tillgång</span>
-    <small>Till drops varje vecka</small>
-  </article>
-  <article>
-    <span>Fri frakt</span>
-    <small>På alla beställningar</small>
-  </article>
-  <article>
-    <span>Prioriterad support</span>
-    <small>Snabbare hjälp</small>
-  </article>
-</section>
-
-<section class="home-trending fade" data-guest-home>
-  <div class="section-heading-row">
-    <h2>Trending just nu</h2>
-    <a href="produkter.html">Visa alla</a>
-  </div>
-  <div class="home-trending-grid" data-home-trending></div>
-</section>
-
-<header class="hero member-hero fade" data-member-home hidden>
-  <div class="glow"></div>
-
-  <div class="hero-content">
-    <div class="badge">Aktiv medlem</div>
-
-    <h1 data-member-home-title>Välkommen tillbaka</h1>
-
-    <p>
-      Dina veckans priser är upplåsta. Handla veckans deals, samla poäng och föreslå nästa drop.
-    </p>
-
-    <a class="cta" href="produkter.html">Handla veckans deals</a>
-  </div>
-</header>
-
-<section class="section fade" id="produkter" data-guest-home>
-  <h2>Veckans drops, samlat på ett ställe</h2>
-  <p class="section-sub">
-    Varje vecka byter vi ut produkter och jagar in nya priser på det som efterfrågas mest.
-  </p>
-
-  <div class="concept-grid">
-    <article class="concept-card">
-      <span>Torsdag 12:00</span>
-      <h3>Nya deals varje vecka</h3>
-      <p>Veckans deals öppnas samtidigt varje torsdag.</p>
+  <section class="home-social-proof fade" aria-label="Medlemsaktivitet">
+    <div class="avatar-stack" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <p><strong>12 457</strong> medlemmar online</p>
+    <article>
+      <strong>127 produkter sålda denna vecka</strong>
+      <span class="mini-chart" aria-hidden="true"></span>
     </article>
+  </section>
 
-    <article class="concept-card">
-      <span>Produktförslag</span>
-      <h3>Sortimentet rör sig</h3>
-      <p>Vi fyller på med produkter som folk faktiskt vill ha billigare.</p>
+  <section class="launch-benefits fade">
+    <article>
+      <span>Exklusiva priser</span>
+      <small>Upp till 60% rabatt</small>
     </article>
-
-    <article class="concept-card">
-      <span>2 poäng / kr</span>
-      <h3>Varje köp räknas</h3>
-      <p>Byt poäng mot extra rabatt och låt dina förslag väga tyngre.</p>
+    <article>
+      <span>Tidig tillgång</span>
+      <small>Till drops varje vecka</small>
     </article>
-  </div>
-</section>
+    <article>
+      <span>Fri frakt</span>
+      <small>På alla beställningar</small>
+    </article>
+    <article>
+      <span>Prioriterad support</span>
+      <small>Snabbare hjälp</small>
+    </article>
+  </section>
 
-<section class="section member-shopping fade" data-member-home hidden>
-  <h2>Populärt bland kunder</h2>
-  <p class="section-sub">
-    Några produkter som får extra mycket uppmärksamhet just nu.
-  </p>
+  <section class="home-trending fade">
+    <div class="section-heading-row">
+      <h2>Trending just nu</h2>
+      <a href="produkter.html">Visa alla</a>
+    </div>
+    <div class="home-trending-grid" data-home-trending></div>
+  </section>
 
-  <div class="member-live-strip" data-member-products></div>
-  <a class="cta member-live-cta" href="produkter.html">Ta mig dit</a>
-</section>
+  <section class="home-steps fade">
+    <h2>Så funkar det</h2>
+    <div class="steps">
+      <article class="step">
+        <div class="step-number">1</div>
+        <h3>Bli medlem</h3>
+        <p>Skapa konto och välj medlemskap.</p>
+      </article>
+      <article class="step">
+        <div class="step-number">2</div>
+        <h3>Få tillgång</h3>
+        <p>Få exklusiva priser och tidig tillgång.</p>
+      </article>
+      <article class="step">
+        <div class="step-number">3</div>
+        <h3>Spara pengar</h3>
+        <p>Shoppa sneakers till medlemspriser.</p>
+      </article>
+    </div>
+  </section>
 
-<section class="section member-shopping fade" data-member-home hidden>
-  <h2>Påverka nästa drop</h2>
-  <p class="section-sub">
-    Saknar du något? Skicka ett produktförslag så tar vi med det inför nästa torsdagslansering.
-  </p>
-  <a class="cta" href="forslag.html">Föreslå produkt</a>
-</section>
+  <section class="home-upgrade fade">
+    <div>
+      <h2>Redo att ta din sneaker game till nästa nivå?</h2>
+      <a class="cta" href="medlemskap.html">Bli medlem idag</a>
+    </div>
+    <div class="membership-card-visual" aria-hidden="true">
+      <span>VERSEN</span>
+      <small>MEMBER CLUB</small>
+    </div>
+  </section>
+</main>
 
-<section class="final-cta fade" data-guest-home>
-  <h2>Redo för veckans drop?</h2>
-  <a class="cta" href="produkter.html">Visa produkter</a>
-</section>
-
-<script src="script.js?v=20260509-visual-products"></script>
+<script src="script.js?v=20260509-launch-rebuild"></script>
 </body>
 </html>

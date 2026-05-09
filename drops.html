@@ -7,18 +7,17 @@
 <meta name="color-scheme" content="light">
 <script>try{const p=localStorage.getItem("versenThemePreference")||"light";const d=p==="dark"||(p==="auto"&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.dataset.theme=d?"dark":"light";document.documentElement.dataset.themePreference=p;}catch(e){document.documentElement.dataset.theme="light";}</script>
 <script>try{if(Date.now()<1777500000000&&!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
-<title>Versen - Orderstatus</title>
+<title>Versen - Drops</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css?v=20260509-launch-rebuild">
 </head>
 
-<body class="auth-loading page-order">
-
+<body class="auth-loading page-drops">
 <nav class="nav launch-nav">
   <button class="nav-mobile-menu" type="button" aria-label="Meny"></button>
   <a class="logo" href="index.html">VERSEN</a>
   <div class="menu" aria-label="Huvudmeny">
-    <a href="drops.html">Drops</a>
+    <a class="active" href="drops.html">Drops</a>
     <a href="produkter.html">Shop</a>
     <a href="medlemskap.html">Medlemskap</a>
     <a href="faq.html">Om oss</a>
@@ -35,29 +34,31 @@
 <nav class="bottom-nav" aria-label="Mobilmeny">
   <a href="index.html" data-icon="home">Hem</a>
   <a href="produkter.html" data-icon="search">Shop</a>
-  <a href="drops.html" data-icon="drop">Drops</a>
+  <a class="active" href="drops.html" data-icon="drop">Drops</a>
   <a href="medlemskap.html" data-icon="club">Medlemskap</a>
   <a href="konto.html" data-icon="account">Konto</a>
 </nav>
 
-<main class="order-screen">
-  <header class="page-hero fade order-hero" data-order-confirmation>
-    <div class="glow"></div>
-    <div class="page-hero-content">
-      <div class="badge">Orderstatus</div>
-      <h1 data-order-title>Checkout är öppnad</h1>
-      <p data-order-copy>Slutför betalningen i checkoutfliken. När du kommer tillbaka hit visar vi din order hos Versen.</p>
+<main class="drops-screen">
+  <section class="drops-hero fade">
+    <div>
+      <span>Nästa drop</span>
+      <h1>Kommande drops</h1>
+      <p>Förhandsgranska nästa veckas produkter och var redo när medlemspriserna öppnar.</p>
+      <a class="cta" href="produkter.html">Förhandsgranska</a>
     </div>
-  </header>
+    <article>
+      <small>Jordan 3 Retro White Cement</small>
+      <strong data-drop-countdown>Räknar ner</strong>
+      <i></i>
+    </article>
+  </section>
 
-  <section class="section compact fade">
-    <div class="order-confirmation-panel" data-order-details>
-      <div class="order-success-card">
-        <span class="order-check"></span>
-        <strong>Tack för din order!</strong>
-        <p>När betalningen är klar visas ordern här om du är inloggad.</p>
-      </div>
-    </div>
+  <section class="drops-list fade">
+    <h2>Kommande drops</h2>
+    <article><span></span><div><strong>NOCCO Flak 24-pack</strong><small>16 maj 10:00</small></div></article>
+    <article><span></span><div><strong>Tershine Apex+ Schampo</strong><small>23 maj 10:00</small></div></article>
+    <article><span></span><div><strong>Body Science Whey 1kg</strong><small>30 maj 10:00</small></div></article>
   </section>
 </main>
 

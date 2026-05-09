@@ -9,32 +9,58 @@
 <script>try{if(Date.now()<1777500000000&&!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen - Konto</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260509-visual-products">
+<link rel="stylesheet" href="styles.css?v=20260509-launch-rebuild">
 </head>
 
-<body class="auth-loading">
+<body class="auth-loading page-account">
 
-<nav class="nav">
+<nav class="nav launch-nav">
+  <button class="nav-mobile-menu" type="button" aria-label="Meny"></button>
   <a class="logo" href="index.html">VERSEN</a>
-
   <div class="menu" aria-label="Huvudmeny">
-    <a href="index.html">Hem</a>
-    <a href="produkter.html">Produkter</a>
-
-    <a class="active" href="konto.html">Konto</a>
-    <a href="kundkorg.html">Kundkorg <span data-cart-count></span></a>
+    <a href="drops.html">Drops</a>
+    <a href="produkter.html">Shop</a>
+    <a href="medlemskap.html">Medlemskap</a>
+    <a href="faq.html">Om oss</a>
+  </div>
+  <div class="nav-actions" aria-label="Snabbval">
+    <a class="nav-icon nav-search" href="produkter.html" aria-label="Sök"></a>
+    <a class="nav-icon nav-account active" href="konto.html" aria-label="Konto"></a>
+    <a class="nav-icon nav-wishlist" href="produkter.html" aria-label="Favoriter"></a>
+    <a class="nav-icon nav-cart" href="kundkorg.html" aria-label="Kundkorg"><span data-cart-count></span></a>
+    <a class="nav-member-cta" href="medlemskap.html">Bli medlem</a>
   </div>
 </nav>
 
-<main>
+<nav class="bottom-nav" aria-label="Mobilmeny">
+  <a href="index.html" data-icon="home">Hem</a>
+  <a href="produkter.html" data-icon="search">Shop</a>
+  <a href="drops.html" data-icon="drop">Drops</a>
+  <a href="medlemskap.html" data-icon="club">Medlemskap</a>
+  <a class="active" href="konto.html" data-icon="account">Konto</a>
+</nav>
+
+<main class="account-dashboard-shell">
   <header class="page-hero fade">
     <div class="glow"></div>
     <div class="page-hero-content">
       <div class="badge">Mitt konto</div>
-      <h1 data-account-hero-title>Skapa konto eller logga in</h1>
+      <h1 data-account-hero-title>Mitt konto</h1>
       <p data-account-hero-copy>Logga in för att se orderhistorik och spara dina uppgifter.</p>
     </div>
   </header>
+
+  <div class="dashboard-layout">
+    <aside class="dashboard-sidebar" aria-label="Kontomeny">
+      <a class="active" href="konto.html">Översikt</a>
+      <a href="order.html">Mina beställningar</a>
+      <a href="produkter.html">Sparade favoriter</a>
+      <a href="konto.html">Adressbok</a>
+      <a href="konto.html">Betalningsmetoder</a>
+      <a href="installningar.html">Inställningar</a>
+      <button class="account-link" type="button" data-logout-button hidden>Logga ut</button>
+    </aside>
+    <div class="dashboard-main">
 
   <section class="account-flow fade" aria-label="Kontoflöde" data-account-flow>
     <div class="flow-step active">
@@ -53,21 +79,21 @@
 
   <section class="account-grid fade" aria-label="Kontoinnehåll" data-account-area>
     <article class="account-card account-overview" data-auth-card hidden>
-      <div class="status-pill is-active">Inloggad</div>
+      <div class="status-pill is-active">Gold member</div>
       <h2 data-account-greeting>Hej</h2>
       <p data-account-summary>Här ser du rabatter, ordrar och senaste aktivitet.</p>
 
       <div class="account-metrics">
         <div class="account-metric">
-          <span>Medlemskap</span>
+          <span>Sparat totalt</span>
           <strong data-dashboard-membership>Kontrollerar</strong>
         </div>
         <div class="account-metric">
-          <span>Rabatter</span>
+          <span>Beställningar</span>
           <strong data-dashboard-discount>Låsta</strong>
         </div>
         <div class="account-metric">
-          <span>Nästa förnyelse</span>
+          <span>Medlemskap</span>
           <strong data-dashboard-renewal>Ej aktivt</strong>
         </div>
         <div class="account-metric">
@@ -139,8 +165,10 @@
       </div>
     </article>
   </section>
+    </div>
+  </div>
 </main>
 
-<script src="script.js?v=20260509-visual-products"></script>
+<script src="script.js?v=20260509-launch-rebuild"></script>
 </body>
 </html>

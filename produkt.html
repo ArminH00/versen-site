@@ -9,21 +9,35 @@
 <script>try{if(Date.now()<1777500000000&&!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen - Produkt</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260509-visual-products">
+<link rel="stylesheet" href="styles.css?v=20260509-launch-rebuild">
 </head>
 
 <body class="auth-loading page-product-detail">
 
-<nav class="nav">
+<nav class="nav launch-nav">
+  <button class="nav-mobile-menu" type="button" aria-label="Tillbaka"></button>
   <a class="logo" href="index.html">VERSEN</a>
-
   <div class="menu" aria-label="Huvudmeny">
-    <a href="index.html">Hem</a>
-    <a class="active" href="produkter.html">Produkter</a>
-
-    <a href="konto.html">Konto</a>
-    <a href="kundkorg.html">Kundkorg <span data-cart-count></span></a>
+    <a href="drops.html">Drops</a>
+    <a class="active" href="produkter.html">Shop</a>
+    <a href="medlemskap.html">Medlemskap</a>
+    <a href="faq.html">Om oss</a>
   </div>
+  <div class="nav-actions" aria-label="Snabbval">
+    <a class="nav-icon nav-search" href="produkter.html" aria-label="Sök"></a>
+    <a class="nav-icon nav-account" href="konto.html" aria-label="Konto"></a>
+    <a class="nav-icon nav-wishlist" href="produkter.html" aria-label="Favoriter"></a>
+    <a class="nav-icon nav-cart" href="kundkorg.html" aria-label="Kundkorg"><span data-cart-count></span></a>
+    <a class="nav-member-cta" href="medlemskap.html">Bli medlem</a>
+  </div>
+</nav>
+
+<nav class="bottom-nav" aria-label="Mobilmeny">
+  <a href="index.html" data-icon="home">Hem</a>
+  <a class="active" href="produkter.html" data-icon="search">Shop</a>
+  <a href="drops.html" data-icon="drop">Drops</a>
+  <a href="medlemskap.html" data-icon="club">Medlemskap</a>
+  <a href="konto.html" data-icon="account">Konto</a>
 </nav>
 
 <main class="product-detail-page">
@@ -39,8 +53,17 @@
         <span class="new" data-product-price>189 kr</span>
       </div>
       <div class="detail-saving" data-product-saving></div>
+      <div class="product-progress detail-progress" data-product-progress>
+        <span style="width:73%"></span>
+        <small>73% sålt</small>
+      </div>
 
       <div class="variant-picker" data-variant-picker hidden></div>
+      <div class="detail-size-row">
+        <span>Storlek</span>
+        <button class="detail-size-button" type="button">EU 42</button>
+      </div>
+      <div class="detail-urgency" data-product-urgency>Endast 14 kvar i denna storlek</div>
 
       <div class="quantity-control" aria-label="Välj antal">
         <button type="button" data-quantity-minus>-</button>
@@ -85,6 +108,6 @@
   </section>
 </main>
 
-<script src="script.js?v=20260509-visual-products"></script>
+<script src="script.js?v=20260509-launch-rebuild"></script>
 </body>
 </html>
