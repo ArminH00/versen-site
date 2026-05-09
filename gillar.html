@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f7f7f4">
+<meta name="color-scheme" content="light">
+<script>try{const p=localStorage.getItem("versenThemePreference")||"light";const d=p==="dark"||(p==="auto"&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.dataset.theme=d?"dark":"light";document.documentElement.dataset.themePreference=p;}catch(e){document.documentElement.dataset.theme="light";}</script>
+<script>try{if(Date.now()<1777500000000&&!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
+<title>Versen - Gillade</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=20260509-request-polish">
+</head>
+
+<body class="auth-loading page-liked">
+
+<nav class="nav launch-nav">
+  <button class="nav-mobile-menu" type="button" aria-label="Tillbaka"></button>
+  <a class="logo" href="index.html">VERSEN</a>
+  <div class="menu" aria-label="Huvudmeny">
+    <a href="produkter.html">Shop</a>
+    <a href="medlemskap.html">Medlemskap</a>
+    <a href="faq.html">Om oss</a>
+  </div>
+  <div class="nav-actions" aria-label="Snabbval">
+    <a class="nav-icon nav-account" href="konto.html" aria-label="Konto"></a>
+    <a class="nav-icon nav-wishlist active" href="gillar.html" aria-label="Gillade"></a>
+    <a class="nav-icon nav-cart" href="kundkorg.html" aria-label="Kundkorg"><span data-cart-count></span></a>
+    <a class="nav-member-cta" href="medlemskap.html">Bli medlem</a>
+  </div>
+</nav>
+
+<nav class="bottom-nav" aria-label="Mobilmeny">
+  <a href="index.html" data-icon="home">Hem</a>
+  <a href="produkter.html" data-icon="search">Shop</a>
+  <a href="medlemskap.html" data-icon="club">Medlemskap</a>
+  <a href="konto.html" data-icon="account">Konto</a>
+</nav>
+
+<main class="liked-shell">
+  <header class="page-hero fade">
+    <div class="page-hero-content">
+      <div class="badge">Gillade</div>
+      <h1>Dina gillade produkter</h1>
+      <p>Allt du sparar med hjärtat hamnar här.</p>
+    </div>
+  </header>
+
+  <section class="liked-warning" data-liked-guest-warning hidden>
+    <strong>! Logga in för att spara dina gillade</strong>
+    <button class="product-btn" type="button" data-liked-login-open>Logga in</button>
+  </section>
+
+  <section class="product-grid liked-grid" data-liked-grid>
+    <div class="empty-state">
+      <span>Inget sparat än</span>
+      <p>Tryck på hjärtat på en produkt för att lägga den här.</p>
+    </div>
+  </section>
+</main>
+
+<div class="liked-auth-modal" data-liked-auth-modal hidden>
+  <div class="liked-auth-backdrop" data-liked-auth-close></div>
+  <section class="account-card login-card liked-auth-card">
+    <button class="liked-auth-close" type="button" data-liked-auth-close>Stäng</button>
+    <div data-liked-login-panel>
+      <h2>Logga in</h2>
+      <p>Dina gillade kopplas till kontot direkt efter inloggning.</p>
+      <form class="member-form" data-liked-login-form>
+        <input type="email" name="email" placeholder="Email" autocomplete="email" required>
+        <input type="password" name="password" placeholder="Lösenord" autocomplete="current-password" required>
+        <button class="product-btn" type="submit">Logga in</button>
+      </form>
+      <button class="account-switch-button" type="button" data-liked-show-create>Skapa konto</button>
+      <p class="form-message" data-liked-login-message></p>
+    </div>
+    <div data-liked-create-panel hidden>
+      <h2>Skapa konto</h2>
+      <p>Verifiera email och välj lösenord, så sparas dina gillade på kontot.</p>
+      <form class="member-form" data-liked-verification-form>
+        <input type="text" name="firstName" placeholder="Förnamn" autocomplete="given-name">
+        <input type="text" name="lastName" placeholder="Efternamn" autocomplete="family-name">
+        <input type="email" name="email" placeholder="Email" autocomplete="email" required>
+        <button class="product-btn" type="submit">Skicka verifieringsmail</button>
+      </form>
+      <button class="account-switch-button" type="button" data-liked-show-login>Har du konto? Logga in</button>
+      <p class="form-message" data-liked-register-message></p>
+    </div>
+  </section>
+</div>
+
+<script src="script.js?v=20260509-request-polish"></script>
+</body>
+</html>

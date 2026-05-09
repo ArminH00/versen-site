@@ -636,14 +636,41 @@ async function saveCustomerPreferences(req, res, body) {
     return;
   }
 
-  const theme = ['auto', 'light', 'dark'].includes(body.theme) ? body.theme : 'auto';
+  const existingPreferences = session.customer.preferences && typeof session.customer.preferences === 'object'
+    ? session.customer.preferences
+    : {};
+  const nextPreferences = { ...existingPreferences };
+
+  if (body.theme !== undefined) {
+    nextPreferences.theme = ['auto', 'light', 'dark'].includes(body.theme) ? body.theme : 'auto';
+  }
+
+  if (Array.isArray(body.favorites)) {
+    nextPreferences.favorites = body.favorites
+      .filter((item) => item && item.handle)
+      .slice(0, 120)
+      .map((item) => ({
+        handle: clean(item.handle, 160),
+        title: clean(item.title, 240),
+        category: clean(item.category, 120),
+        price: clean(item.price, 80),
+        compareAtPrice: clean(item.compareAtPrice, 80),
+        image: item.image && item.image.url
+          ? {
+            url: clean(item.image.url, 1000),
+            altText: clean(item.image.altText, 240),
+          }
+          : null,
+      }));
+  }
+
   const result = await adminFetch(METAFIELDS_SET_MUTATION, {
     metafields: [{
       ownerId: session.customer.id,
       namespace: 'versen',
       key: 'preferences',
       type: 'json',
-      value: JSON.stringify({ theme }),
+      value: JSON.stringify(nextPreferences),
     }],
   });
 

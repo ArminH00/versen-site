@@ -6,6 +6,7 @@ const MEMBERSHIP_REVEAL_KEY = 'versenMembershipRevealSeen';
 const LAUNCH_GATE_KEY = 'versenLaunchAccess';
 const POINTS_INTRO_KEY = 'versenPointsIntroSeen';
 const THEME_KEY = 'versenThemePreference';
+const LIKED_KEY = 'versenLikedProducts';
 const LAUNCH_OPEN_AT = new Date('2026-04-30T00:00:00+02:00').getTime();
 const LAUNCH_GATE_CODE = '6363';
 let accountSession = null;
@@ -20,6 +21,7 @@ const activeNavLink = document.querySelector('.menu a.active');
 const isLaunchPage = window.location.pathname.endsWith('/snart.html') || window.location.pathname.endsWith('snart.html');
 let catalogProducts = [];
 let selectedCatalogCategory = null;
+let likedSyncTimer = null;
 
 function getThemePreference() {
   const saved = localStorage.getItem(THEME_KEY);
@@ -80,6 +82,16 @@ if ('scrollRestoration' in history) {
 if (activeNavLink) {
   activeNavLink.scrollIntoView({ block: 'nearest', inline: 'center' });
 }
+
+document.querySelectorAll('.nav-mobile-menu[aria-label="Tillbaka"], [data-back-button]').forEach((button) => {
+  button.addEventListener('click', () => {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.location.href = 'produkter.html';
+    }
+  });
+});
 
 const observer = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
@@ -210,6 +222,100 @@ function updateCartCount() {
   document.querySelectorAll('[data-cart-count]').forEach((element) => {
     element.textContent = count ? String(count) : '';
   });
+}
+
+function readLikedProducts() {
+  try {
+    const liked = JSON.parse(localStorage.getItem(LIKED_KEY) || '[]');
+    return Array.isArray(liked) ? liked.filter((item) => item && item.handle) : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function writeLikedProducts(products) {
+  const unique = [];
+  const seen = new Set();
+
+  products.forEach((product) => {
+    if (!product || !product.handle || seen.has(product.handle)) return;
+    seen.add(product.handle);
+    unique.push(product);
+  });
+
+  localStorage.setItem(LIKED_KEY, JSON.stringify(unique));
+  updateWishlistButtons();
+  renderLikedPage();
+  queueLikedSync();
+}
+
+function isProductLiked(handle) {
+  return readLikedProducts().some((product) => product.handle === handle);
+}
+
+function productFromDataset(dataset) {
+  return {
+    handle: dataset.productHandle || dataset.cartHandle || '',
+    title: dataset.productTitle || dataset.cartTitle || '',
+    category: dataset.category || dataset.cartCategory || '',
+    price: dataset.productPrice || dataset.cartPrice || '',
+    compareAtPrice: dataset.productCompareAtPrice || dataset.cartCompareAtPrice || '',
+    image: dataset.productImageUrl || dataset.cartImageUrl
+      ? {
+        url: dataset.productImageUrl || dataset.cartImageUrl,
+        altText: dataset.productImageAlt || dataset.cartImageAlt || dataset.productTitle || dataset.cartTitle || '',
+      }
+      : null,
+  };
+}
+
+function toggleLikedProduct(product) {
+  if (!product || !product.handle) return;
+
+  const liked = readLikedProducts();
+  const exists = liked.some((item) => item.handle === product.handle);
+  writeLikedProducts(exists
+    ? liked.filter((item) => item.handle !== product.handle)
+    : [product, ...liked]);
+}
+
+function updateWishlistButtons() {
+  const liked = new Set(readLikedProducts().map((product) => product.handle));
+
+  document.querySelectorAll('[data-wishlist-toggle]').forEach((button) => {
+    const handle = button.dataset.wishlistToggle;
+    const active = liked.has(handle);
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-pressed', active ? 'true' : 'false');
+    button.setAttribute('aria-label', active ? 'Ta bort från gillade' : 'Lägg till i gillade');
+  });
+}
+
+function mergeProfileLikes(session = accountSession) {
+  const profileLikes = session
+    && session.authenticated
+    && session.customer
+    && session.customer.preferences
+    && Array.isArray(session.customer.preferences.favorites)
+    ? session.customer.preferences.favorites
+    : [];
+
+  if (!profileLikes.length) {
+    return;
+  }
+
+  writeLikedProducts([...readLikedProducts(), ...profileLikes]);
+}
+
+function queueLikedSync() {
+  if (!accountSession || !accountSession.authenticated) return;
+  window.clearTimeout(likedSyncTimer);
+  likedSyncTimer = window.setTimeout(() => {
+    postJson('/api/account', {
+      action: 'save_preferences',
+      favorites: readLikedProducts(),
+    }).catch(() => {});
+  }, 400);
 }
 
 function isActiveMember(session = accountSession) {
@@ -522,15 +628,16 @@ function productCard(product) {
   const flags = product.flags || {};
   const discount = productDiscountAmount(product);
   const discountPercent = productDiscountPercent(product);
-  const sellThrough = stableNumber(product.handle || product.title, 58, 84);
   const badges = [
-    flags.greatPrice || discountPercent >= 25 ? '<span class="great-price">Populär</span>' : '',
-    flags.fewLeft ? '<span class="few-left">Nyhet</span>' : '',
+    flags.greatPrice || discountPercent >= 18 ? '<span class="great-price">Grymt pris</span>' : '',
+    flags.fewLeft ? '<span class="few-left">Få kvar</span>' : '',
   ].filter(Boolean).join('');
+  const liked = isProductLiked(product.handle);
 
   return `
     <article class="product-card ${flags.greatPrice ? 'has-great-price' : ''} ${flags.fewLeft ? 'has-few-left' : ''}" role="link" tabindex="0" data-product-url="${escapeHtml(productUrl)}" data-category="${escapeHtml(product.category)}" data-product-handle="${escapeHtml(product.handle)}" data-variant-id="${escapeHtml(product.variantId || '')}" data-product-title="${escapeHtml(product.title)}" data-product-price="${escapeHtml(memberPrice)}" data-product-compare-at-price="${escapeHtml(compareAtPrice)}" data-product-image-url="${escapeHtml(product.image && product.image.url ? product.image.url : '')}" data-product-image-alt="${escapeHtml(product.image && product.image.altText ? product.image.altText : product.title)}">
       <div class="product-image">${image}</div>
+      <button class="product-wishlist-button ${liked ? 'active' : ''}" type="button" data-wishlist-toggle="${escapeHtml(product.handle)}" aria-pressed="${liked ? 'true' : 'false'}" aria-label="${liked ? 'Ta bort från gillade' : 'Lägg till i gillade'}"></button>
       <div class="product-info">
         ${badges ? `<div class="product-badges">${badges}</div>` : ''}
         <div class="product-card-meta">
@@ -543,10 +650,6 @@ function productCard(product) {
           <span class="new">${escapeHtml(memberPrice)}</span>
         </div>
         ${discount ? `<div class="product-saving">Du sparar ${escapeHtml(formatSek(discount))}${discountPercent ? ` (${discountPercent}%)` : ''}</div>` : ''}
-        <div class="product-progress" aria-label="${sellThrough}% sålt">
-          <span style="width:${sellThrough}%"></span>
-          <small>${sellThrough}% sålt</small>
-        </div>
         <div class="product-actions">
           <a class="product-btn secondary" href="${escapeHtml(productUrl)}">Detaljer</a>
           <button class="product-btn" type="button" data-catalog-add>Lägg i kundkorg</button>
@@ -609,29 +712,41 @@ function topDiscountProducts(products, count = 4) {
     .slice(0, count);
 }
 
-function homeDealTeaserCard(product) {
-  const productUrl = `produkt.html?handle=${encodeURIComponent(product.handle)}`;
-  const discount = productDiscountPercent(product);
-  const saveAmount = productDiscountAmount(product);
-  const sellThrough = stableNumber(product.handle || product.title, 58, 84);
+function homeDealTeaserCard(products) {
+  const picks = products.slice(0, 3);
+  const primary = picks[0];
+
+  if (!primary) {
+    return '';
+  }
 
   return `
-    <a class="home-featured-product" href="${escapeHtml(productUrl)}" aria-label="${escapeHtml(product.title)}">
-      <span class="home-featured-badge">${discount ? `-${discount}%` : 'Veckans val'}</span>
-      <span class="home-featured-image">
-        <img src="${escapeHtml(product.image.url)}" alt="${escapeHtml(product.image.altText || product.title)}">
-      </span>
-      <span class="home-featured-panel">
-        <small>${escapeHtml(product.vendor || product.category || 'Versen')}</small>
-        <strong>${escapeHtml(product.title)}</strong>
-        <span class="home-featured-prices">
-          <em>${escapeHtml(product.price || 'Medlemspris')}</em>
-          ${product.compareAtPrice ? `<del>${escapeHtml(product.compareAtPrice)}</del>` : ''}
-        </span>
-        ${saveAmount ? `<span class="home-featured-saving">Du sparar ${escapeHtml(formatSek(saveAmount))}${discount ? ` (${discount}%)` : ''}</span>` : ''}
-        <span class="home-featured-progress"><i style="width:${sellThrough}%"></i><b>${sellThrough}% sålt</b></span>
-      </span>
-    </a>
+    <div class="home-featured-product" aria-label="Veckans utvalda produkter">
+      <div class="home-featured-stack">
+        ${picks.map((product, index) => {
+          const discount = productDiscountPercent(product);
+          const productUrl = `produkt.html?handle=${encodeURIComponent(product.handle)}`;
+
+          return `
+            <a class="home-featured-item item-${index + 1}" href="${escapeHtml(productUrl)}" aria-label="${escapeHtml(product.title)}">
+              <span class="home-featured-badge">${discount ? `-${discount}%` : 'Deal'}</span>
+              <span class="home-featured-image">
+                <img src="${escapeHtml(product.image.url)}" alt="${escapeHtml(product.image.altText || product.title)}">
+              </span>
+              <span class="home-featured-panel">
+                <small>${escapeHtml(product.vendor || product.category || 'Versen')}</small>
+                <strong>${escapeHtml(product.title)}</strong>
+                <span class="home-featured-prices">
+                  <em>${escapeHtml(product.price || 'Medlemspris')}</em>
+                  ${product.compareAtPrice ? `<del>${escapeHtml(product.compareAtPrice)}</del>` : ''}
+                </span>
+                ${productDiscountAmount(product) ? `<span class="home-featured-saving">Du sparar ${escapeHtml(formatSek(productDiscountAmount(product)))}</span>` : ''}
+              </span>
+            </a>
+          `;
+        }).join('')}
+      </div>
+    </div>
   `;
 }
 
@@ -662,7 +777,7 @@ function renderHomeDealTeaser(products) {
   const deals = topDiscountProducts(products, 8);
 
   if (teaser && deals.length) {
-    teaser.innerHTML = homeDealTeaserCard(pickRandomProducts(deals, 1)[0]);
+    teaser.innerHTML = homeDealTeaserCard(pickRandomProducts(deals, 3));
   }
 
   if (trending) {
@@ -671,18 +786,44 @@ function renderHomeDealTeaser(products) {
   }
 }
 
+function productMatchesCategory(product, category) {
+  if (!category || category === 'Alla') return true;
+
+  const values = [
+    product.category,
+    product.vendor,
+    product.productType,
+    ...(Array.isArray(product.tags) ? product.tags : []),
+  ].map((value) => String(value || '').toLowerCase());
+  const target = String(category).toLowerCase();
+
+  if (values.some((value) => value === target || value.includes(target))) {
+    return true;
+  }
+
+  if (target === 'bilvård') {
+    return values.some((value) => ['tershine', 'gyeon', 'bilvard', 'car care'].some((needle) => value.includes(needle)));
+  }
+
+  if (target === 'träning & hälsa') {
+    return values.some((value) => ['träning', 'halsa', 'hälsa', 'training', 'nocco', 'barebells', 'body science', 'protein'].some((needle) => value.includes(needle)));
+  }
+
+  return false;
+}
+
 function renderCategoryLaunch(products) {
   document.querySelectorAll('[data-category-count]').forEach((element) => {
     const count = element.dataset.categoryCount === 'Alla'
       ? products.length
-      : products.filter((product) => product.category === element.dataset.categoryCount || product.vendor === element.dataset.categoryCount).length;
+      : products.filter((product) => productMatchesCategory(product, element.dataset.categoryCount)).length;
     element.textContent = count ? `${count} produkter denna vecka` : 'Fylls på snart';
   });
 
   document.querySelectorAll('[data-category-images]').forEach((element) => {
     const images = products
       .filter((product) => (
-        (element.dataset.categoryImages === 'Alla' || product.category === element.dataset.categoryImages || product.vendor === element.dataset.categoryImages)
+        productMatchesCategory(product, element.dataset.categoryImages)
         && product.image
         && product.image.url
       ))
@@ -703,7 +844,7 @@ function renderCatalogProducts(category) {
 
   const products = sortCatalogProducts(
     category && category !== 'Alla'
-      ? catalogProducts.filter((product) => product.category === category || product.vendor === category)
+      ? catalogProducts.filter((product) => productMatchesCategory(product, category))
       : catalogProducts
   );
 
@@ -827,9 +968,22 @@ function prepareProductCardLinks(root = document) {
       card.tabIndex = 0;
     }
   });
+  updateWishlistButtons();
 }
 
 document.addEventListener('click', (event) => {
+  const wishlistButton = event.target.closest('[data-wishlist-toggle]');
+
+  if (wishlistButton) {
+    event.preventDefault();
+    event.stopPropagation();
+    const source = wishlistButton.closest('[data-product-handle], [data-product-detail]');
+    if (source) {
+      toggleLikedProduct(productFromDataset(source.dataset));
+    }
+    return;
+  }
+
   const card = event.target.closest('.product-card');
 
   if (!card || event.target.closest('a, button, input, select, textarea')) {
@@ -892,7 +1046,7 @@ async function loadProducts() {
     renderCategoryLaunch(visibleProducts);
 
     const categoryFromUrl = new URLSearchParams(window.location.search).get('kategori');
-    const initialCategory = categoryFromUrl || selectedCatalogCategory || 'Alla';
+    const initialCategory = categoryFromUrl || selectedCatalogCategory || 'Bilvård';
 
     selectCatalogCategory(initialCategory, { scroll: false });
   } catch (error) {
@@ -902,6 +1056,64 @@ async function loadProducts() {
 
 prepareProductCardLinks();
 loadProducts();
+
+function renderLikedPage() {
+  const grid = document.querySelector('[data-liked-grid]');
+  const warning = document.querySelector('[data-liked-guest-warning]');
+
+  if (!grid) {
+    return;
+  }
+
+  const liked = readLikedProducts();
+
+  if (warning) {
+    warning.hidden = Boolean(accountSession && accountSession.authenticated);
+  }
+
+  if (!liked.length) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <span>Inget sparat än</span>
+        <p>Tryck på hjärtat på en produkt för att lägga den här.</p>
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = liked.map((product) => productCard({
+    ...product,
+    vendor: product.vendor || product.category || 'Versen',
+    variantId: product.variantId || '',
+    flags: product.flags || {},
+  })).join('');
+  prepareProductCardLinks(grid);
+}
+
+async function hydrateLikedFromCatalog() {
+  if (!document.querySelector('[data-liked-grid]')) {
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/products');
+    if (!response.ok) return;
+    const data = await response.json();
+    const products = (data.products || []).filter((product) => product.handle !== 'medlemskap');
+    catalogProducts = products;
+    const likedHandles = new Set(readLikedProducts().map((product) => product.handle));
+    const hydrated = products.filter((product) => likedHandles.has(product.handle));
+    if (hydrated.length) {
+      writeLikedProducts([...hydrated, ...readLikedProducts()]);
+    } else {
+      renderLikedPage();
+    }
+  } catch (error) {
+    renderLikedPage();
+  }
+}
+
+hydrateLikedFromCatalog();
 
 async function loadMemberHomeProducts() {
   const grid = document.querySelector('[data-member-products]');
@@ -1269,12 +1481,6 @@ function updateProductVariant(product, variant) {
     savingElement.hidden = savingAmount <= 0;
   }
 
-  const detailProgress = document.querySelector('[data-product-progress]');
-  if (detailProgress) {
-    const sellThrough = stableNumber(detail.dataset.cartHandle || product.title || '', 58, 84);
-    detailProgress.innerHTML = `<span style="width:${sellThrough}%"></span><small>${sellThrough}% sålt</small>`;
-  }
-
   const urgency = document.querySelector('[data-product-urgency]');
   if (urgency) {
     const left = stableNumber(detail.dataset.cartHandle || product.title || '', 9, 18);
@@ -1283,7 +1489,19 @@ function updateProductVariant(product, variant) {
 
   const imageElement = document.querySelector('[data-product-image]');
   if (imageElement && image && image.url) {
-    imageElement.innerHTML = `<img src="${escapeHtml(image.url)}" alt="${escapeHtml(image.altText || product.title)}">`;
+    const current = imageElement.querySelector('img');
+
+    if (current && current.getAttribute('src') === image.url) {
+      return;
+    }
+
+    const next = new Image();
+    next.onload = () => {
+      imageElement.innerHTML = '';
+      imageElement.appendChild(next);
+    };
+    next.alt = image.altText || product.title || '';
+    next.src = image.url;
   }
 }
 
@@ -1795,9 +2013,10 @@ function updateMemberStatus(session = accountSession) {
     if (authCard) authCard.hidden = true;
     if (statusCard) statusCard.hidden = true;
     if (ordersCard) ordersCard.hidden = true;
-    if (accountFlow) accountFlow.hidden = Boolean(resetToken);
-    if (loginCard) loginCard.hidden = accountNext === 'membership' || Boolean(verificationToken) || Boolean(resetToken);
-    if (createCard) createCard.hidden = Boolean(resetToken);
+    if (accountFlow) accountFlow.hidden = true;
+    if (!verificationToken && !resetToken) {
+      showAccountAuthMode(accountAuthMode);
+    }
     if (resetCard) resetCard.hidden = !resetToken;
     if (email) email.textContent = 'Logga in för att se kontot.';
     if (logoutButton) logoutButton.hidden = true;
@@ -1831,7 +2050,7 @@ function updateMemberStatus(session = accountSession) {
     memberNote.textContent = hasMemberDiscount
       ? (membership.cancellationRequested
         ? `Medlemskapet är avslutat men aktivt till ${nextDate || 'sista perioden'}.`
-        : `Checkoutstatus är aktiv. ${nextDate ? `Nästa förnyelse är ${nextDate}.` : 'Den används automatiskt i checkout.'}`)
+        : `Ditt medlemskap är aktivt.${nextDate ? ` Nästa förnyelse ${nextDate}.` : ''}`)
       : 'Kontot är redo. Checkoutstatus visas när du går vidare från kundkorgen.';
   }
   if (dashboardMembership) dashboardMembership.textContent = hasMemberDiscount
@@ -1934,7 +2153,9 @@ function renderSettingsPage(session = accountSession) {
 }
 
 function completeAccountIntent() {
-  if (isActiveMember()) {
+  if (accountNext === 'liked') {
+    window.location.href = 'gillar.html';
+  } else if (isActiveMember()) {
     window.location.href = 'index.html';
   } else if (accountNext === 'membership' || verificationToken) {
     window.location.href = 'medlemskap.html?ready=1';
@@ -1947,12 +2168,15 @@ async function refreshAccount() {
   try {
     const response = await fetch('/api/account', { credentials: 'same-origin' });
     accountSession = await response.json();
+    mergeProfileLikes(accountSession);
     updateMemberStatus(accountSession);
+    renderLikedPage();
     renderOrderPage(accountSession);
     renderMembershipActivation(accountSession);
   } catch (error) {
     accountSession = { authenticated: false };
     updateMemberStatus(accountSession);
+    renderLikedPage();
     renderOrderPage(accountSession);
     renderMembershipActivation(accountSession);
   } finally {
@@ -2061,6 +2285,7 @@ if (loginForm) {
 
       accountSession = data;
       updateMemberStatus(accountSession);
+      queueLikedSync();
       if (message) message.textContent = 'Du är inloggad.';
       completeAccountIntent();
     } catch (error) {
@@ -2075,6 +2300,26 @@ const resetForm = document.querySelector('[data-reset-form]');
 const loginCard = document.querySelector('[data-login-card]');
 const createCard = document.querySelector('[data-create-card]');
 const resetCard = document.querySelector('[data-reset-card]');
+let accountAuthMode = 'create';
+
+function showAccountAuthMode(mode = 'create') {
+  accountAuthMode = mode === 'login' ? 'login' : 'create';
+
+  if (createCard && !verificationToken && !resetToken) {
+    createCard.hidden = accountAuthMode !== 'create';
+  }
+
+  if (loginCard && !resetToken) {
+    loginCard.hidden = accountAuthMode !== 'login';
+  }
+}
+
+document.querySelector('[data-show-login]')?.addEventListener('click', () => showAccountAuthMode('login'));
+document.querySelector('[data-show-create]')?.addEventListener('click', () => showAccountAuthMode('create'));
+
+if (!verificationToken && !resetToken) {
+  showAccountAuthMode(accountNext === 'membership' ? 'create' : 'create');
+}
 
 function setAccountFlowStep(activeStep) {
   document.querySelectorAll('[data-account-flow] .flow-step').forEach((step, index) => {
@@ -2171,6 +2416,7 @@ if (registerForm) {
 
       accountSession = data;
       updateMemberStatus(accountSession);
+      queueLikedSync();
       if (message) message.textContent = 'Kontot är skapat och du är inloggad.';
       completeAccountIntent();
     } catch (error) {
@@ -2204,6 +2450,91 @@ if (resetForm) {
       updateMemberStatus(accountSession);
       if (message) message.textContent = 'Lösenordet är uppdaterat och du är inloggad.';
       completeAccountIntent();
+    } catch (error) {
+      if (message) message.textContent = 'Kunde inte kontakta servern.';
+    }
+  });
+}
+
+const likedAuthModal = document.querySelector('[data-liked-auth-modal]');
+
+function setLikedAuthMode(mode = 'login') {
+  const loginPanel = document.querySelector('[data-liked-login-panel]');
+  const createPanel = document.querySelector('[data-liked-create-panel]');
+  if (loginPanel) loginPanel.hidden = mode !== 'login';
+  if (createPanel) createPanel.hidden = mode !== 'create';
+}
+
+document.querySelector('[data-liked-login-open]')?.addEventListener('click', () => {
+  setLikedAuthMode('login');
+  if (likedAuthModal) likedAuthModal.hidden = false;
+});
+
+document.querySelectorAll('[data-liked-auth-close]').forEach((button) => {
+  button.addEventListener('click', () => {
+    if (likedAuthModal) likedAuthModal.hidden = true;
+  });
+});
+
+document.querySelector('[data-liked-show-create]')?.addEventListener('click', () => setLikedAuthMode('create'));
+document.querySelector('[data-liked-show-login]')?.addEventListener('click', () => setLikedAuthMode('login'));
+
+const likedLoginForm = document.querySelector('[data-liked-login-form]');
+
+if (likedLoginForm) {
+  likedLoginForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const message = document.querySelector('[data-liked-login-message]');
+    const formData = new FormData(likedLoginForm);
+    if (message) message.textContent = 'Loggar in...';
+
+    try {
+      const { response, data } = await postJson('/api/account', {
+        action: 'login',
+        email: formData.get('email'),
+        password: formData.get('password'),
+      });
+
+      if (!response.ok) {
+        if (message) message.textContent = data.error || 'Kunde inte logga in.';
+        return;
+      }
+
+      accountSession = data;
+      updateMemberStatus(accountSession);
+      queueLikedSync();
+      renderLikedPage();
+      if (likedAuthModal) likedAuthModal.hidden = true;
+    } catch (error) {
+      if (message) message.textContent = 'Kunde inte kontakta servern.';
+    }
+  });
+}
+
+const likedVerificationForm = document.querySelector('[data-liked-verification-form]');
+
+if (likedVerificationForm) {
+  likedVerificationForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const message = document.querySelector('[data-liked-register-message]');
+    const formData = new FormData(likedVerificationForm);
+    if (message) message.textContent = 'Skickar verifieringsmail...';
+
+    try {
+      const { response, data } = await postJson('/api/account', {
+        action: 'start_verification',
+        firstName: formData.get('firstName'),
+        lastName: formData.get('lastName'),
+        email: formData.get('email'),
+        next: 'liked',
+      });
+
+      if (!response.ok) {
+        if (message) message.textContent = data.error || 'Kunde inte skicka verifieringsmail.';
+        return;
+      }
+
+      if (message) message.textContent = data.status || 'Verifieringsmail skickat. Gillade sparas på kontot när du loggar in.';
     } catch (error) {
       if (message) message.textContent = 'Kunde inte kontakta servern.';
     }

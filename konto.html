@@ -9,7 +9,7 @@
 <script>try{if(Date.now()<1777500000000&&!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen - Konto</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260509-product-polish">
+<link rel="stylesheet" href="styles.css?v=20260509-request-polish">
 </head>
 
 <body class="auth-loading page-account">
@@ -18,15 +18,13 @@
   <button class="nav-mobile-menu" type="button" aria-label="Meny"></button>
   <a class="logo" href="index.html">VERSEN</a>
   <div class="menu" aria-label="Huvudmeny">
-    <a href="drops.html">Drops</a>
     <a href="produkter.html">Shop</a>
     <a href="medlemskap.html">Medlemskap</a>
     <a href="faq.html">Om oss</a>
   </div>
   <div class="nav-actions" aria-label="Snabbval">
-    <a class="nav-icon nav-search" href="produkter.html" aria-label="Sök"></a>
     <a class="nav-icon nav-account active" href="konto.html" aria-label="Konto"></a>
-    <a class="nav-icon nav-wishlist" href="produkter.html" aria-label="Favoriter"></a>
+    <a class="nav-icon nav-wishlist" href="gillar.html" aria-label="Gillade"></a>
     <a class="nav-icon nav-cart" href="kundkorg.html" aria-label="Kundkorg"><span data-cart-count></span></a>
     <a class="nav-member-cta" href="medlemskap.html">Bli medlem</a>
   </div>
@@ -35,7 +33,6 @@
 <nav class="bottom-nav" aria-label="Mobilmeny">
   <a href="index.html" data-icon="home">Hem</a>
   <a href="produkter.html" data-icon="search">Shop</a>
-  <a href="drops.html" data-icon="drop">Drops</a>
   <a href="medlemskap.html" data-icon="club">Medlemskap</a>
   <a class="active" href="konto.html" data-icon="account">Konto</a>
 </nav>
@@ -54,29 +51,13 @@
     <aside class="dashboard-sidebar" aria-label="Kontomeny">
       <a class="active" href="konto.html">Översikt</a>
       <a href="order.html">Mina beställningar</a>
-      <a href="produkter.html">Sparade favoriter</a>
+      <a href="gillar.html">Gillade</a>
       <a href="konto.html">Adressbok</a>
       <a href="konto.html">Betalningsmetoder</a>
       <a href="installningar.html">Inställningar</a>
       <button class="account-link" type="button" data-logout-button hidden>Logga ut</button>
     </aside>
     <div class="dashboard-main">
-
-  <section class="account-flow fade" aria-label="Kontoflöde" data-account-flow>
-    <div class="flow-step active">
-      <span>1</span>
-      <p>Verifiera email</p>
-    </div>
-    <div class="flow-step">
-      <span>2</span>
-      <p>Skapa konto</p>
-    </div>
-    <div class="flow-step">
-      <span>3</span>
-      <p>Fortsätt</p>
-    </div>
-  </section>
-
   <section class="account-grid fade" aria-label="Kontoinnehåll" data-account-area>
     <article class="account-card account-overview" data-auth-card hidden>
       <div class="status-pill is-active">Gold member</div>
@@ -121,6 +102,7 @@
         <input type="password" name="password" placeholder="Välj lösenord" autocomplete="new-password" minlength="8" required>
         <button class="product-btn" type="submit">Skapa konto</button>
       </form>
+      <button class="account-switch-button" type="button" data-show-login>Har du konto? Logga in</button>
       <p class="form-message" data-register-message>Verifieringslänken skickas till din email. Kolla även skräppost om den inte dyker upp.</p>
     </article>
 
@@ -133,6 +115,7 @@
         <button class="product-btn" type="submit">Logga in</button>
       </form>
       <button class="remove-btn account-link" type="button" data-recover-button>Skicka återställningsmail</button>
+      <button class="account-switch-button" type="button" data-show-create>Skapa konto</button>
       <p class="form-message" data-login-message></p>
     </article>
 
@@ -169,6 +152,6 @@
   </div>
 </main>
 
-<script src="script.js?v=20260509-product-polish"></script>
+<script src="script.js?v=20260509-request-polish"></script>
 </body>
 </html>
