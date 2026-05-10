@@ -9399,3 +9399,40 @@ body.mobile-menu-open{
     padding-bottom:56px!important;
   }
 }
+
+/* Product listing scale: compact products without the old framed look. */
+.page-products .catalog-tools{
+  justify-content:flex-start!important;
+}
+
+.page-products .sort-control{
+  display:none!important;
+}
+
+.page-products .product-grid{
+  gap:34px 20px!important;
+}
+
+.page-products .product-image{
+  aspect-ratio:1/1!important;
+}
+
+.page-products .product-image img{
+  width:82%!important;
+  height:82%!important;
+}
+
+@media (max-width:640px){
+  .page-products .product-grid{
+    gap:32px 18px!important;
+  }
+
+  .page-products .product-image{
+    aspect-ratio:1/1.02!important;
+  }
+
+  .page-products .product-image img{
+    width:78%!important;
+    height:78%!important;
+  }
+}
