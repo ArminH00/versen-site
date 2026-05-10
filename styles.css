@@ -9040,9 +9040,11 @@ body{
 
 .page-home{
   background:#fff;
-  overscroll-behavior-y:none;
-  touch-action:auto;
-  -webkit-overflow-scrolling:touch;
+}
+
+.page-home main,
+.page-home .premium-home{
+  overflow:visible!important;
 }
 
 .page-home *{
