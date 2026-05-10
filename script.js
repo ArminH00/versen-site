@@ -780,10 +780,11 @@ function homeTrendingCard(product) {
 
 function homePreferredDeals(products) {
   const wanted = [
-    ['tershine', 'bilberry'],
-    ['whey'],
+    ['tershine'],
+    ['10 st', 'whey', 'portions'],
     ['celsius', 'apelsin'],
-    ['body science'],
+    ['gyeon', 'wetcoat'],
+    ['body science', 'whey'],
   ];
   const used = new Set();
   const picks = [];
@@ -872,7 +873,7 @@ function renderHomeDealTeaser(products) {
   }
 
   if (trending) {
-    const items = homePreferredDeals(deals.length ? deals : products);
+    const items = homePreferredDeals(products);
     trending.innerHTML = items.map(homeTrendingCard).join('');
   }
 }
