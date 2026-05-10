@@ -636,10 +636,12 @@ function productCard(product) {
 
   return `
     <article class="product-card ${flags.greatPrice ? 'has-great-price' : ''} ${flags.fewLeft ? 'has-few-left' : ''}" role="link" tabindex="0" data-product-url="${escapeHtml(productUrl)}" data-category="${escapeHtml(product.category)}" data-product-handle="${escapeHtml(product.handle)}" data-variant-id="${escapeHtml(product.variantId || '')}" data-product-title="${escapeHtml(product.title)}" data-product-price="${escapeHtml(memberPrice)}" data-product-compare-at-price="${escapeHtml(compareAtPrice)}" data-product-image-url="${escapeHtml(product.image && product.image.url ? product.image.url : '')}" data-product-image-alt="${escapeHtml(product.image && product.image.altText ? product.image.altText : product.title)}">
-      <div class="product-image">${image}</div>
+      <div class="product-image">
+        ${badges ? `<div class="product-badges">${badges}</div>` : ''}
+        ${image}
+      </div>
       <button class="product-wishlist-button ${liked ? 'active' : ''}" type="button" data-wishlist-toggle="${escapeHtml(product.handle)}" aria-pressed="${liked ? 'true' : 'false'}" aria-label="${liked ? 'Ta bort från gillade' : 'Lägg till i gillade'}"></button>
       <div class="product-info">
-        ${badges ? `<div class="product-badges">${badges}</div>` : ''}
         <div class="product-card-meta">
           <div class="product-category">${escapeHtml(vendor)}</div>
           ${variantText}

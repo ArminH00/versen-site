@@ -13314,6 +13314,10 @@ html[data-theme="light"] .page-home .home-trending-card{
     position:relative!important;
   }
 
+  .page-products .product-image{
+    position:relative!important;
+  }
+
   .page-products .product-badges{
     position:absolute!important;
     left:12px!important;
