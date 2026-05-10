@@ -664,7 +664,7 @@ const filters = document.querySelectorAll('[data-filter]');
 
 filters.forEach((filter) => {
   filter.addEventListener('click', () => {
-    selectCatalogCategory(filter.dataset.filter);
+    selectCatalogCategory(filter.dataset.filter, { scroll: false });
   });
 });
 

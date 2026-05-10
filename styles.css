@@ -9119,9 +9119,22 @@ body{
 }
 
 .hero-drop-clock small{
+  width:100%;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:0;
   margin-top:2px;
-  word-spacing:8px;
   line-height:1.25;
+  text-align:center;
+  word-spacing:0;
+}
+
+.hero-drop-clock small span:first-child{
+  text-align:left;
+}
+
+.hero-drop-clock small span:last-child{
+  text-align:right;
 }
 
 @media (max-width:640px){
@@ -9157,7 +9170,6 @@ body{
 
   .page-home .hero-drop-clock small{
     font-size:9px;
-    word-spacing:7px;
   }
 
   .page-home main .premium-hero .mobile-hero-visual{
