@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f7f4ef">
+<meta name="color-scheme" content="light">
+<title>Versen Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles.css?v=20260510-design-system1">
+</head>
+
+<body class="design-system-page">
+<main class="vs-shell">
+  <section class="vs-hero" aria-labelledby="system-title">
+    <div class="vs-header vs-animate-rise">
+      <button class="vs-icon-button vs-menu-icon" type="button" aria-label="Meny"></button>
+      <a class="vs-logo" href="../index.html">VERSEN</a>
+      <a class="vs-icon-button vs-cart-icon" href="../kundkorg.html" aria-label="Kundkorg">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h8.7a2 2 0 0 0 2-1.6L22 6H6"/></svg>
+      </a>
+    </div>
+
+    <div class="vs-hero-panel vs-animate-rise">
+      <div class="vs-product-stage vs-product-stage-composition" aria-hidden="true">
+        <img src="../assets/hero-studio/snabbforsegling-tershine-amplify-500-ml.png" alt="">
+        <img src="../assets/hero-studio/bilschampo-tershine-purify-s-keramiskt.png" alt="">
+        <img src="../assets/hero-studio/fortvattsmedel-tershine-elevate-snow-foam-skummande-vaxsakert.png" alt="">
+      </div>
+      <div>
+        <span class="vs-eyebrow">Design system</span>
+        <h1 class="vs-display" id="system-title">Premium curated commerce.</h1>
+      </div>
+      <p class="vs-body">Versen ska kännas som en veckovis redaktionell produktedit med checkout ansluten. Systemet prioriterar mobil, produktens studio-närvaro, mjuk typografi och få tydliga handlingar.</p>
+      <div class="vs-cluster">
+        <a class="vs-button" href="#components">Se komponenter</a>
+        <a class="vs-button vs-button-secondary" href="../index.html">Till sajten</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="vs-section" id="principles">
+    <div class="vs-section-header">
+      <span class="vs-eyebrow">Global rules</span>
+      <h2 class="vs-heading">Luxury minimal, never template ecommerce.</h2>
+      <p class="vs-body">Every reusable pattern should feel calm, cinematic, curated and product-led. Avoid marketplace density, loud sale mechanics, generic product grids and gym-shop energy.</p>
+    </div>
+    <div class="vs-grid-4">
+      <article class="vs-account-card">
+        <span class="vs-micro">01</span>
+        <h3 class="vs-subheading">Warm white canvas</h3>
+        <p class="vs-small">Use soft off-white backgrounds, white cards, restrained lines and almost no cold gray.</p>
+      </article>
+      <article class="vs-account-card">
+        <span class="vs-micro">02</span>
+        <h3 class="vs-subheading">Product as subject</h3>
+        <p class="vs-small">Transparent cutouts sit on pedestal shadows with soft lighting and isolated studio focus.</p>
+      </article>
+      <article class="vs-account-card">
+        <span class="vs-micro">03</span>
+        <h3 class="vs-subheading">Editorial hierarchy</h3>
+        <p class="vs-small">Serif headlines carry emotion. Sans UI stays quiet, useful and precise.</p>
+      </article>
+      <article class="vs-account-card">
+        <span class="vs-micro">04</span>
+        <h3 class="vs-subheading">One clear action</h3>
+        <p class="vs-small">Each screen chooses a primary path and lets secondary controls recede.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="vs-section" id="typography">
+    <div class="vs-section-header">
+      <span class="vs-eyebrow">Typography system</span>
+      <h2 class="vs-heading">Editorial display, precise commerce UI.</h2>
+    </div>
+    <div class="vs-grid-2">
+      <article class="vs-card" style="padding:24px">
+        <span class="vs-eyebrow">Display serif</span>
+        <p class="vs-display">Weekly edit.</p>
+      </article>
+      <article class="vs-card" style="padding:24px">
+        <span class="vs-eyebrow">Title serif</span>
+        <p class="vs-title">Bli medlem för att slutföra ditt köp.</p>
+      </article>
+      <article class="vs-card" style="padding:24px">
+        <span class="vs-eyebrow">Heading serif</span>
+        <p class="vs-heading">Studio-clean car care.</p>
+      </article>
+      <article class="vs-card" style="padding:24px">
+        <span class="vs-eyebrow">UI sans</span>
+        <p class="vs-body">Short Swedish copy. Clear prices. Calm controls. No decorative noise.</p>
+        <p class="vs-micro">VECKANS MEDLEMSDROP</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="vs-section" id="spacing">
+    <div class="vs-section-header">
+      <span class="vs-eyebrow">Spacing system</span>
+      <h2 class="vs-heading">Large silence around compact information.</h2>
+      <p class="vs-body">Use small gaps inside controls, medium gaps between related elements, and generous vertical sections. Mobile should feel more spacious, not merely smaller.</p>
+    </div>
+    <div class="vs-card vs-space-sample" style="padding:24px">
+      <div class="vs-space-row"><span>4px</span><span class="vs-space-bar" style="width:4px"></span></div>
+      <div class="vs-space-row"><span>8px</span><span class="vs-space-bar" style="width:8px"></span></div>
+      <div class="vs-space-row"><span>16px</span><span class="vs-space-bar" style="width:16px"></span></div>
+      <div class="vs-space-row"><span>24px</span><span class="vs-space-bar" style="width:24px"></span></div>
+      <div class="vs-space-row"><span>48px</span><span class="vs-space-bar" style="width:48px"></span></div>
+      <div class="vs-space-row"><span>80px</span><span class="vs-space-bar" style="width:80px"></span></div>
+    </div>
+  </section>
+
+  <section class="vs-section" id="components">
+    <div class="vs-section-header">
+      <span class="vs-eyebrow">Reusable components</span>
+      <h2 class="vs-heading">The canonical Versen kit.</h2>
+    </div>
+
+    <div class="vs-stack">
+      <article class="vs-card" style="padding:20px">
+        <span class="vs-eyebrow">1. Header</span>
+        <div class="vs-header">
+          <button class="vs-icon-button vs-menu-icon" type="button" aria-label="Meny"></button>
+          <a class="vs-logo" href="../index.html">VERSEN</a>
+          <a class="vs-icon-button vs-cart-icon" href="../kundkorg.html" aria-label="Kundkorg">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h8.7a2 2 0 0 0 2-1.6L22 6H6"/></svg>
+          </a>
+        </div>
+      </article>
+
+      <article class="vs-card" style="padding:20px">
+        <span class="vs-eyebrow">2. Buttons and filter pills</span>
+        <div class="vs-cluster">
+          <a class="vs-button" href="../produkter.html">Se veckans drop</a>
+          <a class="vs-button vs-button-secondary" href="../medlemskap.html">Bli medlem</a>
+          <button class="vs-button vs-button-ghost" type="button">Läs mer</button>
+          <button class="vs-filter-pill is-active" type="button">Alla</button>
+          <button class="vs-filter-pill" type="button">Bilvård</button>
+          <button class="vs-filter-pill" type="button">Träning</button>
+          <button class="vs-filter-pill" type="button">Hälsa</button>
+        </div>
+      </article>
+
+      <div class="vs-grid-2">
+        <article class="vs-weekly-card vs-card">
+          <span class="vs-eyebrow">3. Weekly drop section</span>
+          <div class="vs-product-stage vs-product-stage-composition" aria-hidden="true">
+            <img src="../assets/hero-studio/kallavfettning-tershine-dissolve.png" alt="">
+            <img src="../assets/hero-studio/bilschampo-tershine-purify-s-keramiskt.png" alt="">
+            <img src="../assets/hero-studio/fortvattsmedel-tershine-elevate-snow-foam-skummande-vaxsakert.png" alt="">
+          </div>
+          <div>
+            <h3 class="vs-subheading">Veckans drop</h3>
+            <p class="vs-small">Släpps torsdag 12:00. Begränsat antal, tydlig kurering.</p>
+          </div>
+          <div class="vs-countdown" aria-label="Nästa drop">
+            <div><strong>03</strong><span>Dagar</span></div>
+            <div><strong>19</strong><span>Timmar</span></div>
+            <div><strong>24</strong><span>Minuter</span></div>
+          </div>
+        </article>
+
+        <article class="vs-card vs-membership-block">
+          <span class="vs-eyebrow">4. Membership CTA block</span>
+          <h3 class="vs-title">Bli medlem för att slutföra ditt köp.</h3>
+          <p class="vs-body">Versen är en medlemsklubb med exklusiva priser och utvalda drops.</p>
+          <div class="vs-membership-offer">
+            <span class="vs-micro">Gold member</span>
+            <strong>49 kr / mån</strong>
+            <p class="vs-small">Ingen bindningstid. Avsluta när du vill.</p>
+            <a class="vs-button" href="../medlemskap.html">Bli medlem och fortsätt</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="vs-section" id="product-cards">
+    <div class="vs-section-header">
+      <span class="vs-eyebrow">Product card system</span>
+      <h2 class="vs-heading">Studio-shot products, not generic tiles.</h2>
+      <p class="vs-body">Product cards use isolated cutouts, pedestal shadows, almost no badge clutter, and compact editorial metadata. Image composition is the card.</p>
+    </div>
+    <div class="vs-grid-4">
+      <a class="vs-product-card" href="../produkt.html">
+        <span class="vs-product-stage vs-product-card-media"><img src="../assets/hero-studio/fortvattsmedel-tershine-elevate-snow-foam-skummande-vaxsakert.png" alt="Tershine Elevate Snow Foam"></span>
+        <span class="vs-product-card-body">
+          <span class="vs-product-card-brand">Tershine</span>
+          <strong class="vs-product-card-title">Elevate Snow Foam 500ml</strong>
+          <span class="vs-product-card-row"><span class="vs-price">179 kr</span><span class="vs-arrow">→</span></span>
+        </span>
+      </a>
+      <a class="vs-product-card" href="../produkt.html">
+        <span class="vs-product-stage vs-product-card-media"><img src="../assets/product-clean/barebells-milkshake-8-pack-alla-smaker-finns.jpg" alt="Barebells Milkshake"></span>
+        <span class="vs-product-card-body">
+          <span class="vs-product-card-brand">Barebells</span>
+          <strong class="vs-product-card-title">Milkshake Chocolate 8-pack</strong>
+          <span class="vs-product-card-row"><span class="vs-price">175 kr</span><span class="vs-arrow">→</span></span>
+        </span>
+      </a>
+      <a class="vs-product-card" href="../produkt.html">
+        <span class="vs-product-stage vs-product-card-media"><img src="../assets/product-clean/collagen-400g.jpg" alt="Collagen 400g"></span>
+        <span class="vs-product-card-body">
+          <span class="vs-product-card-brand">Body Science</span>
+          <strong class="vs-product-card-title">Collagen 400g</strong>
+          <span class="vs-product-card-row"><span class="vs-price">179 kr</span><span class="vs-arrow">→</span></span>
+        </span>
+      </a>
+      <a class="vs-product-card" href="../produkt.html">
+        <span class="vs-product-stage vs-product-card-media"><img src="../assets/product-clean/kreatin-500g.jpg" alt="Kreatin 500g"></span>
+        <span class="vs-product-card-body">
+          <span class="vs-product-card-brand">Body Science</span>
+          <strong class="vs-product-card-title">Kreatin 500g</strong>
+          <span class="vs-product-card-row"><span class="vs-price">149 kr</span><span class="vs-arrow">→</span></span>
+        </span>
+      </a>
+    </div>
+  </section>
+
+  <section class="vs-section" id="layouts">
+    <div class="vs-section-header">
+      <span class="vs-eyebrow">Layout system</span>
+      <h2 class="vs-heading">Sections are quiet editorial compositions.</h2>
+    </div>
+    <div class="vs-grid-3">
+      <article class="vs-category-card">
+        <div class="vs-product-stage"><img src="../assets/hero-studio/bilschampo-tershine-purify-s-keramiskt.png" alt=""></div>
+        <div>
+          <span class="vs-eyebrow">Category section</span>
+          <h3 class="vs-subheading">Bilvård</h3>
+          <p class="vs-small">A curated entry by routine, not a filter dump.</p>
+        </div>
+      </article>
+      <article class="vs-category-card">
+        <div class="vs-product-stage"><img src="../assets/versen-whey-hero.png" alt=""></div>
+        <div>
+          <span class="vs-eyebrow">Category section</span>
+          <h3 class="vs-subheading">Träning</h3>
+          <p class="vs-small">Minimal copy, large product presence.</p>
+        </div>
+      </article>
+      <article class="vs-category-card">
+        <div class="vs-product-stage"><img src="../assets/hero-studio/snabbforsegling-tershine-amplify-500-ml.png" alt=""></div>
+        <div>
+          <span class="vs-eyebrow">Drop section</span>
+          <h3 class="vs-subheading">Nytt torsdag</h3>
+          <p class="vs-small">Time-limited without shouting.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="vs-section" id="commerce">
+    <div class="vs-section-header">
+      <span class="vs-eyebrow">Cart, checkout and account</span>
+      <h2 class="vs-heading">Transactional flows stay premium and calm.</h2>
+    </div>
+    <div class="vs-grid-3">
+      <article class="vs-cart-item">
+        <span class="vs-product-stage vs-cart-thumb"><img src="../assets/hero-studio/fortvattsmedel-tershine-elevate-snow-foam-skummande-vaxsakert.png" alt=""></span>
+        <div>
+          <span class="vs-small">Tershine</span>
+          <strong>Elevate Snow Foam 500ml</strong>
+          <p class="vs-small">179 kr</p>
+        </div>
+        <div class="vs-quantity" aria-label="Antal">
+          <button type="button">-</button>
+          <span>1</span>
+          <button type="button">+</button>
+        </div>
+      </article>
+
+      <article class="vs-checkout-card">
+        <span class="vs-eyebrow">Checkout component</span>
+        <div class="vs-checkout-row"><span>Delsumma</span><strong>354 kr</strong></div>
+        <div class="vs-checkout-row"><span>Frakt</span><strong>49 kr</strong></div>
+        <div class="vs-checkout-row"><span>Totalt</span><strong>403 kr</strong></div>
+        <a class="vs-button" href="../kundkorg.html">Till kassan</a>
+      </article>
+
+      <article class="vs-account-card">
+        <span class="vs-eyebrow">Account dashboard card</span>
+        <div class="vs-account-row"><span>Gold Member</span><strong>Aktiv</strong></div>
+        <div class="vs-account-row"><span>Mina beställningar</span><span>→</span></div>
+        <div class="vs-account-row"><span>Gillade produkter</span><span>→</span></div>
+        <div class="vs-account-row"><span>Inställningar</span><span>→</span></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="vs-section" id="overlay">
+    <div class="vs-section-header">
+      <span class="vs-eyebrow">Overlay menu</span>
+      <h2 class="vs-heading">Immersive navigation, not a dropdown.</h2>
+    </div>
+    <div class="vs-grid-2">
+      <aside class="vs-overlay-demo">
+        <div class="vs-overlay-top">
+          <button class="vs-icon-button" type="button" aria-label="Stäng">×</button>
+          <button class="vs-icon-button" type="button" aria-label="Filter">≡</button>
+        </div>
+        <nav class="vs-overlay-links" aria-label="Overlay menu">
+          <a href="../produkter.html">Shop</a>
+          <a href="../produkter.html?kategori=Bilvård%20%26%20tvätt">Nyheter</a>
+          <a href="../drops.html">Drops</a>
+          <a href="../medlemskap.html">Medlemskap</a>
+          <a href="../konto.html">Konto</a>
+          <a href="../kundkorg.html">Kundvagn</a>
+        </nav>
+        <a class="vs-overlay-promo" href="../drops.html">
+          <span class="vs-eyebrow">Veckans drop</span>
+          <h3 class="vs-subheading">Premium car care.</h3>
+          <span class="vs-small">Se dropet →</span>
+        </a>
+      </aside>
+      <article class="vs-card" style="padding:24px">
+        <span class="vs-eyebrow">Menu rules</span>
+        <h3 class="vs-subheading">Navigation can feel cinematic.</h3>
+        <p class="vs-body">The overlay should use black as a stage, large sparse links, and one editorial product promo. Avoid many columns, icons beside every link, or account clutter.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="vs-section" id="mobile">
+    <div class="vs-section-header">
+      <span class="vs-eyebrow">Mobile-first rules</span>
+      <h2 class="vs-heading">The phone is the primary storefront.</h2>
+      <p class="vs-body">Design the mobile flow first. Desktop expands the same editorial rhythm; it does not introduce extra clutter.</p>
+    </div>
+    <div class="vs-grid-2">
+      <div class="vs-mobile-frame">
+        <div class="vs-header">
+          <button class="vs-icon-button vs-menu-icon" type="button" aria-label="Meny"></button>
+          <span class="vs-logo">VERSEN</span>
+          <span class="vs-icon-button vs-cart-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h8.7a2 2 0 0 0 2-1.6L22 6H6"/></svg>
+          </span>
+        </div>
+        <div class="vs-mobile-content">
+          <span class="vs-eyebrow">Veckans medlemsdrop</span>
+          <h3 class="vs-title">Premium shopping, curated weekly.</h3>
+          <p class="vs-small">One idea per screen. Large whitespace. Quiet controls.</p>
+          <div class="vs-product-stage vs-product-stage-composition">
+            <img src="../assets/hero-studio/kallavfettning-tershine-dissolve.png" alt="">
+            <img src="../assets/hero-studio/bilschampo-tershine-purify-s-keramiskt.png" alt="">
+            <img src="../assets/hero-studio/fortvattsmedel-tershine-elevate-snow-foam-skummande-vaxsakert.png" alt="">
+          </div>
+          <a class="vs-button" href="../produkter.html">Se veckans drop</a>
+        </div>
+      </div>
+      <article class="vs-account-card">
+        <span class="vs-eyebrow">Mobile principles</span>
+        <div class="vs-account-row"><span>Primary CTA</span><strong>Low and clear</strong></div>
+        <div class="vs-account-row"><span>Visible UI</span><strong>Only what matters</strong></div>
+        <div class="vs-account-row"><span>Product imagery</span><strong>Large and isolated</strong></div>
+        <div class="vs-account-row"><span>Text</span><strong>Short, editorial, Swedish</strong></div>
+        <div class="vs-account-row"><span>Density</span><strong>Calm over complete</strong></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="vs-section" id="animation">
+    <div class="vs-section-header">
+      <span class="vs-eyebrow">Animation system</span>
+      <h2 class="vs-heading">Subtle movement only.</h2>
+      <p class="vs-body">Motion should suggest premium handling: slow rises, soft product float, quiet button lift. No bouncy ecommerce energy.</p>
+    </div>
+    <div class="vs-grid-3">
+      <article class="vs-account-card vs-animate-rise">
+        <span class="vs-eyebrow">Rise</span>
+        <h3 class="vs-subheading">Content enters softly.</h3>
+      </article>
+      <article class="vs-account-card">
+        <span class="vs-eyebrow">Float</span>
+        <div class="vs-product-stage"><img class="vs-animate-float" src="../assets/hero-studio/snabbforsegling-tershine-amplify-500-ml.png" alt=""></div>
+      </article>
+      <article class="vs-account-card vs-animate-soft-pulse">
+        <span class="vs-eyebrow">Pulse</span>
+        <h3 class="vs-subheading">Use only for focused premium moments.</h3>
+      </article>
+    </div>
+  </section>
+
+  <footer class="vs-footer">
+    <div>
+      <a class="vs-logo" href="../index.html">VERSEN</a>
+      <p class="vs-small" style="margin-top:12px">Canonical component system for future Versen redesign work.</p>
+    </div>
+    <nav aria-label="Design system">
+      <span class="vs-eyebrow">System</span>
+      <a href="#typography">Typography</a>
+      <a href="#spacing">Spacing</a>
+      <a href="#components">Components</a>
+      <a href="#mobile">Mobile</a>
+    </nav>
+    <nav aria-label="Versen">
+      <span class="vs-eyebrow">Versen</span>
+      <a href="../produkter.html">Shop</a>
+      <a href="../drops.html">Drops</a>
+      <a href="../medlemskap.html">Medlemskap</a>
+      <a href="../konto.html">Konto</a>
+    </nav>
+  </footer>
+</main>
+</body>
+</html>

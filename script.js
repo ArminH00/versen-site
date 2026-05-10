@@ -85,9 +85,8 @@ function renderLuxuryMenu() {
   const path = window.location.pathname.split('/').pop() || 'index.html';
   const links = [
     { href: 'produkter.html', label: 'Shop', match: ['produkter.html', 'produkt.html'] },
-    { href: 'medlemskap.html', label: 'Medlemskap', match: ['medlemskap.html', 'medlemskap-aktivt.html'] },
     { href: 'drops.html', label: 'Nyheter', match: ['drops.html'] },
-    { href: 'produkter.html?sort=popular', label: 'Populärt', match: [] },
+    { href: 'drops.html', label: 'Drops', match: ['drops.html'] },
     { href: 'produkter.html?kategori=Bilvård%20%26%20tvätt', label: 'Kategorier', match: [] },
     { href: 'konto.html', label: 'Konto', match: ['konto.html', 'installningar.html', 'order.html'] },
     { href: 'kundkorg.html', label: 'Kundvagn', match: ['kundkorg.html'], cart: true },
@@ -125,7 +124,7 @@ function renderLuxuryMenu() {
   overlay.setAttribute('aria-label', 'Mobil meny');
   overlay.innerHTML = `
     <div class="luxury-menu-intro">
-      <span>Versen edit</span>
+      <span>Shop</span>
       <strong>Premium shopping, curated weekly.</strong>
     </div>
     <div class="luxury-menu-links">
@@ -139,14 +138,19 @@ function renderLuxuryMenu() {
         <img src="assets/hero-studio/bilschampo-tershine-purify-s-keramiskt.png" alt="">
         <img src="assets/hero-studio/snabbforsegling-tershine-amplify-500-ml.png" alt="">
       </span>
-      <small>Weekly studio drop</small>
-      <strong>Bilvård med medlemspris.</strong>
+      <small>Veckans drop</small>
+      <strong>Premium car care.</strong>
     </a>
   `;
   document.body.appendChild(overlay);
 }
 
 renderLuxuryMenu();
+
+document.querySelectorAll('.top-strip span').forEach((item, index) => {
+  const copy = ['1-3 dagars leverans', 'Utvalda produkter varje vecka', 'Nya drops varje torsdag'][index];
+  if (copy) item.textContent = copy;
+});
 
 document.querySelectorAll('.nav-mobile-menu[aria-label="Tillbaka"], [data-back-button]').forEach((button) => {
   button.addEventListener('click', () => {
@@ -713,7 +717,7 @@ function productCard(product) {
   const discount = productDiscountAmount(product);
   const discountPercent = productDiscountPercent(product);
   const badges = [
-    flags.greatPrice || discountPercent >= 18 ? '<span class="great-price">Grymt pris</span>' : '',
+    flags.greatPrice || discountPercent >= 18 ? '<span class="great-price">Utvald</span>' : '',
     flags.fewLeft ? '<span class="few-left">Få kvar</span>' : '',
   ].filter(Boolean).join('');
   const liked = isProductLiked(product.handle);
@@ -732,7 +736,6 @@ function productCard(product) {
           ${variantText}
         </div>
         <h3>${escapeHtml(product.title)}</h3>
-        <span class="member-price-label">Medlemspris</span>
         <div class="product-prices">
           <span class="old">${escapeHtml(compareAtPrice)}</span>
           <span class="new">${escapeHtml(memberPrice)}</span>
@@ -858,7 +861,6 @@ function homeTrendingCard(product) {
       <a class="home-trending-copy" href="${escapeHtml(productUrl)}">
         <small>${escapeHtml(vendor)}</small>
         <strong>${escapeHtml(product.title)}</strong>
-        <span class="member-price-label">Medlemspris</span>
         <span class="home-trending-prices">
           <em>${escapeHtml(product.price || 'Medlemspris')}</em>
           ${compareAtPrice ? `<del>${escapeHtml(compareAtPrice)}</del>` : ''}
@@ -1179,10 +1181,10 @@ function showCheckoutMembershipGate() {
   const authenticated = Boolean(accountSession && accountSession.authenticated);
   showMembershipGate({
     badge: 'Checkout',
-    title: 'Bli medlem för att fortsätta',
-    copy: 'Din kundkorg är sparad. Medlemskap krävs för att slutföra checkout med de här priserna.',
+    title: 'Bli medlem för att slutföra ditt köp.',
+    copy: 'Versen är en medlemsklubb med exklusiva priser och utvalda drops. Din kundkorg är sparad.',
     href: authenticated ? 'medlemskap.html' : 'konto.html?next=membership',
-    cta: authenticated ? 'Fortsätt' : 'Skapa konto',
+    cta: authenticated ? 'Bli medlem & fortsätt' : 'Skapa konto & fortsätt',
   });
 }
 
@@ -2020,6 +2022,7 @@ function renderCart() {
   const cart = readCart();
   const totalItems = cartQuantity(cart);
   const total = cart.reduce((sum, item) => sum + (parsePrice(item.price) * (Number(item.quantity) || 1)), 0);
+  document.body.classList.toggle('cart-has-items', Boolean(cart.length));
 
   if (!cart.length) {
     list.innerHTML = `
@@ -3566,7 +3569,7 @@ function renderSiteFooter() {
     <div class="site-footer-inner">
       <div class="site-footer-brand">
         <a class="footer-logo" href="index.html">VERSEN</a>
-        <p>En medlemsdriven storefront för premium bilvård, performance och veckans mest intressanta deals.</p>
+        <p>En kuraterad storefront för premium bilvård, performance och veckans mest intressanta deals.</p>
         <div class="footer-payment-row" aria-label="Betalning och trygghet">
           <span>Klarna</span>
           <span>Apple Pay</span>
@@ -3582,11 +3585,11 @@ function renderSiteFooter() {
         <a href="drops.html">Drops</a>
       </div>
       <div class="footer-column">
-        <strong>Medlemskap</strong>
-        <a href="medlemskap.html">Member Club</a>
+        <strong>Om Versen</strong>
+        <a href="faq.html">Om oss</a>
         <a href="konto.html">Mitt konto</a>
         <a href="gillar.html">Gillade</a>
-        <a href="forslag.html">Föreslå produkt</a>
+        <a href="integritet.html">Integritet</a>
       </div>
       <div class="footer-column">
         <strong>Kundservice</strong>
