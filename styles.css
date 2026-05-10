@@ -13308,6 +13308,76 @@ html[data-theme="light"] .page-home .home-trending-card{
   }
 }
 
+/* 2026-05-10 product badge placement and brand readability. */
+@media(max-width:767px){
+  .page-products .product-card{
+    position:relative!important;
+  }
+
+  .page-products .product-badges{
+    position:absolute!important;
+    left:10px!important;
+    top:10px!important;
+    z-index:5!important;
+    display:flex!important;
+    flex-wrap:wrap!important;
+    align-items:center!important;
+    gap:5px!important;
+    max-width:calc(100% - 56px)!important;
+    margin:0!important;
+    padding:0!important;
+    pointer-events:none!important;
+  }
+
+  .page-products .product-badges span,
+  html[data-theme="light"] .page-products .product-badges span{
+    min-width:0!important;
+    min-height:20px!important;
+    height:20px!important;
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    padding:0 9px!important;
+    border-radius:999px!important;
+    font-size:9px!important;
+    line-height:1!important;
+    font-weight:650!important;
+    letter-spacing:.03em!important;
+    text-align:center!important;
+    white-space:nowrap!important;
+  }
+
+  .page-products .product-badges .great-price,
+  html[data-theme="light"] .page-products .product-badges .great-price{
+    background:#ddf3df!important;
+    color:#357f45!important;
+  }
+
+  .page-products .product-badges .few-left,
+  html[data-theme="light"] .page-products .product-badges .few-left{
+    background:#ffe6e3!important;
+    color:#c63a2f!important;
+  }
+
+  .page-products .product-card-meta{
+    display:flex!important;
+    align-items:center!important;
+    min-height:12px!important;
+  }
+
+  .page-products .product-category,
+  .page-products .product-card-meta span{
+    color:#8f9691!important;
+    font-size:10px!important;
+    line-height:1!important;
+    font-weight:550!important;
+  }
+
+  .page-products .product-info{
+    padding-top:12px!important;
+  }
+}
+
 /* 2026-05-10 make every page use the same bottom nav as Home. */
 @media(max-width:767px){
   .bottom-nav{
