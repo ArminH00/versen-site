@@ -13171,14 +13171,14 @@ html[data-theme="light"] .page-home .home-trending-card{
 
   .page-products .shop-drop-countdown span{
     font-size:10.5px!important;
-    font-weight:650!important;
+    font-weight:600!important;
   }
 
   .page-products .shop-drop-countdown strong{
     max-width:100%!important;
-    font-size:17px!important;
+    font-size:16.5px!important;
     line-height:1.15!important;
-    font-weight:650!important;
+    font-weight:560!important;
   }
 
   .page-products .shop-drop-countdown small{
@@ -13590,7 +13590,7 @@ html[data-theme="light"] .page-home .home-trending-card{
   .page-products .category-image-row{
     right:13px!important;
     top:auto!important;
-    bottom:15px!important;
+    bottom:12px!important;
     width:86px!important;
     height:32px!important;
     display:flex!important;
