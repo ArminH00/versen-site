@@ -9027,24 +9027,31 @@ html,
 body{
   width:100%;
   max-width:100%;
-  overflow-x:hidden!important;
+  height:auto;
+  overflow-x:clip!important;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:none;
 }
 
 .page-home,
 .page-home main,
 .page-home .premium-home{
   max-width:100%;
-  overflow-x:hidden;
-  overflow-y:visible;
+  overflow-x:clip!important;
+  overflow-y:visible!important;
 }
 
 .page-home{
   background:#fff;
+  min-height:100%;
+  touch-action:pan-y;
 }
 
 .page-home main,
 .page-home .premium-home{
-  overflow:visible!important;
+  overflow-x:clip!important;
+  overflow-y:visible!important;
 }
 
 .page-home *{
@@ -9224,4 +9231,39 @@ body{
     bottom:24%!important;
     width:27%!important;
   }
+}
+
+@supports not (overflow:clip){
+  html,
+  body,
+  .page-home,
+  .page-home main,
+  .page-home .premium-home{
+    overflow-x:hidden!important;
+  }
+}
+
+body.mobile-menu-open{
+  overflow:hidden!important;
+  touch-action:none;
+}
+
+/* Product image surfaces stay clean white so the isolated product assets never show framed edges. */
+.product-image,
+.home-trending-image,
+.cart-item-image,
+.product-large-image,
+.product-thumb,
+.liked-product-image,
+.category-image-row img{
+  background:#fff!important;
+}
+
+.product-image::before,
+.product-image::after,
+.home-trending-image::before,
+.home-trending-image::after,
+.product-large-image::before,
+.product-large-image::after{
+  content:none!important;
 }

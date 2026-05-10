@@ -3,6 +3,15 @@ const path = require('path');
 const { sendJson, shopifyFetch } = require('./shopify');
 
 let cleanImageManifest;
+const CLEAN_IMAGE_VERSION = '20260510-white';
+
+function versionCleanImageUrl(url) {
+  if (!url || !String(url).startsWith('/assets/product-clean/')) {
+    return url;
+  }
+
+  return `${url}?v=${CLEAN_IMAGE_VERSION}`;
+}
 
 function getCleanImageManifest() {
   if (cleanImageManifest !== undefined) {
@@ -26,7 +35,7 @@ function withCleanImage(image, cleanImage) {
 
   return {
     ...(image || {}),
-    url: cleanImage.url,
+    url: versionCleanImageUrl(cleanImage.url),
     altText: cleanImage.altText || (image && image.altText) || '',
   };
 }
