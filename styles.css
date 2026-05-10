@@ -43,11 +43,7 @@ body{
   min-height:100svh;
   padding-top:calc(var(--nav-height) + var(--top-strip-height));
   padding-bottom:84px;
-  background:
-    linear-gradient(90deg,rgba(17,20,18,.035) 1px,transparent 1px),
-    linear-gradient(180deg,rgba(17,20,18,.035) 1px,transparent 1px),
-    var(--bg);
-  background-size:44px 44px;
+  background:var(--bg);
   color:var(--ink);
   font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   letter-spacing:0;
@@ -1478,20 +1474,24 @@ textarea{
 
 @media (max-width:980px){
   :root{
-    --nav-height:70px;
-    --top-strip-height:34px;
+    --nav-height:86px;
+    --top-strip-height:44px;
   }
 
   body{
     padding-bottom:36px;
+    background:#fff;
   }
 
   .top-strip{
-    justify-content:flex-start;
-    gap:18px;
+    justify-content:center;
+    gap:30px;
     overflow-x:auto;
     white-space:nowrap;
     scrollbar-width:none;
+    font-size:14px;
+    letter-spacing:0;
+    text-transform:none;
   }
 
   .top-strip::-webkit-scrollbar{
@@ -1500,11 +1500,21 @@ textarea{
 
   .nav{
     grid-template-columns:auto 1fr auto;
-    padding-inline:14px;
+    min-height:var(--nav-height);
+    padding:0 20px;
+    background:#fff;
+    border-bottom:1px solid #e8ece8;
+    backdrop-filter:none;
   }
 
   .nav-mobile-menu{
     display:grid;
+  }
+
+  .logo{
+    justify-self:center;
+    font-size:28px;
+    letter-spacing:.36em;
   }
 
   .menu{
@@ -1546,7 +1556,7 @@ textarea{
   }
 
   .nav-actions{
-    gap:6px;
+    gap:18px;
   }
 
   .nav-member-cta{
@@ -1628,13 +1638,19 @@ textarea{
 
 @media (max-width:640px){
   :root{
-    --nav-height:64px;
-    --top-strip-height:32px;
+    --nav-height:86px;
+    --top-strip-height:44px;
   }
 
   .top-strip{
-    font-size:10px;
-    gap:14px;
+    height:var(--top-strip-height);
+    justify-content:center;
+    gap:24px;
+    padding:0 14px;
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:0;
+    text-transform:none;
   }
 
   .top-strip span:nth-of-type(n+3),
@@ -1644,16 +1660,19 @@ textarea{
 
   .nav{
     gap:10px;
+    min-height:var(--nav-height);
+    padding:0 20px;
   }
 
   .logo{
-    font-size:13px;
+    font-size:27px;
+    letter-spacing:.32em;
   }
 
   .nav-icon,
   .nav-mobile-menu{
-    width:38px;
-    height:38px;
+    width:42px;
+    height:42px;
   }
 
   .nav-actions .nav-wishlist{
@@ -1674,7 +1693,7 @@ textarea{
   .order-screen,
   .account-dashboard-shell,
   .product-detail-page{
-    width:min(100% - 24px,1180px);
+    width:100%;
   }
 
   h1,
@@ -1688,25 +1707,70 @@ textarea{
   }
 
   .store-hero{
-    gap:12px;
-    padding-top:18px;
+    display:block;
+    padding:0;
+    border:0;
   }
 
   .hero-campaign{
-    min-height:260px;
-    padding:18px;
+    min-height:560px;
+    align-content:end;
+    padding:0 24px 54px;
+    border:0;
+    background:
+      linear-gradient(180deg,rgba(0,0,0,.12),rgba(0,0,0,.68)),
+      linear-gradient(135deg,#303633,#111412);
+    color:#fff;
   }
 
   .hero-campaign strong{
-    font-size:43px;
+    max-width:330px;
+    color:#fff;
+    font-size:46px;
+    font-weight:500;
+    line-height:1.06;
   }
 
-  .store-hero-copy h1{
-    font-size:42px;
+  .hero-campaign span{
+    background:transparent;
+    color:#fff;
+    padding:0;
+    font-size:18px;
+    letter-spacing:.02em;
+    text-transform:uppercase;
   }
 
+  .hero-campaign em{
+    min-height:58px;
+    width:205px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    margin-top:8px;
+    border:1px solid rgba(255,255,255,.86);
+    background:transparent;
+    color:#fff;
+    font-size:20px;
+    letter-spacing:0;
+    text-transform:none;
+  }
+
+  .store-hero-copy,
   .store-hero-product{
-    min-height:280px;
+    display:none;
+  }
+
+  .featured-categories,
+  .product-showcase,
+  .vehicle-shop,
+  .bundle-feature,
+  .guide-strip,
+  .brand-story,
+  .home-service-strip,
+  .catalog-section,
+  .category-launch,
+  .pdp-information{
+    padding:38px 20px;
   }
 
   .home-countdown,
@@ -1736,13 +1800,76 @@ textarea{
     font-size:16px;
   }
 
+  .page-hero{
+    padding:34px 20px 18px;
+  }
+
+  .page-hero h1{
+    font-size:46px;
+  }
+
+  .section-heading-row{
+    margin-bottom:22px;
+  }
+
+  .section-heading-row h2,
+  .featured-categories h2,
+  .product-showcase h2{
+    font-size:44px;
+    font-weight:500;
+    line-height:1.08;
+  }
+
   .home-trending-grid,
   .product-grid,
-  .category-tile-grid,
   .vehicle-grid,
   .guide-grid,
   .category-launch{
     grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .category-tile-grid{
+    display:flex;
+    gap:18px;
+    margin:0 -20px;
+    padding:0 20px 8px;
+    overflow-x:auto;
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+  }
+
+  .category-tile-grid::-webkit-scrollbar{
+    display:none;
+  }
+
+  .category-tile{
+    flex:0 0 205px;
+    min-height:0;
+    gap:16px;
+    padding:0;
+    border:0;
+    background:transparent;
+    scroll-snap-align:start;
+  }
+
+  .category-tile::before{
+    content:"";
+    display:block;
+    width:100%;
+    aspect-ratio:1.22/1;
+    border-radius:4px;
+    background:
+      linear-gradient(135deg,rgba(17,20,18,.12),rgba(17,20,18,.02)),
+      #eef0ef;
+  }
+
+  .category-tile span{
+    font-size:25px;
+    font-weight:500;
+  }
+
+  .category-tile small{
+    display:none;
   }
 
   .steps,
@@ -1753,33 +1880,31 @@ textarea{
     grid-template-columns:1fr;
   }
 
-  .category-tile,
   .vehicle-grid a,
   .guide-grid a{
     min-height:112px;
-    padding:14px;
   }
 
-  .category-tile span,
   .vehicle-grid a,
   .guide-grid a{
     font-size:17px;
   }
 
   .product-info{
-    padding:10px;
-    gap:7px;
+    padding:18px 0 0;
+    gap:12px;
   }
 
   .product-info h3,
   .home-trending-copy strong{
     min-height:0;
-    font-size:14px;
-    line-height:1.2;
+    font-size:22px;
+    font-weight:700;
+    line-height:1.15;
   }
 
   .product-actions{
-    flex-direction:column;
+    display:none;
   }
 
   .product-actions .product-btn{
@@ -1787,25 +1912,133 @@ textarea{
   }
 
   .home-trending-copy{
-    padding:10px;
+    padding:18px 0 0;
   }
 
   .home-trending-prices,
   .product-prices{
     flex-wrap:wrap;
+    font-size:21px;
+    line-height:1.1;
+  }
+
+  .product-card,
+  .home-trending-card{
+    border:0;
+    background:transparent;
+    overflow:visible;
+  }
+
+  .product-image,
+  .home-trending-image{
+    border-radius:4px;
+    background:#f3f3f3;
+  }
+
+  .product-image img,
+  .home-trending-image img{
+    padding:18px;
+  }
+
+  .home-deal-badge,
+  .great-price,
+  .few-left{
+    border-radius:8px;
+    background:#fff;
+    color:#e64e5e;
+    font-size:18px;
+    font-weight:500;
+    text-transform:none;
+  }
+
+  .home-deal-badge{
+    position:absolute;
+    top:12px;
+    right:12px;
+    z-index:2;
+  }
+
+  .product-badges{
+    top:12px;
+    right:12px;
+    left:auto;
+  }
+
+  .home-add-button{
+    width:58px;
+    min-width:58px;
+    height:58px;
+    min-height:58px;
+    right:14px;
+    bottom:calc(100% - 58px - 14px);
+    border-radius:8px;
+    background:#fff;
+    color:#2648ff;
+    border:0;
+    font-size:0;
+  }
+
+  .home-add-button::before{
+    content:"+";
+    font-size:32px;
+    line-height:1;
+  }
+
+  .product-wishlist-button{
+    display:none;
   }
 
   .product-detail-media{
-    grid-template-columns:1fr;
+    display:block;
   }
 
   .product-thumb-rail{
-    grid-template-columns:repeat(3,1fr);
-    order:2;
+    display:none;
   }
 
   .product-large-image{
-    min-height:360px;
+    width:100%;
+    min-height:560px;
+    border:0;
+    background:#f5f5f5;
+  }
+
+  .product-large-image img{
+    padding:34px;
+  }
+
+  .product-detail{
+    display:block;
+    padding:0;
+  }
+
+  .product-detail-info{
+    padding:34px 20px 28px;
+    background:#fff;
+  }
+
+  .product-detail h1{
+    font-size:40px;
+    font-weight:500;
+    line-height:1.1;
+  }
+
+  .detail-prices{
+    font-size:26px;
+    justify-content:flex-start;
+  }
+
+  .product-buy-box{
+    margin-top:10px;
+  }
+
+  .pdp-breadcrumb{
+    padding:28px 20px 22px;
+    overflow:hidden;
+    white-space:nowrap;
+    text-transform:uppercase;
+    font-size:13px;
+    letter-spacing:.02em;
   }
 
   .cart-item{

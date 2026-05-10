@@ -1,0 +1,285 @@
+{
+  "generatedAt": "2026-05-10T11:06:45.456Z",
+  "source": "https://versen.se/api/products",
+  "canvasSize": 1600,
+  "products": {
+    "bilschampo-tershine-purify-s-keramiskt": {
+      "title": "Bilschampo Purify S - Keramiskt",
+      "vendor": "Tershine",
+      "url": "/assets/product-clean/bilschampo-tershine-purify-s-keramiskt.jpg",
+      "altText": "Bilschampo Purify S - Keramiskt",
+      "variants": {}
+    },
+    "bilschampo-tershine-purify-s-hallon-keramiskt": {
+      "title": "Bilschampo Purify S Hallon - Keramiskt",
+      "vendor": "Tershine",
+      "url": "/assets/product-clean/bilschampo-tershine-purify-s-hallon-keramiskt.jpg",
+      "altText": "Bilschampo Purify S Hallon - Keramiskt",
+      "variants": {}
+    },
+    "spolarvatskeadditiv-tershine-repel-100-ml": {
+      "title": "Spolarvätskeadditiv Repel, 100 ml",
+      "vendor": "Tershine",
+      "url": "/assets/product-clean/spolarvatskeadditiv-tershine-repel-100-ml.jpg",
+      "altText": "Spolarvätskeadditiv Repel, 100 ml",
+      "variants": {}
+    },
+    "dackglans-tershine-refined-500-ml": {
+      "title": "Däckglans Refined, 500 ml",
+      "vendor": "Tershine",
+      "url": "/assets/product-clean/dackglans-tershine-refined-500-ml.jpg",
+      "altText": "Däckglans Refined, 500 ml",
+      "variants": {}
+    },
+    "fortvattsmedel-tershine-elevate-snow-foam-skummande-vaxsakert": {
+      "title": "Förtvättsmedel Elevate Snow Foam - Skummande / Vaxsäkert",
+      "vendor": "Tershine",
+      "url": "/assets/product-clean/fortvattsmedel-tershine-elevate-snow-foam-skummande-vaxsakert.jpg",
+      "altText": "Förtvättsmedel Elevate Snow Foam - Skummande / Vaxsäkert",
+      "variants": {}
+    },
+    "bilschampo-tershine-purify-s-keramiskt-1": {
+      "title": "Bilschampo Purify S+ - Keramiskt",
+      "vendor": "Tershine",
+      "url": "/assets/product-clean/bilschampo-tershine-purify-s-keramiskt-1.jpg",
+      "altText": "Bilschampo Purify S+ - Keramiskt",
+      "variants": {}
+    },
+    "bilschampo-tershine-purify-neutralt-500-ml": {
+      "title": "Bilschampo Purify - Neutralt, 500 ml",
+      "vendor": "Tershine",
+      "url": "/assets/product-clean/bilschampo-tershine-purify-neutralt-500-ml.jpg",
+      "altText": "Bilschampo Purify - Neutralt, 500 ml",
+      "variants": {}
+    },
+    "snabbforsegling-tershine-amplify-500-ml": {
+      "title": "Snabbförsegling Amplify, 500 ml",
+      "vendor": "Tershine",
+      "url": "/assets/product-clean/snabbforsegling-tershine-amplify-500-ml.jpg",
+      "altText": "Snabbförsegling Amplify, 500 ml",
+      "variants": {}
+    },
+    "tvatthandske-tershine-wash-mitt": {
+      "title": "Tershine Wash Mitt",
+      "vendor": "Tershine",
+      "url": "/assets/product-clean/tvatthandske-tershine-wash-mitt.jpg",
+      "altText": "Tershine Wash Mitt",
+      "variants": {}
+    },
+    "torkhandduk-tershine-big-drying-towel-70x90-cm": {
+      "title": "Tershine Big Drying Towel, 70x90 cm",
+      "vendor": "Tershine",
+      "url": "/assets/product-clean/torkhandduk-tershine-big-drying-towel-70x90-cm.jpg",
+      "altText": "Tershine Big Drying Towel, 70x90 cm",
+      "variants": {}
+    },
+    "tershine-drying-towel-double-side-50x60-cm": {
+      "title": "Tershine Drying Towel Double Side, 50x60 cm",
+      "vendor": "Tershine",
+      "url": "/assets/product-clean/tershine-drying-towel-double-side-50x60-cm.jpg",
+      "altText": "Tershine Drying Towel Double Side, 50x60 cm",
+      "variants": {}
+    },
+    "glasforsegling-tershine-magnify-glass-coating": {
+      "title": "Glasförsegling Magnify Glass Coating",
+      "vendor": "Tershine",
+      "url": "/assets/product-clean/glasforsegling-tershine-magnify-glass-coating.jpg",
+      "altText": "Glasförsegling Magnify Glass Coating",
+      "variants": {}
+    },
+    "kallavfettning-tershine-dissolve": {
+      "title": "Kallavfettning Dissolve",
+      "vendor": "Tershine",
+      "url": "/assets/product-clean/kallavfettning-tershine-dissolve.jpg",
+      "altText": "Kallavfettning Dissolve",
+      "variants": {}
+    },
+    "allrengoring-tershine-apc-interior-cleaner-gront-apple": {
+      "title": "Allrengöring APC Interior Cleaner Grönt Äpple",
+      "vendor": "Tershine",
+      "url": "/assets/product-clean/allrengoring-tershine-apc-interior-cleaner-gront-apple.jpg",
+      "altText": "Allrengöring APC Interior Cleaner Grönt Äpple",
+      "variants": {}
+    },
+    "snabbvax-tershine-apex-500-ml": {
+      "title": "Snabbvax Apex+, 500 ml",
+      "vendor": "Tershine",
+      "url": "/assets/product-clean/snabbvax-tershine-apex-500-ml.jpg",
+      "altText": "Snabbvax Apex+, 500 ml",
+      "variants": {}
+    },
+    "tershine-microfiber-cloth-standard-5-pack-40-x-40-cm": {
+      "title": "Tershine Microfiber Cloth Standard 5-pack, 40 x 40 cm",
+      "vendor": "Tershine",
+      "url": "/assets/product-clean/tershine-microfiber-cloth-standard-5-pack-40-x-40-cm.jpg",
+      "altText": "Tershine Microfiber Cloth Standard 5-pack, 40 x 40 cm",
+      "variants": {}
+    },
+    "tershine-brush-supersoft-2-st": {
+      "title": "Tershine Brush Supersoft, 2 st",
+      "vendor": "Tershine",
+      "url": "/assets/product-clean/tershine-brush-supersoft-2-st.jpg",
+      "altText": "Tershine Brush Supersoft, 2 st",
+      "variants": {}
+    },
+    "glasrengoring-tershine-vision-500-ml": {
+      "title": "Glasrengöring Vision, 500 ml",
+      "vendor": "Tershine",
+      "url": "/assets/product-clean/glasrengoring-tershine-vision-500-ml.jpg",
+      "altText": "Glasrengöring Vision, 500 ml",
+      "variants": {}
+    },
+    "flygrostlosare-tershine-relive": {
+      "title": "Flygrostlösare Relive",
+      "vendor": "Tershine",
+      "url": "/assets/product-clean/flygrostlosare-tershine-relive.jpg",
+      "altText": "Flygrostlösare Relive",
+      "variants": {}
+    },
+    "tvatthink-tershine-13-liter": {
+      "title": "Tvätthink 13 liter",
+      "vendor": "Tershine",
+      "url": "/assets/product-clean/tvatthink-tershine-13-liter.jpg",
+      "altText": "Tvätthink 13 liter",
+      "variants": {}
+    },
+    "tershine-glass-cloth-40x40-cm": {
+      "title": "Tershine Glass Cloth, 40x40 cm",
+      "vendor": "Tershine",
+      "url": "/assets/product-clean/tershine-glass-cloth-40x40-cm.jpg",
+      "altText": "Tershine Glass Cloth, 40x40 cm",
+      "variants": {}
+    },
+    "snabbforsegling-gyeon-q-m-wetcoat": {
+      "title": "Snabbförsegling Gyeon Q²M WetCoat",
+      "vendor": "Gyeon",
+      "url": "/assets/product-clean/snabbforsegling-gyeon-q-m-wetcoat.jpg",
+      "altText": "Snabbförsegling Gyeon Q²M WetCoat",
+      "variants": {}
+    },
+    "barebells-milkshake-8-pack-alla-smaker-finns": {
+      "title": "Barebells Milkshake 8-pack (Alla smaker finns)",
+      "vendor": "Barebells",
+      "url": "/assets/product-clean/barebells-milkshake-8-pack-alla-smaker-finns.jpg",
+      "altText": "Barebells Milkshake 8-pack (Alla smaker finns)",
+      "variants": {
+        "gid://shopify/ProductVariant/54284288590153": {
+          "url": "/assets/product-clean/barebells-milkshake-8-pack-alla-smaker-finns-9169d786be.jpg",
+          "altText": "Barebells Milkshake 8-pack (Alla smaker finns)"
+        },
+        "gid://shopify/ProductVariant/54284288622921": {
+          "url": "/assets/product-clean/barebells-milkshake-8-pack-alla-smaker-finns-b199a3cdd0.jpg",
+          "altText": "Barebells Milkshake 8-pack (Alla smaker finns)"
+        },
+        "gid://shopify/ProductVariant/54284288655689": {
+          "url": "/assets/product-clean/barebells-milkshake-8-pack-alla-smaker-finns-5e004b4ddf.jpg",
+          "altText": "Barebells Milkshake 8-pack (Alla smaker finns)"
+        },
+        "gid://shopify/ProductVariant/54284288688457": {
+          "url": "/assets/product-clean/barebells-milkshake-8-pack-alla-smaker-finns-ffe06adfd8.jpg",
+          "altText": "Barebells Milkshake 8-pack (Alla smaker finns)"
+        },
+        "gid://shopify/ProductVariant/54284288721225": {
+          "url": "/assets/product-clean/barebells-milkshake-8-pack-alla-smaker-finns-f71e23f117.jpg",
+          "altText": "Barebells Milkshake 8-pack (Alla smaker finns)"
+        },
+        "gid://shopify/ProductVariant/54284288753993": {
+          "url": "/assets/product-clean/barebells-milkshake-8-pack-alla-smaker-finns-07a822971c.jpg",
+          "altText": "Barebells Milkshake 8-pack (Alla smaker finns)"
+        },
+        "gid://shopify/ProductVariant/54284290523465": {
+          "url": "/assets/product-clean/barebells-milkshake-8-pack-alla-smaker-finns-61e1ed6d74.jpg",
+          "altText": "Barebells Milkshake 8-pack (Alla smaker finns)"
+        }
+      }
+    },
+    "whey-100-1kg": {
+      "title": "Whey 100% - 1kg",
+      "vendor": "Body Science",
+      "url": "/assets/product-clean/whey-100-1kg.jpg",
+      "altText": "Whey 100% - 1kg",
+      "variants": {
+        "gid://shopify/ProductVariant/54285431996745": {
+          "url": "/assets/product-clean/whey-100-1kg-6aaba4ff9b.jpg",
+          "altText": "Whey 100% - 1kg"
+        },
+        "gid://shopify/ProductVariant/54285432029513": {
+          "url": "/assets/product-clean/whey-100-1kg-65348f611b.jpg",
+          "altText": "Whey 100% - 1kg"
+        },
+        "gid://shopify/ProductVariant/54285432062281": {
+          "url": "/assets/product-clean/whey-100-1kg-979edbc5ff.jpg",
+          "altText": "Whey 100% - 1kg"
+        },
+        "gid://shopify/ProductVariant/54285432095049": {
+          "url": "/assets/product-clean/whey-100-1kg-bb70bb17f0.jpg",
+          "altText": "Whey 100% - 1kg"
+        },
+        "gid://shopify/ProductVariant/54285432127817": {
+          "url": "/assets/product-clean/whey-100-1kg-c01c316c13.jpg",
+          "altText": "Whey 100% - 1kg"
+        },
+        "gid://shopify/ProductVariant/54285432160585": {
+          "url": "/assets/product-clean/whey-100-1kg-2914523f5b.jpg",
+          "altText": "Whey 100% - 1kg"
+        }
+      }
+    },
+    "collagen-400g": {
+      "title": "Collagen 400g",
+      "vendor": "Body Science",
+      "url": "/assets/product-clean/collagen-400g.jpg",
+      "altText": "Collagen 400g",
+      "variants": {}
+    },
+    "kreatin-500g": {
+      "title": "Kreatin 500g",
+      "vendor": "Body Science",
+      "url": "/assets/product-clean/kreatin-500g.jpg",
+      "altText": "Kreatin 500g",
+      "variants": {}
+    },
+    "10-st-whey-100-portionspase": {
+      "title": "10 st Whey 100 % - Portionspåse",
+      "vendor": "Body Science",
+      "url": "/assets/product-clean/10-st-whey-100-portionspase.jpg",
+      "altText": "10 st Whey 100 % - Portionspåse",
+      "variants": {}
+    },
+    "kasein-kreatin-vaniljdrommar": {
+      "title": "Kasein & Kreatin Vaniljdrömmar 750g",
+      "vendor": "Tyngre",
+      "url": "/assets/product-clean/kasein-kreatin-vaniljdrommar.jpg",
+      "altText": "Kasein & Kreatin Vaniljdrömmar 750g",
+      "variants": {}
+    },
+    "kasein-kreatin-kladdkaka-750g": {
+      "title": "Kasein & Kreatin Kladdkaka 750g",
+      "vendor": "Tyngre",
+      "url": "/assets/product-clean/kasein-kreatin-kladdkaka-750g.jpg",
+      "altText": "Kasein & Kreatin Kladdkaka 750g",
+      "variants": {}
+    },
+    "vassle-kreatin-gammaldags-vanilj-900g": {
+      "title": "Vassle & Kreatin Gammaldags Vanilj 900g",
+      "vendor": "Versen",
+      "url": "/assets/product-clean/vassle-kreatin-gammaldags-vanilj-900g.jpg",
+      "altText": "Vassle & Kreatin Gammaldags Vanilj 900g",
+      "variants": {}
+    },
+    "vassle-kreatin-paronglass-900g": {
+      "title": "Vassle & Kreatin Päronglass 900g",
+      "vendor": "Tyngre",
+      "url": "/assets/product-clean/vassle-kreatin-paronglass-900g.jpg",
+      "altText": "Vassle & Kreatin Päronglass 900g",
+      "variants": {}
+    },
+    "vassle-kreatin-kladdkaka-900g": {
+      "title": "Vassle & Kreatin Kladdkaka 900g",
+      "vendor": "Tyngre",
+      "url": "/assets/product-clean/vassle-kreatin-kladdkaka-900g.jpg",
+      "altText": "Vassle & Kreatin Kladdkaka 900g",
+      "variants": {}
+    }
+  }
+}

@@ -1,4 +1,50 @@
+const fs = require('fs');
+const path = require('path');
 const { sendJson, shopifyFetch } = require('./shopify');
+
+let cleanImageManifest;
+
+function getCleanImageManifest() {
+  if (cleanImageManifest !== undefined) {
+    return cleanImageManifest;
+  }
+
+  try {
+    const file = fs.readFileSync(path.join(process.cwd(), 'assets', 'product-clean-manifest.json'), 'utf8');
+    cleanImageManifest = JSON.parse(file);
+  } catch (error) {
+    cleanImageManifest = null;
+  }
+
+  return cleanImageManifest;
+}
+
+function withCleanImage(image, cleanImage) {
+  if (!cleanImage || !cleanImage.url) {
+    return image || null;
+  }
+
+  return {
+    ...(image || {}),
+    url: cleanImage.url,
+    altText: cleanImage.altText || (image && image.altText) || '',
+  };
+}
+
+function cleanImageFor(handle, variantId) {
+  const manifest = getCleanImageManifest();
+  const product = manifest && manifest.products && manifest.products[handle];
+
+  if (!product) {
+    return null;
+  }
+
+  if (variantId && product.variants && product.variants[variantId]) {
+    return product.variants[variantId];
+  }
+
+  return product.url ? product : null;
+}
 
 const PRODUCTS_QUERY = `
   query VersenProducts($first: Int!) {
@@ -116,7 +162,8 @@ function categoryForProduct(product) {
 }
 
 function normalizeVariant(variant, product) {
-  const image = variant && variant.image ? variant.image : product.featuredImage;
+  const sourceImage = variant && variant.image ? variant.image : product.featuredImage;
+  const image = withCleanImage(sourceImage, cleanImageFor(product.handle, variant && variant.id));
 
   return {
     id: variant ? variant.id : null,
@@ -133,7 +180,7 @@ function normalizeVariant(variant, product) {
 function normalizeProduct(product) {
   const variants = (product.variants.nodes || []).map((variant) => normalizeVariant(variant, product));
   const variant = variants.find((item) => item.availableForSale) || variants[0] || {};
-  const image = variant.image || product.featuredImage;
+  const image = withCleanImage(variant.image || product.featuredImage, cleanImageFor(product.handle, variant.id));
   const tags = product.tags || [];
   const normalizedTags = tags.map((tag) => String(tag).toLowerCase());
 
