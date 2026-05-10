@@ -93,6 +93,22 @@ document.querySelectorAll('.nav-mobile-menu[aria-label="Tillbaka"], [data-back-b
   });
 });
 
+document.querySelectorAll('.nav-mobile-menu[aria-label="Meny"]').forEach((button) => {
+  button.addEventListener('click', () => {
+    const isOpen = document.body.classList.toggle('mobile-menu-open');
+    button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+});
+
+document.querySelectorAll('.menu a').forEach((link) => {
+  link.addEventListener('click', () => {
+    document.body.classList.remove('mobile-menu-open');
+    document.querySelectorAll('.nav-mobile-menu[aria-label="Meny"]').forEach((button) => {
+      button.setAttribute('aria-expanded', 'false');
+    });
+  });
+});
+
 const observer = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
     if (entry.isIntersecting) {
@@ -1141,7 +1157,7 @@ async function loadProducts() {
     renderCategoryLaunch(visibleProducts);
 
     const categoryFromUrl = new URLSearchParams(window.location.search).get('kategori');
-    const initialCategory = categoryFromUrl || selectedCatalogCategory || 'Bilvård & tvätt';
+    const initialCategory = categoryFromUrl || selectedCatalogCategory || 'Alla';
 
     selectCatalogCategory(initialCategory, { scroll: false });
   } catch (error) {

@@ -9,18 +9,28 @@
 <script>try{if(Date.now()<1777500000000&&!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen - Produkter</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260510-plain-drop">
+<link rel="stylesheet" href="styles.css?v=20260510-versen2">
 </head>
 
 <body class="auth-loading page-products">
+
+<div class="top-strip" aria-label="Versen fördelar">
+  <span>1-3 dagars leverans</span>
+  <span>Medlemspriser varje vecka</span>
+  <span>Nya drops varje torsdag</span>
+  <a href="kontakt.html">Kontakt</a>
+</div>
 
 <nav class="nav launch-nav">
   <button class="nav-mobile-menu" type="button" aria-label="Meny"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
   <a class="logo" href="index.html">VERSEN</a>
   <div class="menu" aria-label="Huvudmeny">
-    <a class="active" href="produkter.html">Shop</a>
+    <a class="active" href="produkter.html">Produkter</a>
+    <a href="produkter.html?kategori=Bilvård%20%26%20tvätt">Bilvård</a>
+    <a href="produkter.html?kategori=Träning%20%26%20hälsa">Träning &amp; hälsa</a>
+    <a href="drops.html">Drops</a>
+    <a href="faq.html">Guider</a>
     <a href="medlemskap.html">Medlemskap</a>
-    <a href="faq.html">Om oss</a>
   </div>
   <div class="nav-actions" aria-label="Snabbval">
     <a class="nav-icon nav-account" href="konto.html" aria-label="Konto"></a>
@@ -41,26 +51,33 @@
   <header class="page-hero fade">
     <div class="glow"></div>
     <div class="page-hero-content">
-      <div class="badge">Shop</div>
-      <h1>Alla produkter</h1>
-      <p>Veckans priser, samlade i ett snabbt och enkelt flöde.</p>
+      <div class="badge">Produkter</div>
+      <h1>Shoppa Versen</h1>
+      <p>Alla aktiva medlemsdeals från vårt sortiment, samlade efter kategori.</p>
     </div>
   </header>
 
   <section class="category-launch fade" aria-label="Veckans kategorier" data-category-launch>
     <div class="category-launch-header">
-      <span>Veckans kategorier</span>
+      <span>Utvalda kategorier</span>
     </div>
 
-    <button class="category-launch-card car-care active" type="button" data-category-select="Bilvård &amp; tvätt">
-      <span>Veckans kategori</span>
+    <button class="category-launch-card all-products active" type="button" data-category-select="Alla">
+      <span>Allt</span>
+      <strong>Alla produkter</strong>
+      <small data-category-count="Alla">Veckans urval</small>
+      <div class="category-image-row" data-category-images="Alla"></div>
+    </button>
+
+    <button class="category-launch-card car-care" type="button" data-category-select="Bilvård &amp; tvätt">
+      <span>Bilvård</span>
       <strong>Bilvård &amp; tvätt</strong>
       <small data-category-count="Bilvård &amp; tvätt">Veckans urval</small>
       <div class="category-image-row" data-category-images="Bilvård &amp; tvätt"></div>
     </button>
 
     <button class="category-launch-card training-health" type="button" data-category-select="Träning & hälsa">
-      <span>Veckans kategori</span>
+      <span>Träning</span>
       <strong>Träning & hälsa</strong>
       <small data-category-count="Träning & hälsa">Veckans urval</small>
       <div class="category-image-row" data-category-images="Träning & hälsa"></div>
@@ -75,7 +92,8 @@
   <section class="catalog-section fade" aria-label="Produktkatalog">
     <div class="catalog-tools">
       <div class="filter-row" aria-label="Kategorier" data-category-filters>
-        <button class="filter active" type="button" data-filter="Bilvård &amp; tvätt">Bilvård &amp; tvätt</button>
+        <button class="filter active" type="button" data-filter="Alla">Alla</button>
+        <button class="filter" type="button" data-filter="Bilvård &amp; tvätt">Bilvård &amp; tvätt</button>
         <button class="filter" type="button" data-filter="Träning & hälsa">Träning & hälsa</button>
       </div>
 
@@ -94,6 +112,6 @@
   </section>
 </main>
 
-<script src="script.js?v=20260510-plain-drop"></script>
+<script src="script.js?v=20260510-versen2"></script>
 </body>
 </html>

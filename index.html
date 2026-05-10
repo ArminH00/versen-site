@@ -9,18 +9,28 @@
 <script>try{if(Date.now()<1777500000000&&!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260510-plain-drop">
+<link rel="stylesheet" href="styles.css?v=20260510-versen2">
 </head>
 
 <body class="auth-loading page-home">
+
+<div class="top-strip" aria-label="Versen fördelar">
+  <span>1-3 dagars leverans</span>
+  <span>Medlemspriser varje vecka</span>
+  <span>Nya drops varje torsdag</span>
+  <a href="kontakt.html">Kontakt</a>
+</div>
 
 <nav class="nav launch-nav">
   <button class="nav-mobile-menu" type="button" aria-label="Meny"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
   <a class="logo" href="index.html">VERSEN</a>
   <div class="menu" aria-label="Huvudmeny">
-    <a href="produkter.html">Shop</a>
+    <a href="produkter.html">Produkter</a>
+    <a href="produkter.html?kategori=Bilvård%20%26%20tvätt">Bilvård</a>
+    <a href="produkter.html?kategori=Träning%20%26%20hälsa">Träning &amp; hälsa</a>
+    <a href="drops.html">Drops</a>
+    <a href="faq.html">Guider</a>
     <a href="medlemskap.html">Medlemskap</a>
-    <a href="faq.html">Om oss</a>
   </div>
   <div class="nav-actions" aria-label="Snabbval">
     <a class="nav-icon nav-account" href="konto.html" aria-label="Konto"></a>
@@ -38,106 +48,106 @@
 </nav>
 
 <main class="home-shell">
-  <section class="launch-hero fade">
-    <div class="launch-hero-copy">
+  <section class="store-hero fade">
+    <a class="hero-campaign" href="produkter.html?kategori=Bilvård%20%26%20tvätt">
+      <span>Veckans bilvårdsdrop</span>
+      <strong>Utvalda produkter till medlemspris</strong>
+      <em>Handla nu</em>
+    </a>
+    <div class="store-hero-copy">
       <div class="home-countdown">
         <span>Nästa drop om</span>
         <strong data-drop-countdown>04d 02h 16m 38s</strong>
       </div>
-      <h1>Premium produkter. Medlemspriser.</h1>
-      <p>Premium märken till priser endast för medlemmar.</p>
+      <h1>Versen samlar veckans bästa medlemsdeals.</h1>
+      <p>Bilvård, träning och vardagsfavoriter i ett snabbt shopflöde byggt för medlemmar.</p>
       <div class="hero-actions">
-        <a class="cta" href="medlemskap.html">Bli medlem nu</a>
-        <a class="product-btn secondary" href="produkter.html">Läs mer</a>
+        <a class="cta" href="produkter.html">Shoppa produkter</a>
+        <a class="product-btn secondary" href="medlemskap.html">Bli medlem</a>
       </div>
     </div>
+    <a class="store-hero-product" href="produkter.html" aria-label="Visa veckans produkter">
+      <img src="assets/versen-whey-hero.png" alt="Versen produktdeal">
+      <span>Populärt just nu</span>
+    </a>
+  </section>
 
-    <div class="home-hero-visual" aria-label="Body Science Whey 100%">
-      <img src="assets/versen-whey-hero.png" alt="Body Science Whey 100% Chocolate på podium">
+  <section class="featured-categories fade" aria-label="Utvalda kategorier">
+    <div class="section-heading-row">
+      <h2>Utvalda kategorier</h2>
+      <a href="produkter.html">Alla produkter</a>
+    </div>
+    <div class="category-tile-grid">
+      <a class="category-tile" href="produkter.html?kategori=Bilvård%20%26%20tvätt"><span>Bilvård</span><small>Schampo, avfettning och skydd</small></a>
+      <a class="category-tile" href="produkter.html?kategori=Bilvård%20%26%20tvätt"><span>Exteriör</span><small>Glans, fälg och lack</small></a>
+      <a class="category-tile" href="produkter.html?kategori=Träning%20%26%20hälsa"><span>Träning</span><small>Protein, dryck och energi</small></a>
+      <a class="category-tile" href="produkter.html"><span>Populärt</span><small>Det medlemmar köper mest</small></a>
+      <a class="category-tile" href="gillar.html"><span>Gillade</span><small>Spara favoriter</small></a>
+      <a class="category-tile" href="drops.html"><span>Drops</span><small>Nytt varje torsdag</small></a>
     </div>
   </section>
 
-  <section class="home-trending fade">
+  <section class="product-showcase fade">
     <div class="section-heading-row">
-      <h2>Populära deals</h2>
-      <a href="produkter.html">Visa alla</a>
+      <h2>Produktnyheter</h2>
+      <a href="produkter.html">Till produkterna</a>
     </div>
     <div class="home-trending-grid" data-home-trending></div>
   </section>
 
-  <section class="home-steps fade">
-    <h2>Så funkar det</h2>
-    <div class="steps">
-      <article class="step">
-        <div class="step-number">1</div>
-        <div>
-          <h3>Bli medlem</h3>
-          <p>Skapa konto och välj medlemskap.</p>
-        </div>
-        <span class="step-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"/><path d="M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg></span>
-      </article>
-      <article class="step">
-        <div class="step-number">2</div>
-        <div>
-          <h3>Få tillgång</h3>
-          <p>Få exklusiva priser och tidig tillgång.</p>
-        </div>
-        <span class="step-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M19 5 5 19"/><path d="M7 7h.01"/><path d="M17 17h.01"/><path d="M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4Z"/></svg></span>
-      </article>
-      <article class="step">
-        <div class="step-number">3</div>
-        <div>
-          <h3>Spara pengar</h3>
-          <p>Handla veckans utvalda produkter till medlemspriser.</p>
-        </div>
-        <span class="step-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7h18v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><path d="M17 14h4"/></svg></span>
-      </article>
+  <section class="vehicle-shop fade" aria-label="Handla efter behov">
+    <div>
+      <h2>Handla efter behov</h2>
+      <p>Snabba genvägar till produkter för bilen, gymväskan och vardagen.</p>
+    </div>
+    <div class="vehicle-grid">
+      <a href="produkter.html?kategori=Bilvård%20%26%20tvätt">Tvätta bilen</a>
+      <a href="produkter.html?kategori=Bilvård%20%26%20tvätt">Skydda lacken</a>
+      <a href="produkter.html?kategori=Träning%20%26%20hälsa">Fyll på energi</a>
+      <a href="produkter.html">Se alla deals</a>
     </div>
   </section>
 
-  <section class="home-upgrade fade">
-    <div>
-      <h2>Redo att spara på dina favoriter?</h2>
-      <a class="cta" href="medlemskap.html">Bli medlem idag</a>
+  <section class="bundle-feature fade">
+    <div class="bundle-copy">
+      <span class="badge">Versenpaket</span>
+      <h2>Bygg din veckorutin med medlemspris.</h2>
+      <p>Plocka ihop bilvård, protein och smarta vardagsköp från veckans utvalda sortiment.</p>
+      <a class="cta" href="produkter.html">Bygg paket</a>
     </div>
-    <div class="membership-card-visual" aria-hidden="true">
+    <div class="bundle-card" aria-hidden="true">
       <span>VERSEN</span>
-      <small>MEMBER CLUB</small>
+      <strong>Weekly Drop</strong>
+      <small>Medlemspris på utvalda produkter</small>
+    </div>
+  </section>
+
+  <section class="guide-strip fade" aria-label="Guider">
+    <div class="section-heading-row">
+      <h2>Guider</h2>
+      <a href="faq.html">Läs mer</a>
+    </div>
+    <div class="guide-grid">
+      <a href="faq.html">Så fungerar medlemspriser</a>
+      <a href="faq.html">Så handlar du veckans drop</a>
+      <a href="returer.html">Returer och leverans</a>
+      <a href="kontakt.html">Fråga Versen</a>
     </div>
   </section>
 
   <section class="home-service-strip fade" aria-label="Fördelar">
-    <article>
-      <span class="service-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg></span>
-      <div>
-        <strong>Medlemspriser</strong>
-        <small>Alltid lägre priser</small>
-      </div>
-    </article>
-    <article>
-      <span class="service-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 18V6H3v12h11Z"/><path d="M14 9h4l3 4v5h-7V9Z"/><path d="M7 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM17 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"/></svg></span>
-      <div>
-        <strong>Snabb leverans</strong>
-        <small>1-3 dagars leverans</small>
-      </div>
-    </article>
-    <article>
-      <span class="service-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 14h3v5H3v-5Z"/><path d="M18 14h3v5h-3v-5Z"/><path d="M3 14a9 9 0 0 1 18 0"/><path d="M21 19c0 2-2 3-4 3h-3"/></svg></span>
-      <div>
-        <strong>Kundtjänst</strong>
-        <small>Vi finns här för dig</small>
-      </div>
-    </article>
-    <article>
-      <span class="service-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 2v4M16 2v4"/><path d="M3 8h18"/><path d="M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg></span>
-      <div>
-        <strong>Tidig tillgång</strong>
-        <small>Till deals & nyheter</small>
-      </div>
-    </article>
+    <article><strong>1-3 dagars leverans</strong><small>Snabbt hem från svenska lager</small></article>
+    <article><strong>Medlemspriser</strong><small>Utvalda deals varje vecka</small></article>
+    <article><strong>Tidig tillgång</strong><small>Se nya produkter före andra</small></article>
+    <article><strong>Svensk support</strong><small>Hjälp när du behöver den</small></article>
+  </section>
+
+  <section class="brand-story fade">
+    <h2>Versen är byggt för smartare köp.</h2>
+    <p>Vi samlar produkter med tydligt värde, korta drops och ett medlemskap som gör det enkelt att handla när priset faktiskt är rätt.</p>
   </section>
 </main>
 
-<script src="script.js?v=20260510-plain-drop"></script>
+<script src="script.js?v=20260510-versen2"></script>
 </body>
 </html>
