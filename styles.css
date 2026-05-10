@@ -9040,7 +9040,9 @@ body{
 
 .page-home{
   background:#fff;
-  touch-action:pan-y;
+  overscroll-behavior-y:none;
+  touch-action:auto;
+  -webkit-overflow-scrolling:touch;
 }
 
 .page-home *{

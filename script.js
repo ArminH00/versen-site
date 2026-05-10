@@ -22,6 +22,25 @@ let catalogProducts = [];
 let selectedCatalogCategory = null;
 let likedSyncTimer = null;
 
+if (document.body && document.body.classList.contains('page-home')) {
+  let homeTouchStartY = 0;
+
+  window.addEventListener('touchstart', (event) => {
+    homeTouchStartY = event.touches && event.touches[0] ? event.touches[0].clientY : 0;
+  }, { passive: true });
+
+  window.addEventListener('touchmove', (event) => {
+    if (window.scrollY > 0 || !homeTouchStartY || !event.touches || !event.touches[0]) {
+      return;
+    }
+
+    if (homeTouchStartY - event.touches[0].clientY > 6) {
+      window.scrollTo(0, 1);
+      homeTouchStartY = 0;
+    }
+  }, { passive: true });
+}
+
 function getThemePreference() {
   const saved = localStorage.getItem(THEME_KEY);
   return ['auto', 'light', 'dark'].includes(saved) ? saved : 'light';
