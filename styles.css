@@ -12143,3 +12143,137 @@ html[data-theme="light"] .page-home .home-trending-card{
     margin-top:17px!important;
   }
 }
+
+/* 2026-05-10 hero scale correction from live iPhone screenshot. */
+@media(max-width:767px){
+  .page-home .launch-hero{
+    height:292px!important;
+    min-height:292px!important;
+    padding:10px 17px 0!important;
+  }
+
+  .page-home .home-countdown,
+  html[data-theme="light"] .page-home .home-countdown{
+    position:relative!important;
+    width:calc(100% - 72px)!important;
+    min-height:32px!important;
+    display:flex!important;
+    align-items:center!important;
+    gap:9px!important;
+    margin:10px 0 16px!important;
+    padding:0 30px 0 11px!important;
+    }
+
+  .page-home .home-countdown span{
+    gap:5px!important;
+    font-size:8.4px!important;
+  }
+
+  .page-home .home-countdown span::before{
+    font-size:11px!important;
+  }
+
+  .page-home .home-countdown strong{
+    flex:1 1 auto!important;
+    padding-left:8px!important;
+    border-left:1px solid rgba(255,255,255,.24)!important;
+    font-size:8.6px!important;
+    }
+
+  .page-home .home-countdown::after{
+    position:absolute!important;
+    right:10px!important;
+    top:50%!important;
+    font-size:22px!important;
+    line-height:1!important;
+    transform:translateY(-51%)!important;
+  }
+
+  .page-home .launch-hero h1{
+    max-width:266px!important;
+    font-size:29.5px!important;
+    line-height:1.075!important;
+  }
+
+  .page-home .launch-hero p{
+    max-width:226px!important;
+    margin-top:16px!important;
+    font-size:12px!important;
+    line-height:1.45!important;
+  }
+
+  .page-home .hero-actions{
+    width:244px!important;
+    gap:6px!important;
+    margin-top:20px!important;
+    display:grid!important;
+    grid-template-columns:repeat(2,119px)!important;
+    align-items:stretch!important;
+  }
+
+  .page-home .hero-actions .cta,
+  .page-home .hero-actions .product-btn,
+  .page-home .hero-actions .product-btn.secondary{
+    box-sizing:border-box!important;
+    width:119px!important;
+    max-width:119px!important;
+    min-width:119px!important;
+    min-height:35px!important;
+    height:35px!important;
+    padding:0 9px!important;
+    font-size:8.8px!important;
+    gap:7px!important;
+    line-height:1!important;
+  }
+
+  .page-home .hero-actions .cta::after,
+  .page-home .hero-actions .product-btn::after{
+    font-size:22px!important;
+  }
+
+  .page-home .home-hero-visual img{
+    inset:auto!important;
+    left:-35px!important;
+    top:18px!important;
+    width:500px!important;
+    height:auto!important;
+    max-width:none!important;
+    object-fit:initial!important;
+    object-position:initial!important;
+  }
+
+  .page-home .home-trending{
+    padding-top:19px!important;
+  }
+
+  .page-home .home-trending-grid{
+    gap:8px!important;
+    padding:0 0 16px!important;
+    scroll-padding-left:18px!important;
+  }
+
+  .page-home .home-trending-card:first-child{
+    margin-left:18px!important;
+  }
+
+  .page-home .home-trending-card,
+  html[data-theme="light"] .page-home .home-trending-card{
+    flex-basis:116px!important;
+    min-width:116px!important;
+    min-height:230px!important;
+    grid-template-rows:104px 1fr!important;
+    padding:10px 9px 34px!important;
+  }
+
+  .page-home .home-trending-copy strong{
+    font-size:10px!important;
+  }
+
+  .page-home .home-trending-prices em{
+    font-size:13px!important;
+  }
+
+  .page-home .home-trending-saving{
+    font-size:9.5px!important;
+  }
+}
