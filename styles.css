@@ -9278,18 +9278,19 @@ body.mobile-menu-open{
 .home-trending-image{
   display:grid!important;
   place-items:center!important;
+  aspect-ratio:1/1.08!important;
   border:0!important;
   border-radius:0!important;
   background:transparent!important;
   box-shadow:none!important;
-  overflow:visible!important;
+  overflow:hidden!important;
   isolation:auto!important;
 }
 
 .product-image img,
 .home-trending-image img{
-  width:132%!important;
-  height:132%!important;
+  width:112%!important;
+  height:112%!important;
   max-width:none!important;
   max-height:none!important;
   padding:0!important;
@@ -9306,17 +9307,17 @@ body.mobile-menu-open{
 @media (max-width:640px){
   .product-grid,
   .home-trending-grid{
-    gap:34px 18px!important;
+    gap:30px 18px!important;
   }
 
   .product-image,
   .home-trending-image{
-    aspect-ratio:.92/1!important;
+    aspect-ratio:1/1.08!important;
   }
 
   .product-image img,
   .home-trending-image img{
-    width:146%!important;
-    height:146%!important;
+    width:118%!important;
+    height:118%!important;
   }
 }
