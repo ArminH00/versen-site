@@ -4086,3 +4086,875 @@ textarea{
     justify-content:stretch;
   }
 }
+
+/* Versen V5 quality pass: launch-ready commerce polish */
+:root{
+  --bg:#f6f6f3;
+  --paper:#fbfbf8;
+  --warm:#eeeee9;
+  --hairline:rgba(9,11,12,.075);
+  --commerce-shadow:0 18px 44px rgba(15,18,16,.08);
+}
+
+body{
+  background:var(--paper);
+}
+
+.top-strip{
+  height:30px;
+  font-size:11px;
+}
+
+.nav{
+  min-height:68px;
+  padding:0 clamp(18px,4vw,48px);
+  background:rgba(251,251,248,.88);
+  border-bottom:1px solid rgba(9,11,12,.055);
+  box-shadow:0 1px 0 rgba(255,255,255,.75) inset;
+}
+
+.logo{
+  font-size:17px;
+  font-weight:500;
+  letter-spacing:.28em;
+}
+
+.menu{
+  gap:2px;
+}
+
+.menu a,
+.nav-member-cta{
+  color:#4f5550;
+  font-size:13px;
+}
+
+.nav-icon,
+.nav-mobile-menu{
+  width:40px;
+  height:40px;
+  background:rgba(9,11,12,.035);
+}
+
+.nav-icon svg,
+.nav-mobile-menu svg,
+.bottom-nav svg{
+  stroke-width:1.55;
+}
+
+.premium-hero{
+  width:min(1320px,100%);
+  min-height:calc(100svh - var(--nav-height) - var(--top-strip-height));
+  grid-template-columns:minmax(0,.92fr) minmax(460px,1.08fr);
+  gap:clamp(22px,4vw,58px);
+  padding:clamp(34px,5vw,70px) max(16px,calc((100vw - 1180px) / 2));
+  border-bottom:0;
+}
+
+.premium-hero-copy{
+  max-width:560px;
+}
+
+.premium-hero-copy .eyebrow{
+  margin-bottom:18px;
+}
+
+.premium-hero-copy h1{
+  max-width:560px;
+  font-size:clamp(54px,6.2vw,88px);
+  line-height:.91;
+}
+
+.premium-hero-copy p{
+  max-width:500px;
+  margin-top:24px;
+  color:#666b66;
+  font-size:18px;
+}
+
+.premium-hero-stage{
+  min-height:660px;
+  padding:34px;
+  background:#ecece7;
+  border-radius:10px;
+  box-shadow:0 26px 70px rgba(20,24,22,.11);
+}
+
+.premium-hero-stage::before{
+  inset:20px;
+  border-color:rgba(255,255,255,.58);
+}
+
+.premium-hero-stage > span{
+  background:rgba(255,255,255,.9);
+}
+
+.premium-hero-stage > strong{
+  max-width:390px;
+  font-size:48px;
+  line-height:.96;
+}
+
+.premium-hero-stage .hero-product-composition{
+  inset:26px 8px 160px;
+}
+
+.hero-actions .cta,
+.hero-actions .product-btn{
+  min-height:56px;
+  padding-inline:24px;
+}
+
+.campaign-strip{
+  width:min(1180px,100% - 32px);
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:16px;
+  padding:clamp(38px,6vw,84px) 0;
+  border-bottom:1px solid var(--hairline);
+}
+
+.campaign-card{
+  position:relative;
+  min-height:330px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  gap:8px;
+  padding:22px;
+  border-radius:10px;
+  background:#e9e9e4;
+  color:var(--ink);
+  overflow:hidden;
+  box-shadow:var(--commerce-shadow);
+}
+
+.campaign-card::before{
+  content:"";
+  position:absolute;
+  inset:18px 12px 108px;
+  background:center/contain no-repeat;
+  opacity:.96;
+}
+
+.campaign-card-large::before{
+  background-image:url("assets/hero-studio/fortvattsmedel-tershine-elevate-snow-foam-skummande-vaxsakert.png");
+}
+
+.campaign-card-deal::before{
+  background-image:url("assets/hero-studio/snabbforsegling-tershine-amplify-500-ml.png");
+}
+
+.campaign-card-kit::before{
+  background-image:url("assets/hero-studio/kallavfettning-tershine-dissolve.png");
+}
+
+.campaign-card-new::before{
+  background-image:url("assets/versen-whey-hero.png");
+}
+
+.campaign-card span,
+.campaign-card strong,
+.campaign-card small{
+  position:relative;
+  z-index:1;
+}
+
+.campaign-card span{
+  color:#747a74;
+  font-size:12px;
+  font-weight:500;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+
+.campaign-card strong{
+  max-width:260px;
+  font-size:25px;
+  line-height:1.05;
+}
+
+.campaign-card small{
+  color:#5f655f;
+  font-size:14px;
+}
+
+.premium-intro{
+  display:none;
+}
+
+.premium-category-grid{
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:14px;
+}
+
+.category-tile{
+  min-height:270px;
+  padding:18px;
+  background:#ebebe6;
+  box-shadow:none;
+}
+
+.category-tile::before{
+  height:145px;
+  background-color:#f8f8f5;
+}
+
+.category-exterior::before,
+.category-car::before{
+  background:#f8f8f5 url("assets/hero-studio/bilschampo-tershine-purify-s-keramiskt.png") center/contain no-repeat;
+}
+
+.category-interior::before{
+  background:#f8f8f5 url("assets/product-clean/allrengoring-tershine-apc-interior-cleaner-gront-apple.jpg") center/contain no-repeat;
+}
+
+.category-microfiber::before{
+  background:#f8f8f5 url("assets/product-clean/tershine-microfiber-cloth-standard-5-pack-40-x-40-cm.jpg") center/contain no-repeat;
+}
+
+.category-accessories::before{
+  background:#f8f8f5 url("assets/product-clean/tershine-brush-supersoft-2-st.jpg") center/contain no-repeat;
+}
+
+.category-tile span{
+  font-size:23px;
+  line-height:1.02;
+}
+
+.category-tile small{
+  font-size:13px;
+  line-height:1.35;
+}
+
+.value-section,
+.membership-benefits,
+.weekly-drop-section,
+.reviews-section{
+  width:min(1180px,100%);
+  margin:0 auto;
+}
+
+.featured-categories,
+.product-showcase,
+.value-section,
+.membership-benefits,
+.weekly-drop-section,
+.reviews-section,
+.home-faq,
+.membership-benefit-band,
+.membership-value-proof,
+.membership-plans,
+.membership-compare,
+.membership-faq{
+  padding-top:clamp(72px,9vw,132px);
+  padding-bottom:clamp(72px,9vw,132px);
+}
+
+.product-showcase{
+  border-bottom:1px solid var(--hairline);
+}
+
+.home-trending-grid,
+.product-grid{
+  gap:42px 18px;
+}
+
+.product-image,
+.home-trending-image{
+  aspect-ratio:1/1.18;
+  background:#eeeeea;
+  box-shadow:none;
+  transition:transform .22s ease, box-shadow .22s ease;
+}
+
+.product-card:hover .product-image,
+.home-trending-card:hover .home-trending-image{
+  transform:translateY(-2px);
+  box-shadow:0 18px 44px rgba(15,18,16,.1);
+}
+
+.product-image img,
+.home-trending-image img{
+  padding:30px;
+  transition:transform .22s ease;
+}
+
+.product-card:hover .product-image img,
+.home-trending-card:hover .home-trending-image img{
+  transform:scale(1.025);
+}
+
+.product-info,
+.home-trending-copy{
+  padding-top:18px;
+  gap:8px;
+}
+
+.product-info h3,
+.home-trending-copy strong{
+  font-size:19px;
+  line-height:1.18;
+}
+
+.member-price-label{
+  display:block;
+  margin-top:3px;
+  color:#717771;
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+}
+
+.product-prices,
+.home-trending-prices{
+  margin-top:2px;
+}
+
+.new,
+.product-price,
+.home-price,
+.home-trending-prices em{
+  font-size:23px;
+}
+
+.old,
+.home-trending-prices del{
+  font-size:15px;
+}
+
+.product-saving,
+.home-trending-saving{
+  color:#525852;
+  font-size:12px;
+  letter-spacing:0;
+  text-transform:none;
+}
+
+.product-quick-add,
+.product-quick-add.visual-only,
+.home-add-button{
+  position:absolute;
+  right:12px;
+  bottom:12px;
+  z-index:4;
+  width:42px;
+  height:42px;
+  min-width:42px;
+  min-height:42px;
+  display:grid;
+  place-items:center;
+  border:0;
+  border-radius:50%;
+  background:#111312;
+  color:#fff;
+  box-shadow:0 10px 24px rgba(15,18,16,.16);
+  font-size:24px;
+  line-height:1;
+}
+
+.product-quick-add.visual-only{
+  pointer-events:none;
+}
+
+.product-actions{
+  display:none;
+}
+
+.great-price,
+.few-left,
+.home-deal-badge{
+  padding:7px 10px;
+  color:#111312;
+}
+
+.home-deal-badge{
+  top:12px;
+  left:12px;
+  right:auto;
+}
+
+.product-detail{
+  padding-top:8px;
+}
+
+.product-large-image{
+  min-height:700px;
+  background:#eeeee9;
+  box-shadow:none;
+}
+
+.product-large-image img{
+  padding:60px;
+}
+
+.product-detail-info{
+  gap:20px;
+}
+
+.product-short-description{
+  max-width:520px;
+  color:#5f655f;
+}
+
+.detail-saving{
+  background:#f0f0eb;
+  color:#2f342f;
+}
+
+.product-buy-box{
+  padding:20px;
+  box-shadow:0 18px 42px rgba(15,18,16,.08);
+}
+
+.pdp-service-list li{
+  font-size:15px;
+}
+
+.membership-card-visual{
+  min-height:560px;
+  padding:34px;
+  background:#111312;
+}
+
+.membership-card-visual strong{
+  font-size:54px;
+}
+
+.membership-value-proof{
+  display:grid;
+  grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);
+  gap:clamp(24px,5vw,72px);
+  border-bottom:1px solid var(--hairline);
+}
+
+.savings-example-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+}
+
+.savings-example-grid article{
+  min-height:220px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  gap:8px;
+  padding:24px;
+  border-radius:10px;
+  background:#e9e9e4;
+}
+
+.savings-example-grid span,
+.plan-grid article > span{
+  color:#737973;
+  font-size:12px;
+  font-weight:500;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+
+.savings-example-grid strong{
+  font-size:36px;
+  line-height:1;
+}
+
+.membership-compare{
+  display:grid;
+  gap:0;
+  border-bottom:1px solid var(--hairline);
+}
+
+.compare-row{
+  display:grid;
+  grid-template-columns:1fr 110px 110px;
+  gap:12px;
+  padding:18px 0;
+  border-bottom:1px solid var(--hairline);
+  align-items:center;
+}
+
+.compare-row:last-child{
+  border-bottom:0;
+}
+
+.compare-row span{
+  color:#3b403c;
+  font-size:17px;
+}
+
+.compare-row strong,
+.compare-row em{
+  color:var(--ink);
+  font-style:normal;
+  text-align:right;
+}
+
+.cart-summary{
+  box-shadow:0 18px 44px rgba(15,18,16,.08);
+}
+
+.summary-saving strong{
+  font-size:14px;
+}
+
+.checkout-trust-row{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:6px;
+}
+
+.checkout-trust-row span{
+  min-height:38px;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  background:#f1f2ee;
+  color:#616761;
+  font-size:12px;
+  text-align:center;
+}
+
+.account-dashboard-shell .page-hero{
+  padding-bottom:28px;
+}
+
+.account-card{
+  box-shadow:none;
+}
+
+.account-card.login-card{
+  background:#fff;
+}
+
+.site-footer{
+  background:#111312;
+  color:#fff;
+  padding-top:76px;
+}
+
+.site-footer-inner{
+  display:grid;
+  grid-template-columns:minmax(260px,1.6fr) repeat(4,minmax(120px,1fr));
+  gap:clamp(24px,4vw,58px);
+}
+
+.site-footer p{
+  color:rgba(255,255,255,.68);
+}
+
+.site-footer nav{
+  display:contents;
+}
+
+.footer-column{
+  display:grid;
+  align-content:start;
+  gap:10px;
+}
+
+.footer-column strong{
+  margin-bottom:8px;
+  color:#fff;
+  font-size:13px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+
+.site-footer nav a,
+.footer-column a{
+  color:rgba(255,255,255,.68);
+  font-size:14px;
+  font-weight:300;
+}
+
+.footer-payment-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:28px;
+}
+
+.footer-payment-row span{
+  padding:8px 10px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:999px;
+  color:rgba(255,255,255,.74);
+  font-size:12px;
+}
+
+@media (max-width:980px){
+  .premium-hero{
+    width:100%;
+    grid-template-columns:1fr;
+    padding:0;
+  }
+
+  .premium-hero-copy{
+    max-width:none;
+    padding:40px 24px 54px;
+  }
+
+  .premium-hero-stage{
+    min-height:560px;
+    border-radius:0;
+  }
+
+  .campaign-strip,
+  .premium-category-grid,
+  .membership-value-proof,
+  .site-footer-inner{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .premium-category-grid{
+    gap:16px;
+  }
+}
+
+@media (max-width:640px){
+  :root{
+    --nav-height:62px;
+    --top-strip-height:30px;
+  }
+
+  body{
+    background:#fbfbf8;
+  }
+
+  .nav{
+    min-height:var(--nav-height);
+    padding:0 14px;
+  }
+
+  .logo{
+    font-size:16px;
+    letter-spacing:.25em;
+  }
+
+  .nav-icon,
+  .nav-mobile-menu{
+    width:42px;
+    height:42px;
+  }
+
+  .premium-hero{
+    display:flex;
+    flex-direction:column-reverse;
+  }
+
+  .premium-hero-stage{
+    min-height:470px;
+    padding:22px;
+    background:#e9e9e4;
+  }
+
+  .premium-hero-stage .hero-product-composition{
+    inset:24px -12px 142px;
+  }
+
+  .premium-hero-stage > strong{
+    max-width:280px;
+    font-size:34px;
+  }
+
+  .premium-hero-copy{
+    padding:34px 20px 46px;
+  }
+
+  .premium-hero-copy h1{
+    font-size:44px;
+    line-height:.96;
+  }
+
+  .premium-hero-copy p{
+    margin-top:18px;
+    font-size:17px;
+  }
+
+  .hero-proof-row{
+    margin-top:22px;
+  }
+
+  .campaign-strip{
+    width:100%;
+    display:flex;
+    gap:14px;
+    padding:38px 20px 54px;
+    overflow-x:auto;
+    scroll-snap-type:x proximity;
+    border-bottom:1px solid var(--hairline);
+  }
+
+  .campaign-card{
+    flex:0 0 78vw;
+    min-height:310px;
+    scroll-snap-align:start;
+  }
+
+  .campaign-card strong{
+    font-size:24px;
+  }
+
+  .featured-categories,
+  .product-showcase,
+  .value-section,
+  .membership-benefits,
+  .weekly-drop-section,
+  .reviews-section,
+  .home-faq,
+  .membership-benefit-band,
+  .membership-value-proof,
+  .membership-plans,
+  .membership-compare,
+  .membership-faq{
+    padding:64px 20px;
+  }
+
+  .premium-category-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+  }
+
+  .category-tile{
+    min-height:230px;
+    padding:14px;
+  }
+
+  .category-tile::before{
+    height:118px;
+  }
+
+  .category-tile span{
+    font-size:21px;
+  }
+
+  .category-tile small{
+    display:block;
+    font-size:12px;
+  }
+
+  .value-section,
+  .membership-benefits,
+  .weekly-drop-section,
+  .reviews-section,
+  .membership-value-proof{
+    width:100%;
+    grid-template-columns:1fr;
+    gap:24px;
+  }
+
+  .home-trending-grid,
+  .product-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:34px 14px;
+  }
+
+  .product-image,
+  .home-trending-image{
+    aspect-ratio:1/1.24;
+    border-radius:9px;
+  }
+
+  .product-image img,
+  .home-trending-image img{
+    padding:22px;
+  }
+
+  .product-info,
+  .home-trending-copy{
+    padding-top:13px;
+  }
+
+  .product-info h3,
+  .home-trending-copy strong{
+    font-size:17px;
+  }
+
+  .new,
+  .product-price,
+  .home-price,
+  .home-trending-prices em{
+    font-size:19px;
+  }
+
+  .product-quick-add,
+  .product-quick-add.visual-only{
+    width:38px;
+    height:38px;
+    min-width:38px;
+    min-height:38px;
+    right:9px;
+    bottom:9px;
+  }
+
+  .product-large-image{
+    min-height:520px;
+  }
+
+  .product-large-image img{
+    padding:38px;
+  }
+
+  .product-detail-info{
+    padding-bottom:166px;
+  }
+
+  .detail-prices .new{
+    font-size:30px;
+  }
+
+  .product-buy-box{
+    grid-template-columns:112px 1fr;
+    background:rgba(255,255,255,.96);
+    backdrop-filter:blur(18px);
+  }
+
+  .premium-membership-hero{
+    padding-top:36px;
+  }
+
+  .membership-card-visual{
+    min-height:280px;
+  }
+
+  .membership-card-visual strong{
+    font-size:36px;
+  }
+
+  .savings-example-grid,
+  .plan-grid,
+  .site-footer-inner{
+    grid-template-columns:1fr;
+  }
+
+  .savings-example-grid article{
+    min-height:190px;
+  }
+
+  .compare-row{
+    grid-template-columns:1fr 70px 80px;
+    gap:8px;
+    padding:15px 0;
+  }
+
+  .compare-row span{
+    font-size:15px;
+  }
+
+  .checkout-trust-row{
+    grid-template-columns:1fr;
+  }
+
+  .site-footer{
+    padding:56px 20px 126px;
+  }
+
+  .footer-column{
+    padding-top:18px;
+    border-top:1px solid rgba(255,255,255,.1);
+  }
+}

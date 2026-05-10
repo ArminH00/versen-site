@@ -632,7 +632,7 @@ document.querySelectorAll('.sort-pill').forEach((button) => {
 function productCard(product) {
   const image = product.image && product.image.url
     ? `<img src="${escapeHtml(product.image.url)}" alt="${escapeHtml(product.image.altText || product.title)}">`
-    : 'Bild';
+    : `<img src="assets/versen-whey-hero.png" alt="${escapeHtml(product.title || 'Versen produkt')}">`;
 
   const compareAtPrice = product.compareAtPrice || product.price || '';
   const memberPrice = product.price || 'Pris kommer';
@@ -655,6 +655,7 @@ function productCard(product) {
       <div class="product-image">
         ${badges ? `<div class="product-badges">${badges}</div>` : ''}
         ${image}
+        <button class="product-quick-add" type="button" data-catalog-add aria-label="Lägg ${escapeHtml(product.title)} i kundkorg">+</button>
       </div>
       <button class="product-wishlist-button ${liked ? 'active' : ''}" type="button" data-wishlist-toggle="${escapeHtml(product.handle)}" aria-pressed="${liked ? 'true' : 'false'}" aria-label="${liked ? 'Ta bort från gillade' : 'Lägg till i gillade'}"></button>
       <div class="product-info">
@@ -663,6 +664,7 @@ function productCard(product) {
           ${variantText}
         </div>
         <h3>${escapeHtml(product.title)}</h3>
+        <span class="member-price-label">Medlemspris</span>
         <div class="product-prices">
           <span class="old">${escapeHtml(compareAtPrice)}</span>
           <span class="new">${escapeHtml(memberPrice)}</span>
@@ -772,7 +774,7 @@ function homeTrendingCard(product) {
   const productUrl = `produkt.html?handle=${encodeURIComponent(product.handle)}`;
   const image = product.image && product.image.url
     ? `<img src="${escapeHtml(product.image.url)}" alt="${escapeHtml(product.image.altText || product.title)}">`
-    : '';
+    : `<img src="assets/versen-whey-hero.png" alt="${escapeHtml(product.title || 'Versen produkt')}">`;
   const compareAtPrice = product.compareAtPrice && product.compareAtPrice !== product.price ? product.compareAtPrice : '';
   const discount = productDiscountPercent(product);
   const saving = productDiscountAmount(product);
@@ -781,10 +783,11 @@ function homeTrendingCard(product) {
   return `
     <article class="home-trending-card" data-category="${escapeHtml(product.category || '')}" data-product-handle="${escapeHtml(product.handle || '')}" data-variant-id="${escapeHtml(product.variantId || '')}" data-product-title="${escapeHtml(product.title || '')}" data-product-price="${escapeHtml(product.price || '')}" data-product-compare-at-price="${escapeHtml(product.compareAtPrice || '')}" data-product-image-url="${escapeHtml(product.image && product.image.url ? product.image.url : '')}" data-product-image-alt="${escapeHtml(product.image && product.image.altText ? product.image.altText : product.title || '')}">
       ${discount ? `<span class="home-deal-badge">-${discount}%</span>` : ''}
-      <a class="home-trending-image" href="${escapeHtml(productUrl)}">${image}</a>
+      <a class="home-trending-image" href="${escapeHtml(productUrl)}">${image}<span class="product-quick-add visual-only">+</span></a>
       <a class="home-trending-copy" href="${escapeHtml(productUrl)}">
         <small>${escapeHtml(vendor)}</small>
         <strong>${escapeHtml(product.title)}</strong>
+        <span class="member-price-label">Medlemspris</span>
         <span class="home-trending-prices">
           <em>${escapeHtml(product.price || 'Medlemspris')}</em>
           ${compareAtPrice ? `<del>${escapeHtml(compareAtPrice)}</del>` : ''}
@@ -893,6 +896,7 @@ function renderHomeTrendingFallback() {
       <span class="home-trending-copy">
         <small>Body Science</small>
         <strong>10 st Whey 100% Portionspåse</strong>
+        <span class="member-price-label">Medlemspris</span>
         <span class="home-trending-prices"><em>119 kr</em><del>150 kr</del></span>
         <span class="home-trending-saving">Du sparar 31 kr</span>
       </span>
@@ -903,7 +907,8 @@ function renderHomeTrendingFallback() {
       <span class="home-trending-image"><img src="assets/versen-whey-hero.png" alt=""></span>
       <span class="home-trending-copy">
         <small>Versen</small>
-        <strong>Populär medlemsdeal</strong>
+        <strong>Purify S Keramiskt schampo</strong>
+        <span class="member-price-label">Medlemspris</span>
         <span class="home-trending-prices"><em>159 kr</em><del>199 kr</del></span>
         <span class="home-trending-saving">Du sparar 40 kr</span>
       </span>
@@ -914,7 +919,8 @@ function renderHomeTrendingFallback() {
       <span class="home-trending-image"><img src="assets/versen-whey-hero.png" alt=""></span>
       <span class="home-trending-copy">
         <small>Versen</small>
-        <strong>Veckans utvalda 12-pack</strong>
+        <strong>Amplify snabbförsegling</strong>
+        <span class="member-price-label">Medlemspris</span>
         <span class="home-trending-prices"><em>149 kr</em><del>199 kr</del></span>
         <span class="home-trending-saving">Du sparar 50 kr</span>
       </span>
@@ -3488,17 +3494,43 @@ function renderSiteFooter() {
   footer.className = 'site-footer fade';
   footer.innerHTML = `
     <div class="site-footer-inner">
-      <div>
+      <div class="site-footer-brand">
         <a class="footer-logo" href="index.html">VERSEN</a>
-        <p>Veckans produkter, priser och drops samlade på ett ställe.</p>
+        <p>Premium medlemsdeals för bilvård, träning och vardag. Kuraterat varje vecka.</p>
+        <div class="footer-payment-row" aria-label="Betalning och trygghet">
+          <span>Klarna</span>
+          <span>Apple Pay</span>
+          <span>Swish</span>
+          <span>1-3 dagar</span>
+        </div>
       </div>
-      <nav aria-label="Sidfot">
+      <div class="footer-column">
+        <strong>Shop</strong>
+        <a href="produkter.html?kategori=Bilvård%20%26%20tvätt">Exteriör</a>
+        <a href="produkter.html?kategori=Bilvård%20%26%20tvätt">Interiör</a>
+        <a href="produkter.html?kategori=Träning%20%26%20hälsa">Träning & hälsa</a>
+        <a href="drops.html">Drops</a>
+      </div>
+      <div class="footer-column">
+        <strong>Medlemskap</strong>
+        <a href="medlemskap.html">Member Club</a>
+        <a href="konto.html">Mitt konto</a>
+        <a href="gillar.html">Gillade</a>
+        <a href="forslag.html">Föreslå produkt</a>
+      </div>
+      <div class="footer-column">
+        <strong>Kundservice</strong>
         <a href="faq.html">FAQ</a>
-        <a href="villkor.html">Regler och villkor</a>
-        <a href="integritet.html">Integritet</a>
         <a href="returer.html">Returer</a>
         <a href="kontakt.html">Kontakt</a>
-      </nav>
+        <a href="villkor.html">Villkor</a>
+      </div>
+      <div class="footer-column">
+        <strong>Socialt</strong>
+        <a href="kontakt.html">Instagram</a>
+        <a href="kontakt.html">TikTok</a>
+        <a href="integritet.html">Integritet</a>
+      </div>
     </div>
   `;
   document.body.appendChild(footer);
