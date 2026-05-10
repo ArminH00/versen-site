@@ -13653,3 +13653,36 @@ html[data-theme="light"] .page-home .home-trending-card{
     height:24px!important;
   }
 }
+
+/* 2026-05-10 plain product drop countdown. */
+.page-products .shop-drop-countdown,
+html[data-theme="light"] .page-products .shop-drop-countdown{
+  min-height:0!important;
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:6px!important;
+  padding:2px 0 8px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+.page-products .shop-drop-countdown span{
+  display:none!important;
+}
+
+.page-products .shop-drop-countdown strong{
+  color:#050505!important;
+  font-size:16.5px!important;
+  line-height:1.2!important;
+  font-weight:560!important;
+}
+
+.page-products .shop-drop-countdown small{
+  margin:0!important;
+  color:#5f6561!important;
+  font-size:11px!important;
+  line-height:1.32!important;
+  font-weight:400!important;
+}

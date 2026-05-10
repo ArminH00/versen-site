@@ -3002,10 +3002,9 @@ function updateDropCountdown() {
   }
 
   const distance = Math.max(0, nextThursdayDrop().getTime() - Date.now());
-  const totalMinutes = Math.ceil(distance / 60000);
-  const totalHours = Math.ceil(totalMinutes / 60);
-  const days = Math.floor(totalHours / 24);
-  const hours = totalHours % 24;
+  const totalMinutes = Math.max(1, Math.ceil(distance / 60000));
+  const days = Math.floor(distance / 86400000);
+  const hours = Math.floor((distance % 86400000) / 3600000);
   const dayText = days === 1 ? '1 dag' : `${days} dagar`;
   const hourText = hours === 1 ? '1h' : `${hours}h`;
 
@@ -3016,8 +3015,13 @@ function updateDropCountdown() {
   }
 
   const homeCompact = document.body && document.body.classList.contains('page-home');
+  if (days > 0 && hours > 0) {
+    dropCountdown.textContent = `${dayText}${homeCompact ? ' ' : ' och '}${hourText} kvar av dessa deals`;
+    return;
+  }
+
   dropCountdown.textContent = days > 0
-    ? `${dayText}${homeCompact ? ' ' : ' och '}${hourText} kvar av dessa deals`
+    ? `${dayText} kvar av dessa deals`
     : `${hourText} kvar av dessa deals`;
 }
 
