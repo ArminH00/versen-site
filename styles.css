@@ -9221,3 +9221,51 @@ body{
     width:27%!important;
   }
 }
+
+/* Home scroll release: keep the hero visual passive so mobile Safari scrolls the page immediately. */
+html:has(body.page-home),
+body.page-home:not(.mobile-menu-open){
+  height:auto!important;
+  min-height:100%;
+  overflow-y:auto!important;
+  overscroll-behavior-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
+body.page-home:not(.mobile-menu-open){
+  position:static!important;
+}
+
+.page-home .premium-hero{
+  contain:none;
+  overflow:visible!important;
+  touch-action:pan-y!important;
+}
+
+.page-home .premium-hero-copy,
+.page-home .hero-drop-clock{
+  touch-action:pan-y!important;
+}
+
+.page-home main .premium-hero .mobile-hero-visual,
+.page-home main .premium-hero .mobile-hero-visual *,
+.page-home .premium-hero-stage,
+.page-home .premium-hero-stage *{
+  pointer-events:none!important;
+  touch-action:pan-y!important;
+  -webkit-user-drag:none;
+  -webkit-touch-callout:none;
+  user-select:none;
+}
+
+@media (max-width:640px){
+  .page-home .premium-hero{
+    display:block!important;
+    height:auto!important;
+  }
+
+  .page-home .product-showcase{
+    position:relative;
+    z-index:2;
+  }
+}
