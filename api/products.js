@@ -3,7 +3,7 @@ const path = require('path');
 const { sendJson, shopifyFetch } = require('./shopify');
 
 let cleanImageManifest;
-const CLEAN_IMAGE_VERSION = '20260510-white';
+const CLEAN_IMAGE_VERSION = '20260510-cardbg';
 
 function versionCleanImageUrl(url) {
   if (!url || !String(url).startsWith('/assets/product-clean/')) {

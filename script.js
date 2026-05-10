@@ -940,7 +940,7 @@ function renderHomeTrendingFallback() {
   trending.innerHTML = `
     <article class="home-trending-card home-static-card">
       <span class="home-deal-badge">-21%</span>
-      <span class="home-trending-image"><img src="assets/product-clean/10-st-whey-100-portionspase.jpg?v=20260510-white" alt="Body Science Whey 100% Chocolate"></span>
+      <span class="home-trending-image"><img src="assets/product-clean/10-st-whey-100-portionspase.jpg?v=20260510-cardbg" alt="Body Science Whey 100% Chocolate"></span>
       <span class="home-trending-copy">
         <small>Body Science</small>
         <strong>10 st Whey 100% Portionspåse</strong>
@@ -952,7 +952,7 @@ function renderHomeTrendingFallback() {
     </article>
     <article class="home-trending-card home-static-card">
       <span class="home-deal-badge">-20%</span>
-      <span class="home-trending-image"><img src="assets/product-clean/bilschampo-tershine-purify-s-keramiskt.jpg?v=20260510-white" alt=""></span>
+      <span class="home-trending-image"><img src="assets/product-clean/bilschampo-tershine-purify-s-keramiskt.jpg?v=20260510-cardbg" alt=""></span>
       <span class="home-trending-copy">
         <small>Versen</small>
         <strong>Purify S Keramiskt schampo</strong>
@@ -964,7 +964,7 @@ function renderHomeTrendingFallback() {
     </article>
     <article class="home-trending-card home-static-card">
       <span class="home-deal-badge">-25%</span>
-      <span class="home-trending-image"><img src="assets/product-clean/snabbforsegling-tershine-amplify-500-ml.jpg?v=20260510-white" alt=""></span>
+      <span class="home-trending-image"><img src="assets/product-clean/snabbforsegling-tershine-amplify-500-ml.jpg?v=20260510-cardbg" alt=""></span>
       <span class="home-trending-copy">
         <small>Versen</small>
         <strong>Amplify snabbförsegling</strong>
