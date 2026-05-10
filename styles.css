@@ -9027,3 +9027,158 @@ select{
     min-height:360px;
   }
 }
+
+/* Home refinement: calmer hero, tighter pacing, locked vertical scroll */
+html,
+body{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden!important;
+}
+
+.page-home,
+.page-home main,
+.page-home .premium-home{
+  max-width:100%;
+  overflow-x:clip;
+}
+
+.page-home *{
+  min-width:0;
+}
+
+.page-home .product-news-section,
+.page-home .category-editorial,
+.page-home .campaign-strip{
+  display:none!important;
+}
+
+.page-home .product-showcase{
+  padding-top:clamp(36px,6vw,72px);
+  padding-bottom:clamp(28px,5vw,56px);
+}
+
+.page-home .premium-trust-bar{
+  margin-top:0;
+  padding-top:0;
+  padding-bottom:clamp(28px,5vw,54px);
+}
+
+.page-home .home-trending-grid{
+  margin-bottom:0;
+}
+
+.page-home .site-footer{
+  margin-top:0;
+}
+
+.hero-drop-clock{
+  display:grid;
+  gap:5px;
+  align-content:start;
+}
+
+.hero-drop-clock strong{
+  letter-spacing:.05em;
+  white-space:nowrap;
+}
+
+.hero-drop-clock small{
+  margin-top:2px;
+  word-spacing:8px;
+  line-height:1.25;
+}
+
+@media (max-width:640px){
+  .page-home .premium-hero{
+    min-height:540px;
+  }
+
+  .page-home .premium-hero-copy{
+    padding-top:44px!important;
+  }
+
+  .page-home .premium-hero-copy h1{
+    max-width:275px;
+    font-size:38px!important;
+  }
+
+  .page-home .premium-hero-copy p{
+    max-width:252px;
+    margin-bottom:15px;
+  }
+
+  .page-home .hero-drop-clock{
+    left:24px;
+    bottom:25px;
+    gap:6px;
+  }
+
+  .page-home .hero-drop-clock strong{
+    font-size:27px;
+    line-height:.9;
+  }
+
+  .page-home .hero-drop-clock small{
+    font-size:9px;
+    word-spacing:7px;
+  }
+
+  .page-home main .premium-hero .mobile-hero-visual{
+    inset:292px 0 0!important;
+    overflow:visible!important;
+  }
+
+  .page-home .mobile-hero-visual::after{
+    left:38%;
+    right:12%;
+    bottom:10%;
+    height:17%;
+  }
+
+  .page-home .mobile-hero-product-left{
+    left:36%!important;
+    bottom:16%!important;
+    width:22%!important;
+    transform:rotate(-5deg)!important;
+  }
+
+  .page-home .mobile-hero-product-right{
+    right:17%!important;
+    bottom:15%!important;
+    width:25%!important;
+    transform:rotate(4deg)!important;
+  }
+
+  .page-home .product-showcase{
+    padding-top:32px!important;
+    padding-bottom:48px!important;
+  }
+
+  .page-home .section-heading-row{
+    margin-bottom:20px;
+  }
+}
+
+@media (min-width:981px){
+  .page-home main .premium-hero .mobile-hero-visual{
+    overflow:visible!important;
+  }
+
+  .page-home .mobile-hero-product-left{
+    left:23%!important;
+    bottom:26%!important;
+    width:23%!important;
+  }
+
+  .page-home .mobile-hero-product-main{
+    display:none!important;
+  }
+
+  .page-home .mobile-hero-product-right{
+    display:block!important;
+    right:24%!important;
+    bottom:24%!important;
+    width:27%!important;
+  }
+}
