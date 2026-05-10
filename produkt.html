@@ -14,6 +14,12 @@
 
 <body class="auth-loading page-product-detail">
 
+<div class="pdp-topbar" aria-label="Leveransinformation">
+  <span>1-3 dagars leverans</span>
+  <span>Fraktfritt över 799 kr</span>
+  <span>Medlemsdeals varje vecka</span>
+</div>
+
 <nav class="nav launch-nav">
   <button class="nav-mobile-menu" type="button" aria-label="Tillbaka"></button>
   <a class="logo" href="index.html">VERSEN</a>
@@ -38,11 +44,33 @@
 </nav>
 
 <main class="product-detail-page">
+  <nav class="pdp-breadcrumb" aria-label="Brödsmulor">
+    <a href="index.html">Hem</a>
+    <a href="produkter.html" data-product-category-crumb>Shop</a>
+    <span data-product-breadcrumb-title>Produkt</span>
+  </nav>
+
   <section class="product-detail fade" data-product-detail>
-    <div class="product-large-image" data-product-image>Produktbild</div>
+    <div class="product-detail-media">
+      <div class="product-thumb-rail" aria-label="Produktbilder">
+        <button class="product-thumb active" type="button" aria-label="Visa produktbild">
+          <span data-product-thumb-image></span>
+        </button>
+        <button class="product-thumb" type="button" aria-label="Visa produktbild">
+          <span data-product-thumb-image></span>
+        </button>
+        <button class="product-thumb" type="button" aria-label="Visa produktbild">
+          <span data-product-thumb-image></span>
+        </button>
+      </div>
+      <div class="product-large-image" data-product-image>Produktbild</div>
+      <div class="product-gallery-arrows" aria-hidden="true">
+        <span></span>
+        <span></span>
+      </div>
+    </div>
 
     <div class="product-detail-info">
-      <div class="badge" data-product-category>Dryck</div>
       <h1 data-product-title>Nocco flak</h1>
 
       <div class="detail-prices">
@@ -51,22 +79,54 @@
       </div>
       <div class="detail-saving" data-product-saving></div>
 
+      <p class="product-short-description" data-product-summary>Produktdata hämtas från Versens katalog.</p>
+
       <div class="variant-picker" data-variant-picker hidden></div>
-      <div class="detail-urgency" data-product-urgency>Få kvar</div>
 
-      <div class="quantity-control" aria-label="Välj antal">
-        <button type="button" data-quantity-minus>-</button>
-        <input type="number" min="1" value="1" inputmode="numeric" data-product-quantity>
-        <button type="button" data-quantity-plus>+</button>
+      <div class="product-buy-box">
+        <div class="detail-urgency" data-product-urgency>Finns i lager</div>
+        <div class="quantity-control" aria-label="Välj antal">
+          <button type="button" data-quantity-minus>-</button>
+          <input type="number" min="1" value="1" inputmode="numeric" data-product-quantity>
+          <button type="button" data-quantity-plus>+</button>
+        </div>
+
+        <button class="cta" type="button" data-add-to-cart-button>Köp nu</button>
+        <button class="product-btn detail-buy-now" type="button" data-buy-now-button>Till kundkorgen</button>
+        <p class="form-message" data-checkout-message></p>
       </div>
 
-      <button class="cta" type="button" data-add-to-cart-button>Lägg i kundkorg</button>
-      <button class="product-btn detail-buy-now" type="button" data-buy-now-button>Köp nu</button>
-      <p class="form-message" data-checkout-message></p>
-
-      <div class="product-description-rich" data-product-description>
-        Produktdata hämtas från Versens katalog.
+      <div class="pdp-card-row" aria-label="Betalsätt">
+        <span>Klarna</span>
+        <span>Apple Pay</span>
+        <span>Swish</span>
       </div>
+
+      <div class="pdp-service-list">
+        <ul>
+          <li><span aria-hidden="true"></span>1-3 dagars leverans</li>
+          <li><span aria-hidden="true"></span>Fraktfritt över 799 kr</li>
+          <li><span aria-hidden="true"></span>Medlemspris på utvalda deals</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="pdp-information" id="product-information" aria-label="Produktinformation">
+    <div class="pdp-information-hero">
+      <div>
+        <h2>Produktinformation</h2>
+        <p data-product-summary>Allt du behöver veta om produkten, samlat på samma sätt som en klassisk produktsida.</p>
+      </div>
+      <ul>
+        <li>Utvalt pris</li>
+        <li>Medlemsdeal</li>
+        <li>Begränsat lager</li>
+        <li>Säker checkout</li>
+      </ul>
+    </div>
+    <div class="product-description-rich" data-product-description>
+      Produktdata hämtas från Versens katalog.
     </div>
   </section>
 </main>

@@ -481,7 +481,7 @@ function syncShoppingAccess() {
   const detailAddButton = document.querySelector('[data-add-to-cart-button]');
   if (detailAddButton) {
     detailAddButton.disabled = false;
-    detailAddButton.textContent = 'Lägg i kundkorg';
+    detailAddButton.textContent = 'Köp nu';
   }
 
   const checkoutButton = document.querySelector('[data-cart-checkout]');
@@ -1530,6 +1530,49 @@ function setProductDescription(product) {
   element.innerHTML = renderProductDescription(product.description || 'Produktinformation hämtas från Versens katalog.');
 }
 
+function productSummaryText(product) {
+  const sections = splitProductSections(product && product.description ? product.description : '');
+  const firstText = (
+    sections.find((section) => section.body && !/^(Egenskaper|Innehåll|Ingredienser)$/i.test(section.title || '')) ||
+    sections.find((section) => section.body)
+  )?.body || '';
+  const fallback = product && product.title
+    ? `${product.title} till medlemspris hos Versen.`
+    : 'Produktinformation hämtas från Versens katalog.';
+  const text = sentenceParagraphs(firstText)[0] || fallback;
+
+  return text.length > 240 ? `${text.slice(0, 237).trim()}...` : text;
+}
+
+function setProductSummary(product) {
+  const summary = productSummaryText(product);
+
+  document.querySelectorAll('[data-product-summary]').forEach((element) => {
+    element.textContent = summary;
+  });
+}
+
+function setProductChrome(product) {
+  document.querySelectorAll('[data-product-breadcrumb-title]').forEach((element) => {
+    element.textContent = product.title || 'Produkt';
+  });
+
+  document.querySelectorAll('[data-product-category-crumb]').forEach((element) => {
+    element.textContent = product.category || 'Shop';
+  });
+}
+
+function setProductThumbImages(image, product) {
+  document.querySelectorAll('[data-product-thumb-image]').forEach((element) => {
+    if (!image || !image.url) {
+      element.textContent = 'Bild';
+      return;
+    }
+
+    element.innerHTML = `<img src="${escapeHtml(image.url)}" alt="${escapeHtml(image.altText || product.title || '')}">`;
+  });
+}
+
 function variantLabel(variant) {
   if (!variant) {
     return '';
@@ -1586,12 +1629,13 @@ function updateProductVariant(product, variant) {
 
   const urgency = document.querySelector('[data-product-urgency]');
   if (urgency) {
-    urgency.textContent = 'Få kvar';
+    urgency.textContent = 'Finns i lager';
   }
 
   const imageElement = document.querySelector('[data-product-image]');
   if (imageElement && image && image.url) {
     const current = imageElement.querySelector('img');
+    setProductThumbImages(image, product);
 
     if (current && current.getAttribute('src') === image.url) {
       return;
@@ -1668,6 +1712,8 @@ function setProductDetail(product) {
 
   setText('[data-product-category]', product.category);
   setText('[data-product-title]', product.title);
+  setProductChrome(product);
+  setProductSummary(product);
   setProductDescription(product);
   updateProductVariant(product, selectedVariant);
   renderVariantPicker(product);
@@ -1771,7 +1817,7 @@ if (addToCartButton) {
     addToCartButton.textContent = 'Tillagd i kundkorg';
 
     window.setTimeout(() => {
-      addToCartButton.textContent = 'Lägg i kundkorg';
+      addToCartButton.textContent = 'Köp nu';
     }, 1400);
   });
 }
