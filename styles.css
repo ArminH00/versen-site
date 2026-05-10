@@ -13307,3 +13307,50 @@ html[data-theme="light"] .page-home .home-trending-card{
     stroke:#050505!important;
   }
 }
+
+/* 2026-05-10 make every page use the same bottom nav as Home. */
+@media(max-width:767px){
+  .bottom-nav{
+    left:0!important;
+    right:0!important;
+    bottom:0!important;
+    bottom:env(safe-area-inset-bottom)!important;
+    min-height:72px!important;
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:0!important;
+    padding:8px 20px 7px!important;
+    border:0!important;
+    border-top:1px solid #e6e6e4!important;
+    border-radius:0!important;
+    background:rgba(255,255,255,.98)!important;
+    box-shadow:0 -8px 22px rgba(20,24,22,.04)!important;
+    backdrop-filter:blur(14px)!important;
+  }
+
+  .bottom-nav a,
+  .bottom-nav a.active{
+    min-height:52px!important;
+    display:grid!important;
+    grid-template-rows:24px auto!important;
+    place-items:center!important;
+    gap:6px!important;
+    border-radius:0!important;
+    background:transparent!important;
+    color:#050505!important;
+    font-size:11px!important;
+    line-height:1!important;
+    font-weight:850!important;
+  }
+
+  .bottom-nav svg{
+    width:23px!important;
+    height:23px!important;
+    stroke-width:1.85!important;
+  }
+
+  .bottom-nav a.active svg{
+    fill:#050505!important;
+    stroke:#050505!important;
+  }
+}
