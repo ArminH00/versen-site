@@ -9222,46 +9222,59 @@ body{
   }
 }
 
-/* Home scroll release: keep the hero visual passive so mobile Safari scrolls the page immediately. */
-html:has(body.page-home),
+/* Home mobile scroll: keep the hero in normal document flow. */
 body.page-home:not(.mobile-menu-open){
-  height:auto!important;
-  min-height:100%;
-  overflow-y:auto!important;
-  overscroll-behavior-y:auto;
-  -webkit-overflow-scrolling:touch;
+  overflow-y:visible!important;
+  touch-action:auto!important;
 }
 
-body.page-home:not(.mobile-menu-open){
-  position:static!important;
-}
-
-.page-home .premium-hero{
-  contain:none;
-  overflow:visible!important;
-  touch-action:pan-y!important;
-}
-
-.page-home .premium-hero-copy,
-.page-home .hero-drop-clock{
-  touch-action:pan-y!important;
-}
-
-.page-home main .premium-hero .mobile-hero-visual,
-.page-home main .premium-hero .mobile-hero-visual *,
 .page-home .premium-hero-stage,
 .page-home .premium-hero-stage *{
   pointer-events:none!important;
-  touch-action:pan-y!important;
-  -webkit-user-drag:none;
-  -webkit-touch-callout:none;
-  user-select:none;
 }
 
 @media (max-width:640px){
-  .page-home .premium-hero{
-    display:block!important;
+  body.page-home:not(.mobile-menu-open){
+    position:static!important;
     height:auto!important;
+    min-height:100svh;
+  }
+
+  .page-home .premium-hero{
+    display:flex!important;
+    flex-direction:column;
+    min-height:0!important;
+    height:auto!important;
+    overflow:hidden!important;
+    contain:none!important;
+  }
+
+  .page-home .premium-hero-copy{
+    order:1!important;
+    padding-bottom:0!important;
+  }
+
+  .page-home .hero-drop-clock{
+    position:static!important;
+    margin-top:28px!important;
+  }
+
+  .page-home main .premium-hero .mobile-hero-visual{
+    position:relative!important;
+    order:2!important;
+    inset:auto!important;
+    height:235px!important;
+    margin:0!important;
+    overflow:hidden!important;
+    pointer-events:none!important;
+    touch-action:auto!important;
+    user-select:none;
+  }
+
+  .page-home main .premium-hero .mobile-hero-visual *{
+    pointer-events:none!important;
+    -webkit-user-drag:none;
+    user-select:none;
   }
 
   .page-home .product-showcase{
