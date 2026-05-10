@@ -13429,3 +13429,227 @@ html[data-theme="light"] .page-home .home-trending-card{
     stroke:#050505!important;
   }
 }
+
+/* 2026-05-10 tighter product cards and centered wishlist heart. */
+.page-products .product-info{
+  gap:5px!important;
+  padding:11px 11px 13px!important;
+}
+
+.page-products .product-card-meta{
+  min-height:0!important;
+  margin-bottom:0!important;
+}
+
+.page-products .product-info h3{
+  min-height:0!important;
+  margin:0!important;
+}
+
+.page-products .product-prices{
+  gap:3px!important;
+  margin:3px 0 0!important;
+}
+
+.page-products .product-card.has-great-price .product-prices{
+  padding:6px 8px!important;
+  margin-left:-8px!important;
+  margin-right:-8px!important;
+}
+
+.page-products .product-wishlist-button{
+  display:grid!important;
+  place-items:center!important;
+  width:30px!important;
+  height:30px!important;
+  top:11px!important;
+  right:11px!important;
+}
+
+.page-products .product-wishlist-button::before{
+  position:static!important;
+  inset:auto!important;
+  display:block!important;
+  font-size:23px!important;
+  line-height:1!important;
+  transform:none!important;
+}
+
+.page-products .product-wishlist-button.active::before{
+  font-size:21px!important;
+  transform:none!important;
+}
+
+@media(max-width:767px){
+  .page-products .product-card,
+  html[data-theme="light"] .page-products .product-card{
+    min-height:254px!important;
+  }
+
+  .page-products .product-info{
+    gap:4px!important;
+    padding:9px 10px 12px!important;
+  }
+
+  .page-products .product-card-meta{
+    min-height:10px!important;
+  }
+
+  .page-products .product-prices{
+    gap:2px!important;
+    margin-top:2px!important;
+  }
+
+  .page-products .product-wishlist-button{
+    width:27px!important;
+    height:27px!important;
+    top:10px!important;
+    right:10px!important;
+  }
+
+  .page-products .product-wishlist-button::before{
+    font-size:21px!important;
+  }
+
+  .page-products .product-wishlist-button.active::before{
+    font-size:19px!important;
+  }
+}
+
+/* 2026-05-10 tighter category cards with square product crops. */
+.page-products .category-launch-card small{
+  display:block!important;
+  width:fit-content!important;
+  max-width:98px!important;
+  margin-left:0!important;
+  margin-right:auto!important;
+  text-align:left!important;
+}
+
+.page-products .category-image-row{
+  right:20px!important;
+  top:50%!important;
+  bottom:auto!important;
+  width:126px!important;
+  height:52px!important;
+  align-items:center!important;
+  justify-content:center!important;
+  transform:translateY(-50%)!important;
+}
+
+.page-products .category-image-row img{
+  width:48px!important;
+  height:48px!important;
+  aspect-ratio:1 / 1!important;
+  margin-left:-22px!important;
+  object-fit:cover!important;
+  border-radius:8px!important;
+  filter:none!important;
+}
+
+@media(max-width:767px){
+  .page-products .category-launch,
+  .page-products .catalog-section{
+    width:calc(100% - 32px)!important;
+  }
+
+  .page-products .category-launch{
+    gap:18px!important;
+  }
+
+  .page-products .category-launch-card,
+  html[data-theme="light"] .page-products .category-launch-card{
+    position:relative!important;
+    min-height:140px!important;
+    padding:0!important;
+  }
+
+  .page-products .category-launch-card span{
+    position:absolute!important;
+    left:13px!important;
+    top:18px!important;
+    margin:0!important;
+  }
+
+  .page-products .category-launch-card strong{
+    position:absolute!important;
+    left:13px!important;
+    top:49px!important;
+    max-width:88px!important;
+    margin:0!important;
+  }
+
+  .page-products .category-launch-card small{
+    position:absolute!important;
+    left:13px!important;
+    bottom:15px!important;
+    max-width:78px!important;
+    margin-top:0!important;
+  }
+
+  .page-products .category-image-row{
+    right:13px!important;
+    top:auto!important;
+    bottom:15px!important;
+    width:86px!important;
+    height:32px!important;
+    display:flex!important;
+    flex-direction:row!important;
+    gap:0!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    transform:none!important;
+  }
+
+  .page-products .category-image-row img{
+    width:32px!important;
+    height:32px!important;
+    margin-left:-14px!important;
+    border-radius:6px!important;
+  }
+
+  .page-products .category-image-row img:first-child{
+    margin-left:0!important;
+  }
+}
+
+/* 2026-05-10 use the same real cart icon across the shop. */
+.nav-cart::before,
+.nav-cart::after{
+  display:none!important;
+  content:none!important;
+}
+
+.nav-icon svg{
+  width:100%;
+  height:100%;
+  display:block;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.85;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.nav-cart{
+  width:22px!important;
+  height:22px!important;
+}
+
+.nav-cart svg{
+  width:22px!important;
+  height:22px!important;
+  stroke-width:1.8!important;
+}
+
+@media(max-width:767px){
+  .nav-cart{
+    width:27px!important;
+    height:27px!important;
+  }
+
+  .nav-cart svg{
+    width:24px!important;
+    height:24px!important;
+  }
+}
