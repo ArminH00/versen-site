@@ -755,14 +755,105 @@ function homeTrendingCard(product) {
   const image = product.image && product.image.url
     ? `<img src="${escapeHtml(product.image.url)}" alt="${escapeHtml(product.image.altText || product.title)}">`
     : '';
+  const compareAtPrice = product.compareAtPrice && product.compareAtPrice !== product.price ? product.compareAtPrice : '';
+  const discount = productDiscountPercent(product);
+  const saving = productDiscountAmount(product);
+  const vendor = product.vendor || product.category || 'Versen';
 
   return `
-    <a class="home-trending-card" href="${escapeHtml(productUrl)}">
-      <span class="home-trending-image">${image}</span>
-      <small>${escapeHtml(product.vendor || product.category || 'Versen')}</small>
-      <strong>${escapeHtml(product.title)}</strong>
-      <em>${escapeHtml(product.price || 'Medlemspris')}</em>
-    </a>
+    <article class="home-trending-card" data-category="${escapeHtml(product.category || '')}" data-product-handle="${escapeHtml(product.handle || '')}" data-variant-id="${escapeHtml(product.variantId || '')}" data-product-title="${escapeHtml(product.title || '')}" data-product-price="${escapeHtml(product.price || '')}" data-product-compare-at-price="${escapeHtml(product.compareAtPrice || '')}" data-product-image-url="${escapeHtml(product.image && product.image.url ? product.image.url : '')}" data-product-image-alt="${escapeHtml(product.image && product.image.altText ? product.image.altText : product.title || '')}">
+      ${discount ? `<span class="home-deal-badge">-${discount}%</span>` : ''}
+      <a class="home-trending-image" href="${escapeHtml(productUrl)}">${image}</a>
+      <a class="home-trending-copy" href="${escapeHtml(productUrl)}">
+        <small>${escapeHtml(vendor)}</small>
+        <strong>${escapeHtml(product.title)}</strong>
+        <span class="home-trending-prices">
+          <em>${escapeHtml(product.price || 'Medlemspris')}</em>
+          ${compareAtPrice ? `<del>${escapeHtml(compareAtPrice)}</del>` : ''}
+        </span>
+        ${saving ? `<span class="home-trending-saving">Du sparar ${escapeHtml(formatSek(saving))}</span>` : ''}
+      </a>
+      <button class="home-add-button" type="button" data-catalog-add aria-label="Lägg ${escapeHtml(product.title)} i kundkorg">+</button>
+    </article>
+  `;
+}
+
+function homePreferredDeals(products) {
+  const wanted = [
+    ['tershine', 'bilberry'],
+    ['whey'],
+    ['celsius', 'apelsin'],
+    ['body science'],
+  ];
+  const used = new Set();
+  const picks = [];
+
+  wanted.forEach((needles) => {
+    const match = products.find((product) => {
+      if (used.has(product.handle)) return false;
+      const haystack = [
+        product.title,
+        product.vendor,
+        product.category,
+        ...(Array.isArray(product.tags) ? product.tags : []),
+      ].join(' ').toLowerCase();
+
+      return needles.every((needle) => haystack.includes(needle));
+    });
+
+    if (match) {
+      used.add(match.handle);
+      picks.push(match);
+    }
+  });
+
+  const filler = topDiscountProducts(products, 8)
+    .filter((product) => !used.has(product.handle));
+
+  return [...picks, ...filler].slice(0, 8);
+}
+
+function renderHomeTrendingFallback() {
+  const trending = document.querySelector('[data-home-trending]');
+
+  if (!trending || trending.children.length) {
+    return;
+  }
+
+  trending.innerHTML = `
+    <article class="home-trending-card home-static-card">
+      <span class="home-deal-badge">-21%</span>
+      <span class="home-trending-image"><img src="assets/versen-whey-hero.png" alt="Body Science Whey 100% Chocolate"></span>
+      <span class="home-trending-copy">
+        <small>Body Science</small>
+        <strong>10 st Whey 100% Portionspåse</strong>
+        <span class="home-trending-prices"><em>119 kr</em><del>150 kr</del></span>
+        <span class="home-trending-saving">Du sparar 31 kr</span>
+      </span>
+      <a class="home-add-button" href="produkter.html" aria-label="Visa produkter">+</a>
+    </article>
+    <article class="home-trending-card home-static-card">
+      <span class="home-deal-badge">-20%</span>
+      <span class="home-trending-image"><img src="assets/versen-whey-hero.png" alt=""></span>
+      <span class="home-trending-copy">
+        <small>Versen</small>
+        <strong>Populär medlemsdeal</strong>
+        <span class="home-trending-prices"><em>159 kr</em><del>199 kr</del></span>
+        <span class="home-trending-saving">Du sparar 40 kr</span>
+      </span>
+      <a class="home-add-button" href="produkter.html" aria-label="Visa produkter">+</a>
+    </article>
+    <article class="home-trending-card home-static-card">
+      <span class="home-deal-badge">-25%</span>
+      <span class="home-trending-image"><img src="assets/versen-whey-hero.png" alt=""></span>
+      <span class="home-trending-copy">
+        <small>Versen</small>
+        <strong>Veckans utvalda 12-pack</strong>
+        <span class="home-trending-prices"><em>149 kr</em><del>199 kr</del></span>
+        <span class="home-trending-saving">Du sparar 50 kr</span>
+      </span>
+      <a class="home-add-button" href="produkter.html" aria-label="Visa produkter">+</a>
+    </article>
   `;
 }
 
@@ -781,7 +872,7 @@ function renderHomeDealTeaser(products) {
   }
 
   if (trending) {
-    const items = (deals.length ? deals : products).slice(0, 5);
+    const items = homePreferredDeals(deals.length ? deals : products);
     trending.innerHTML = items.map(homeTrendingCard).join('');
   }
 }
@@ -1027,6 +1118,7 @@ async function loadProducts() {
     const response = await fetch('/api/products');
 
     if (!response.ok) {
+      renderHomeTrendingFallback();
       return;
     }
 
@@ -1118,8 +1210,9 @@ hydrateLikedFromCatalog();
 async function loadMemberHomeProducts() {
   const grid = document.querySelector('[data-member-products]');
   const homeTeaser = document.querySelector('[data-home-deal-teaser]');
+  const homeTrending = document.querySelector('[data-home-trending]');
 
-  if (!grid && !homeTeaser) {
+  if (!grid && !homeTeaser && !homeTrending) {
     return;
   }
 
@@ -1127,12 +1220,18 @@ async function loadMemberHomeProducts() {
     const response = await fetch('/api/products');
 
     if (!response.ok) {
+      renderHomeTrendingFallback();
       return;
     }
 
     const data = await response.json();
     const visibleProducts = (data.products || [])
       .filter((product) => product.handle !== 'medlemskap');
+
+    if (!visibleProducts.length) {
+      renderHomeTrendingFallback();
+      return;
+    }
 
     renderHomeDealTeaser(visibleProducts);
 
@@ -1152,6 +1251,7 @@ async function loadMemberHomeProducts() {
       memberLiveTimer = window.setInterval(() => renderMemberLiveProducts(grid), 60000);
     }
   } catch (error) {
+    renderHomeTrendingFallback();
     return;
   }
 }
@@ -2912,8 +3012,9 @@ function updateDropCountdown() {
     return;
   }
 
+  const homeCompact = document.body && document.body.classList.contains('page-home');
   dropCountdown.textContent = days > 0
-    ? `${dayText} och ${hourText} kvar av dessa deals`
+    ? `${dayText}${homeCompact ? ' ' : ' och '}${hourText} kvar av dessa deals`
     : `${hourText} kvar av dessa deals`;
 }
 
