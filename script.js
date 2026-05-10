@@ -497,7 +497,7 @@ function syncShoppingAccess() {
   const detailAddButton = document.querySelector('[data-add-to-cart-button]');
   if (detailAddButton) {
     detailAddButton.disabled = false;
-    detailAddButton.textContent = 'Köp nu';
+    detailAddButton.textContent = 'Lägg i kundkorg';
   }
 
   const checkoutButton = document.querySelector('[data-cart-checkout]');
@@ -794,6 +794,53 @@ function homeTrendingCard(product) {
       <button class="home-add-button" type="button" data-catalog-add aria-label="Lägg ${escapeHtml(product.title)} i kundkorg">+</button>
     </article>
   `;
+}
+
+function renderRelatedProducts(currentProduct, products = []) {
+  const grid = document.querySelector('[data-related-products]');
+
+  if (!grid || !currentProduct) {
+    return;
+  }
+
+  const related = products
+    .filter((product) => (
+      product
+      && product.handle
+      && product.handle !== currentProduct.handle
+      && product.handle !== 'medlemskap'
+      && (
+        product.category === currentProduct.category
+        || product.vendor === currentProduct.vendor
+        || product.productType === currentProduct.productType
+      )
+    ))
+    .slice(0, 4);
+
+  const fallback = products
+    .filter((product) => (
+      product
+      && product.handle
+      && product.handle !== currentProduct.handle
+      && product.handle !== 'medlemskap'
+      && !related.some((item) => item.handle === product.handle)
+    ))
+    .slice(0, Math.max(0, 4 - related.length));
+
+  const items = [...related, ...fallback];
+
+  if (!items.length) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <span>Relaterade produkter fylls på</span>
+        <p>Gå till katalogen för att se alla aktiva medlemsdeals.</p>
+        <a class="product-btn" href="produkter.html">Visa produkter</a>
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = items.map(homeTrendingCard).join('');
 }
 
 function homePreferredDeals(products) {
@@ -1754,6 +1801,10 @@ async function loadProductDetail() {
       if (response.ok) {
         const data = await response.json();
         setProductDetail(data.product);
+        fetch('/api/products')
+          .then((relatedResponse) => relatedResponse.ok ? relatedResponse.json() : null)
+          .then((relatedData) => renderRelatedProducts(data.product, relatedData && relatedData.products ? relatedData.products : []))
+          .catch(() => renderRelatedProducts(data.product, []));
         return;
       }
     }
@@ -1770,6 +1821,7 @@ async function loadProductDetail() {
     )) || (data.products || []).find((item) => item.handle !== 'medlemskap');
 
     setProductDetail(product);
+    renderRelatedProducts(product, data.products || []);
   } catch (error) {
     return;
   }
@@ -1833,7 +1885,7 @@ if (addToCartButton) {
     addToCartButton.textContent = 'Tillagd i kundkorg';
 
     window.setTimeout(() => {
-      addToCartButton.textContent = 'Köp nu';
+      addToCartButton.textContent = 'Lägg i kundkorg';
     }, 1400);
   });
 }
@@ -1906,7 +1958,7 @@ function renderCart() {
   }
 
   setText('[data-cart-total-items]', `${totalItems} st`);
-  setText('[data-cart-heading-items]', `${totalItems}`);
+  setText('[data-cart-heading-items]', `${totalItems} st`);
   setText('[data-cart-total]', formatSek(total));
 
   const checkoutButton = document.querySelector('[data-cart-checkout]');

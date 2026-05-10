@@ -47,41 +47,69 @@
   <a href="konto.html" data-icon="account"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4Z"/></svg><span>Konto</span></a>
 </nav>
 
-<main>
-  <header class="membership-hero fade">
+<main class="membership-page">
+  <header class="membership-hero premium-membership-hero fade">
     <div class="membership-panel">
       <div class="membership-copy">
-      <div class="badge">Medlemskap</div>
-      <h1>Mer än bara lägre priser. En livsstil.</h1>
-      <p>
-        Som medlem får du exklusiva förmåner, tidig tillgång och sparar tusentals kronor varje år.
-      </p>
-      <button class="cta" type="button" data-membership-checkout>Bli medlem nu</button>
-      <p class="form-message" data-membership-message></p>
+        <span class="eyebrow">Versen Member Club</span>
+        <h1>Medlemspriser, varje vecka.</h1>
+        <p>En enkel prenumeration som låser upp aktiva deals, poäng, produktförslag och checkout.</p>
+        <button class="cta" type="button" data-membership-checkout>Starta medlemskap</button>
+        <p class="form-message" data-membership-message></p>
       </div>
 
       <div class="membership-card-visual premium" aria-hidden="true">
         <span>VERSEN</span>
-        <small>MEMBER CLUB</small>
+        <strong>Member Club</strong>
+        <small>Weekly access</small>
       </div>
     </div>
   </header>
 
+  <section class="membership-benefit-band fade">
+    <article><span>01</span><strong>Medlemspris</strong><p>Utvalda produkter med tydlig jämförelse mot ordinarie pris.</p></article>
+    <article><span>02</span><strong>Poäng</strong><p>Samla rewards och bygg mer värde över tid.</p></article>
+    <article><span>03</span><strong>Inflytande</strong><p>Föreslå produkter och påverka kommande drops.</p></article>
+  </section>
+
   <section class="membership-plans fade">
-    <h2>Välj ditt medlemskap</h2>
+    <div class="section-heading-row">
+      <div>
+        <span class="eyebrow">Pricing</span>
+        <h2>Välj medlemskap.</h2>
+      </div>
+    </div>
     <div class="plan-grid">
       <article>
         <span>Månad</span>
         <strong>99 kr/mån</strong>
+        <p>Flexibel access till aktiva deals och checkout.</p>
         <button class="product-btn secondary" type="button" data-membership-checkout>Välj månad</button>
       </article>
       <article class="featured">
-        <em>Populär</em>
-        <span>År - rekommenderad</span>
+        <em>Rekommenderad</em>
+        <span>År</span>
         <strong>899 kr/år</strong>
-        <p>Spara 3 månader och få högsta prioritet.</p>
+        <p>Spara 3 månader och få högsta prioritet på kommande medlemsfunktioner.</p>
         <button class="product-btn" type="button" data-membership-checkout>Välj år</button>
       </article>
+    </div>
+  </section>
+
+  <section class="membership-faq fade">
+    <div class="faq-stack">
+      <details open>
+        <summary>Vad ingår?</summary>
+        <p>Medlemspriser, poäng, produktförslag och möjlighet att slutföra checkout på aktiva deals.</p>
+      </details>
+      <details>
+        <summary>Kan jag avsluta?</summary>
+        <p>Ja. Du kan avsluta i kontoinställningar och behåller access till sista betalda datum.</p>
+      </details>
+      <details>
+        <summary>Måste jag skapa konto?</summary>
+        <p>Ja, kontot används för att koppla medlemskap, poäng, orderhistorik och checkout.</p>
+      </details>
     </div>
   </section>
 </main>

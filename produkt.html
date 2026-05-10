@@ -64,16 +64,16 @@
     <div class="product-detail-media">
       <div class="product-thumb-rail" aria-label="Produktbilder">
         <button class="product-thumb active" type="button" aria-label="Visa produktbild">
-          <span data-product-thumb-image></span>
+          <span data-product-thumb-image><img src="assets/versen-whey-hero.png" alt=""></span>
         </button>
         <button class="product-thumb" type="button" aria-label="Visa produktbild">
-          <span data-product-thumb-image></span>
+          <span data-product-thumb-image><img src="assets/hero-studio/bilschampo-tershine-purify-s-keramiskt.png" alt=""></span>
         </button>
         <button class="product-thumb" type="button" aria-label="Visa produktbild">
-          <span data-product-thumb-image></span>
+          <span data-product-thumb-image><img src="assets/hero-studio/snabbforsegling-tershine-amplify-500-ml.png" alt=""></span>
         </button>
       </div>
-      <div class="product-large-image" data-product-image>Produktbild</div>
+      <div class="product-large-image" data-product-image><img src="assets/versen-whey-hero.png" alt="Versen medlemsdeal"></div>
       <div class="product-gallery-arrows" aria-hidden="true">
         <span></span>
         <span></span>
@@ -81,15 +81,17 @@
     </div>
 
     <div class="product-detail-info">
+      <span class="eyebrow" data-product-category>Versen deal</span>
       <h1 data-product-title>Nocco flak</h1>
 
+      <span class="price-label">Medlemspris</span>
       <div class="detail-prices">
-        <span class="old" data-product-compare-price>300 kr</span>
         <span class="new" data-product-price>189 kr</span>
+        <span class="old" data-product-compare-price>300 kr</span>
       </div>
       <div class="detail-saving" data-product-saving></div>
 
-      <p class="product-short-description" data-product-summary>Produktdata hämtas från Versens katalog.</p>
+      <p class="product-short-description" data-product-summary>Utvald medlemsdeal med tydligt pris, snabb checkout och leverans från svenskt lager.</p>
 
       <div class="variant-picker" data-variant-picker hidden></div>
 
@@ -101,8 +103,8 @@
           <button type="button" data-quantity-plus>+</button>
         </div>
 
-        <button class="cta" type="button" data-add-to-cart-button>Köp nu</button>
-        <button class="product-btn detail-buy-now" type="button" data-buy-now-button>Till kundkorgen</button>
+        <button class="cta" type="button" data-add-to-cart-button>Lägg i kundkorg</button>
+        <button class="product-btn detail-buy-now" type="button" data-buy-now-button>Köp snabbare</button>
         <p class="form-message" data-checkout-message></p>
       </div>
 
@@ -123,21 +125,39 @@
   </section>
 
   <section class="pdp-information" id="product-information" aria-label="Produktinformation">
-    <div class="pdp-information-hero">
+    <div class="section-heading-row">
       <div>
+        <span class="eyebrow">Detaljer</span>
         <h2>Produktinformation</h2>
-        <p data-product-summary>Allt du behöver veta om produkten, samlat på samma sätt som en klassisk produktsida.</p>
       </div>
-      <ul>
-        <li>Utvalt pris</li>
-        <li>Medlemsdeal</li>
-        <li>Begränsat lager</li>
-        <li>Säker checkout</li>
-      </ul>
     </div>
-    <div class="product-description-rich" data-product-description>
-      Produktdata hämtas från Versens katalog.
+    <div class="pdp-accordion">
+      <details open>
+        <summary>Beskrivning</summary>
+        <div class="product-description-rich" data-product-description>
+          <p>Utvald produkt i Versens medlemskatalog. Pris, varianter och lager uppdateras automatiskt från veckans sortiment.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Leverans och checkout</summary>
+        <p>1-3 dagars leverans. Aktivt medlemskap krävs för att slutföra checkout med medlemspris.</p>
+      </details>
+      <details>
+        <summary>Returer</summary>
+        <p>14 dagars ångerrätt från leverans. Produkten ska returneras enligt Versens villkor.</p>
+      </details>
     </div>
+  </section>
+
+  <section class="related-products-section" aria-label="Relaterade produkter">
+    <div class="section-heading-row">
+      <div>
+        <span class="eyebrow">Fortsätt shoppa</span>
+        <h2>Relaterade produkter</h2>
+      </div>
+      <a href="produkter.html">Se alla</a>
+    </div>
+    <div class="home-trending-grid" data-related-products></div>
   </section>
 </main>
 
