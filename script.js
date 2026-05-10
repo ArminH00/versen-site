@@ -93,28 +93,11 @@ function renderLuxuryMenu() {
   ];
 
   menu.innerHTML = `
-    <div class="menu-panel-copy" aria-hidden="true">
-      <span>Versen edit</span>
-      <strong>Premium deals, curated weekly.</strong>
-    </div>
     <div class="menu-link-stack">
       ${links.map((link) => {
         const isActive = link.match.includes(path);
         return `<a class="${isActive ? 'active' : ''}" href="${link.href}">${link.label}${link.cart ? '<span data-cart-count></span>' : ''}</a>`;
       }).join('')}
-    </div>
-    <a class="menu-feature" href="produkter.html?kategori=Bilvård%20%26%20tvätt">
-      <span class="menu-feature-visual" aria-hidden="true">
-        <img src="assets/hero-studio/bilschampo-tershine-purify-s-keramiskt.png" alt="">
-        <img src="assets/hero-studio/snabbforsegling-tershine-amplify-500-ml.png" alt="">
-      </span>
-      <small>Weekly studio drop</small>
-      <strong>Bilvård med medlemspris.</strong>
-    </a>
-    <div class="menu-service-row" aria-hidden="true">
-      <span>1-3 dagar</span>
-      <span>Svensk support</span>
-      <span>Trygg checkout</span>
     </div>
   `;
 
@@ -123,24 +106,18 @@ function renderLuxuryMenu() {
   overlay.className = 'luxury-menu-overlay';
   overlay.setAttribute('aria-label', 'Mobil meny');
   overlay.innerHTML = `
-    <div class="luxury-menu-intro">
-      <span>Shop</span>
-      <strong>Premium shopping, curated weekly.</strong>
+    <div class="luxury-menu-shell">
+      <div class="luxury-menu-links">
+        ${links.map((link) => {
+          const isActive = link.match.includes(path);
+          return `<a class="${isActive ? 'active' : ''}" href="${link.href}"><span>${link.label}${link.cart ? '<span data-cart-count></span>' : ''}</span></a>`;
+        }).join('')}
+      </div>
+      <div class="luxury-menu-footer" aria-label="Snabbval">
+        <a class="luxury-menu-utility luxury-menu-login" href="konto.html">Logga in</a>
+        <a class="luxury-menu-utility luxury-menu-support" href="kontakt.html">Kundtjänst</a>
+      </div>
     </div>
-    <div class="luxury-menu-links">
-      ${links.map((link) => {
-        const isActive = link.match.includes(path);
-        return `<a class="${isActive ? 'active' : ''}" href="${link.href}">${link.label}${link.cart ? '<span data-cart-count></span>' : ''}</a>`;
-      }).join('')}
-    </div>
-    <a class="luxury-menu-feature" href="produkter.html?kategori=Bilvård%20%26%20tvätt">
-      <span class="luxury-menu-feature-visual" aria-hidden="true">
-        <img src="assets/hero-studio/bilschampo-tershine-purify-s-keramiskt.png" alt="">
-        <img src="assets/hero-studio/snabbforsegling-tershine-amplify-500-ml.png" alt="">
-      </span>
-      <small>Veckans drop</small>
-      <strong>Premium car care.</strong>
-    </a>
   `;
   document.body.appendChild(overlay);
 }
