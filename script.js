@@ -1141,7 +1141,7 @@ async function loadProducts() {
     renderCategoryLaunch(visibleProducts);
 
     const categoryFromUrl = new URLSearchParams(window.location.search).get('kategori');
-    const initialCategory = categoryFromUrl || selectedCatalogCategory || 'Bilvård & Tvätt';
+    const initialCategory = categoryFromUrl || selectedCatalogCategory || 'Bilvård & tvätt';
 
     selectCatalogCategory(initialCategory, { scroll: false });
   } catch (error) {
