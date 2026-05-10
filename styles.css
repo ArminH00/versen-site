@@ -12026,3 +12026,120 @@ html[data-theme="light"] .page-home .home-trending-card{
     right:-78px!important;
   }
 }
+
+/* 2026-05-10 reference tightening: smaller scale, no mobile clipping. */
+@media(max-width:767px){
+  .page-home .launch-hero{
+    height:304px!important;
+    min-height:304px!important;
+    padding:12px 17px 0!important;
+  }
+
+  .page-home .home-countdown,
+  html[data-theme="light"] .page-home .home-countdown{
+    width:calc(100% - 72px)!important;
+    min-height:31px!important;
+    grid-template-columns:auto auto auto!important;
+    gap:8px!important;
+    margin:11px 0 22px!important;
+    padding:0 9px 0 12px!important;
+    border-radius:7px!important;
+  }
+
+  .page-home .home-countdown span{
+    gap:6px!important;
+    font-size:9px!important;
+  }
+
+  .page-home .home-countdown span::before{
+    font-size:12px!important;
+  }
+
+  .page-home .home-countdown strong{
+    min-width:0!important;
+    padding-left:9px!important;
+    font-size:9px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+  }
+
+  .page-home .home-countdown::after{
+    font-size:23px!important;
+    transform:translateX(1px);
+  }
+
+  .page-home .launch-hero h1{
+    max-width:272px!important;
+    font-size:30px!important;
+    line-height:1.075!important;
+  }
+
+  .page-home .launch-hero p{
+    max-width:238px!important;
+    margin-top:17px!important;
+    font-size:12.5px!important;
+    line-height:1.48!important;
+  }
+
+  .page-home .hero-actions{
+    width:236px!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:6px!important;
+    margin-top:21px!important;
+  }
+
+  .page-home .hero-actions .cta,
+  .page-home .hero-actions .product-btn,
+  .page-home .hero-actions .product-btn.secondary{
+    width:100%!important;
+    min-width:0!important;
+    min-height:39px!important;
+    padding:0 10px!important;
+    border-radius:5px!important;
+    gap:8px!important;
+    font-size:9.5px!important;
+  }
+
+  .page-home .hero-actions .cta::after,
+  .page-home .hero-actions .product-btn::after{
+    font-size:24px!important;
+  }
+
+  .page-home .home-hero-visual img{
+    right:-88px!important;
+    top:30px!important;
+    width:466px!important;
+  }
+
+  .page-home .home-trending{
+    padding-top:20px!important;
+  }
+
+  .page-home .section-heading-row{
+    margin:0 18px 15px!important;
+  }
+
+  .page-home .home-trending-grid{
+    gap:8px!important;
+    padding:0 0 16px!important;
+    scroll-padding-left:18px!important;
+  }
+
+  .page-home .home-trending-card:first-child{
+    margin-left:18px!important;
+  }
+
+  .page-home .home-trending-card,
+  html[data-theme="light"] .page-home .home-trending-card{
+    flex-basis:122px!important;
+    min-width:122px!important;
+    min-height:241px!important;
+    grid-template-rows:112px 1fr!important;
+    padding:10px 10px 36px!important;
+  }
+
+  .home-service-strip{
+    width:calc(100% - 36px)!important;
+    margin-top:17px!important;
+  }
+}
