@@ -17,7 +17,6 @@ const pageParams = new URLSearchParams(window.location.search);
 const accountNext = pageParams.get('next') || '';
 const verificationToken = pageParams.get('verify') || '';
 const resetToken = pageParams.get('reset') || '';
-const activeNavLink = document.querySelector('.menu a.active');
 const isLaunchPage = window.location.pathname.endsWith('/snart.html') || window.location.pathname.endsWith('snart.html');
 let catalogProducts = [];
 let selectedCatalogCategory = null;
@@ -79,9 +78,75 @@ if ('scrollRestoration' in history) {
   history.scrollRestoration = 'manual';
 }
 
-if (activeNavLink) {
-  activeNavLink.scrollIntoView({ block: 'nearest', inline: 'center' });
+function renderLuxuryMenu() {
+  const menu = document.querySelector('.menu');
+  if (!menu) return;
+
+  const path = window.location.pathname.split('/').pop() || 'index.html';
+  const links = [
+    { href: 'produkter.html', label: 'Shop', match: ['produkter.html', 'produkt.html'] },
+    { href: 'medlemskap.html', label: 'Medlemskap', match: ['medlemskap.html', 'medlemskap-aktivt.html'] },
+    { href: 'drops.html', label: 'Nyheter', match: ['drops.html'] },
+    { href: 'produkter.html?sort=popular', label: 'Populärt', match: [] },
+    { href: 'produkter.html?kategori=Bilvård%20%26%20tvätt', label: 'Kategorier', match: [] },
+    { href: 'konto.html', label: 'Konto', match: ['konto.html', 'installningar.html', 'order.html'] },
+    { href: 'kundkorg.html', label: 'Kundvagn', match: ['kundkorg.html'], cart: true },
+  ];
+
+  menu.innerHTML = `
+    <div class="menu-panel-copy" aria-hidden="true">
+      <span>Versen edit</span>
+      <strong>Premium deals, curated weekly.</strong>
+    </div>
+    <div class="menu-link-stack">
+      ${links.map((link) => {
+        const isActive = link.match.includes(path);
+        return `<a class="${isActive ? 'active' : ''}" href="${link.href}">${link.label}${link.cart ? '<span data-cart-count></span>' : ''}</a>`;
+      }).join('')}
+    </div>
+    <a class="menu-feature" href="produkter.html?kategori=Bilvård%20%26%20tvätt">
+      <span class="menu-feature-visual" aria-hidden="true">
+        <img src="assets/hero-studio/bilschampo-tershine-purify-s-keramiskt.png" alt="">
+        <img src="assets/hero-studio/snabbforsegling-tershine-amplify-500-ml.png" alt="">
+      </span>
+      <small>Weekly studio drop</small>
+      <strong>Bilvård med medlemspris.</strong>
+    </a>
+    <div class="menu-service-row" aria-hidden="true">
+      <span>1-3 dagar</span>
+      <span>Svensk support</span>
+      <span>Trygg checkout</span>
+    </div>
+  `;
+
+  document.querySelector('.luxury-menu-overlay')?.remove();
+  const overlay = document.createElement('aside');
+  overlay.className = 'luxury-menu-overlay';
+  overlay.setAttribute('aria-label', 'Mobil meny');
+  overlay.innerHTML = `
+    <div class="luxury-menu-intro">
+      <span>Versen edit</span>
+      <strong>Premium shopping, curated weekly.</strong>
+    </div>
+    <div class="luxury-menu-links">
+      ${links.map((link) => {
+        const isActive = link.match.includes(path);
+        return `<a class="${isActive ? 'active' : ''}" href="${link.href}">${link.label}${link.cart ? '<span data-cart-count></span>' : ''}</a>`;
+      }).join('')}
+    </div>
+    <a class="luxury-menu-feature" href="produkter.html?kategori=Bilvård%20%26%20tvätt">
+      <span class="luxury-menu-feature-visual" aria-hidden="true">
+        <img src="assets/hero-studio/bilschampo-tershine-purify-s-keramiskt.png" alt="">
+        <img src="assets/hero-studio/snabbforsegling-tershine-amplify-500-ml.png" alt="">
+      </span>
+      <small>Weekly studio drop</small>
+      <strong>Bilvård med medlemspris.</strong>
+    </a>
+  `;
+  document.body.appendChild(overlay);
 }
+
+renderLuxuryMenu();
 
 document.querySelectorAll('.nav-mobile-menu[aria-label="Tillbaka"], [data-back-button]').forEach((button) => {
   button.addEventListener('click', () => {
@@ -97,10 +162,13 @@ document.querySelectorAll('.nav-mobile-menu[aria-label="Meny"]').forEach((button
   button.addEventListener('click', () => {
     const isOpen = document.body.classList.toggle('mobile-menu-open');
     button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    if (isOpen) {
+      document.querySelector('.menu')?.scrollTo({ top: 0, left: 0 });
+    }
   });
 });
 
-document.querySelectorAll('.menu a').forEach((link) => {
+document.querySelectorAll('.menu a, .luxury-menu-overlay a').forEach((link) => {
   link.addEventListener('click', () => {
     document.body.classList.remove('mobile-menu-open');
     document.querySelectorAll('.nav-mobile-menu[aria-label="Meny"]').forEach((button) => {
@@ -3498,7 +3566,7 @@ function renderSiteFooter() {
     <div class="site-footer-inner">
       <div class="site-footer-brand">
         <a class="footer-logo" href="index.html">VERSEN</a>
-        <p>Premium medlemsdeals för bilvård, träning och vardag. Kuraterat varje vecka.</p>
+        <p>En medlemsdriven storefront för premium bilvård, performance och veckans mest intressanta deals.</p>
         <div class="footer-payment-row" aria-label="Betalning och trygghet">
           <span>Klarna</span>
           <span>Apple Pay</span>
