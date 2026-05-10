@@ -114,7 +114,7 @@ function renderLuxuryMenu() {
         }).join('')}
       </div>
       <div class="luxury-menu-footer" aria-label="Snabbval">
-        <a class="luxury-menu-utility luxury-menu-login" href="konto.html">Logga in</a>
+        <a class="luxury-menu-utility luxury-menu-login" href="konto.html"><svg class="luxury-menu-utility-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 19.2c1.2-3.1 3.4-4.7 6.5-4.7s5.3 1.6 6.5 4.7"/></svg>Logga in</a>
         <a class="luxury-menu-utility luxury-menu-support" href="kontakt.html">Kundtjänst</a>
       </div>
     </div>

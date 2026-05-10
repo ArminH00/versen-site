@@ -7670,7 +7670,7 @@ body.mobile-menu-open .nav-mobile-menu{
   margin:0 auto;
   display:flex;
   flex-direction:column;
-  padding-top:clamp(72px,13vh,128px);
+  padding-top:clamp(26px,5.5vh,54px);
 }
 
 .luxury-menu-links{
@@ -7679,13 +7679,13 @@ body.mobile-menu-open .nav-mobile-menu{
 }
 
 .luxury-menu-links a{
-  min-height:clamp(68px,8.5vh,92px);
+  min-height:clamp(54px,6.6vh,68px);
   display:flex;
   align-items:center;
   justify-content:space-between;
   border-bottom:1px solid rgba(255,255,255,.105);
   color:rgba(255,255,255,.95);
-  font-size:clamp(26px,7vw,36px);
+  font-size:clamp(21px,5.7vw,28px);
   font-weight:300;
   line-height:1.18;
   letter-spacing:0;
@@ -7711,12 +7711,12 @@ body.mobile-menu-open .nav-mobile-menu{
 
 .luxury-menu-links a::after{
   content:"";
-  width:15px;
-  height:15px;
-  margin-right:4px;
-  border-top:1.45px solid currentColor;
-  border-right:1.45px solid currentColor;
-  opacity:.74;
+  width:11px;
+  height:11px;
+  margin-right:3px;
+  border-top:1.2px solid currentColor;
+  border-right:1.2px solid currentColor;
+  opacity:.68;
   transform:rotate(45deg);
 }
 
@@ -7725,8 +7725,8 @@ body.mobile-menu-open .nav-mobile-menu{
 }
 
 .luxury-menu-footer{
-  margin-top:auto;
-  padding-top:clamp(28px,8vh,78px);
+  margin-top:22px;
+  padding-top:20px;
   border-top:1px solid rgba(255,255,255,.105);
   display:flex;
   align-items:center;
@@ -7738,28 +7738,31 @@ body.mobile-menu-open .nav-mobile-menu{
   position:relative;
   display:inline-flex;
   align-items:center;
-  gap:14px;
-  min-height:40px;
+  gap:11px;
+  min-height:34px;
   color:rgba(255,255,255,.68);
-  font-size:clamp(18px,4.8vw,24px);
+  font-size:clamp(15px,4vw,19px);
   font-weight:300;
   line-height:1.1;
 }
 
+.luxury-menu-utility-icon,
 .luxury-menu-utility::before{
-  content:"";
-  width:34px;
-  height:34px;
-  flex:0 0 34px;
+  width:29px;
+  height:29px;
+  flex:0 0 29px;
   border:1.4px solid currentColor;
   border-radius:50%;
   opacity:.88;
 }
 
-.luxury-menu-login::before{
-  background:
-    radial-gradient(circle at 50% 38%,transparent 0 4px,currentColor 4.5px 5.7px,transparent 6px),
-    radial-gradient(ellipse at 50% 78%,transparent 0 8px,currentColor 8.6px 10px,transparent 10.5px);
+.luxury-menu-utility-icon{
+  padding:5px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.35;
+  stroke-linecap:round;
+  stroke-linejoin:round;
 }
 
 .luxury-menu-support::before{
@@ -7767,7 +7770,7 @@ body.mobile-menu-open .nav-mobile-menu{
   display:grid;
   place-items:center;
   background:none;
-  font-size:22px;
+  font-size:18px;
   line-height:1;
 }
 
