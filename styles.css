@@ -12244,7 +12244,7 @@ html[data-theme="light"] .page-home .home-trending-card{
   .page-home .home-hero-visual img{
     inset:auto!important;
     left:-35px!important;
-    top:18px!important;
+    top:0!important;
     width:500px!important;
     height:auto!important;
     max-width:none!important;
