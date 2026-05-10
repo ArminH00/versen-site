@@ -9618,3 +9618,9 @@ body.mobile-menu-open{
 .home-trending-card:nth-child(6) .home-trending-image{
   aspect-ratio:1/1!important;
 }
+
+/* Hide product plus buttons per latest direction. */
+.product-quick-add,
+.home-add-button{
+  display:none!important;
+}
