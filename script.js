@@ -996,7 +996,7 @@ function selectCatalogCategory(category, options = {}) {
 
 document.querySelectorAll('[data-category-select]').forEach((button) => {
   button.addEventListener('click', () => {
-    selectCatalogCategory(button.dataset.categorySelect);
+    selectCatalogCategory(button.dataset.categorySelect, { scroll: false });
   });
 });
 

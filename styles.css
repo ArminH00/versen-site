@@ -13588,9 +13588,9 @@ html[data-theme="light"] .page-home .home-trending-card{
   }
 
   .page-products .category-image-row{
-    right:13px!important;
+    right:16px!important;
     top:auto!important;
-    bottom:12px!important;
+    bottom:10px!important;
     width:86px!important;
     height:32px!important;
     display:flex!important;
