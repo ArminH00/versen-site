@@ -484,6 +484,7 @@ function applyGlobalSessionUi(session = accountSession) {
   });
 
   document.querySelectorAll('a[href="medlemskap.html"], a[href^="medlemskap.html?"]').forEach((link) => {
+    if (link.closest('.menu, .luxury-menu-overlay')) return;
     link.hidden = member;
   });
 
