@@ -9,7 +9,7 @@
 <script>try{if(Date.now()<1777500000000&&!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260510-versen3">
+<link rel="stylesheet" href="styles.css?v=20260510-versen6">
 </head>
 
 <body class="auth-loading page-home">
@@ -51,8 +51,8 @@
   <section class="premium-hero fade">
     <div class="premium-hero-copy">
       <span class="eyebrow">Veckans medlemsdrop</span>
-      <h1>Premium bilvård. Medlemspris varje vecka.</h1>
-      <p>Kuraterade produkter för bilen, gymväskan och vardagen. Färre val, bättre priser och ett köpflöde byggt för mobilen.</p>
+      <h1>Premium car care.<br>Klubbpris.</h1>
+      <p>Studio-clean produkter, korta drops och priser som känns värda att agera på.</p>
       <div class="hero-actions">
         <a class="cta" href="produkter.html">Shoppa veckans drop</a>
         <a class="product-btn secondary" href="medlemskap.html">Bli medlem</a>
@@ -64,7 +64,7 @@
       </div>
     </div>
     <a class="premium-hero-stage" href="produkter.html?kategori=Bilvård%20%26%20tvätt" aria-label="Shoppa veckans bilvårdsdrop">
-      <div class="hero-product-composition" aria-hidden="true">
+      <div class="hero-product-composition editorial-hero-composition" aria-hidden="true">
         <img class="hero-product hero-product-left" src="assets/hero-studio/snabbforsegling-tershine-amplify-500-ml.png" alt="">
         <img class="hero-product hero-product-back" src="assets/hero-studio/dackglans-tershine-refined-500-ml.png" alt="">
         <img class="hero-product hero-product-main" src="assets/hero-studio/bilschampo-tershine-purify-s-keramiskt.png" alt="">
@@ -78,55 +78,102 @@
 
   <section class="campaign-strip fade" aria-label="Versen kampanjer">
     <a class="campaign-card campaign-card-large" href="drops.html">
+      <span class="campaign-visual" aria-hidden="true">
+        <img src="assets/hero-studio/kallavfettning-tershine-dissolve.png" alt="">
+        <img src="assets/hero-studio/bilschampo-tershine-purify-s-keramiskt.png" alt="">
+        <img src="assets/hero-studio/fortvattsmedel-tershine-elevate-snow-foam-skummande-vaxsakert.png" alt="">
+      </span>
       <span>Veckans drop</span>
       <strong>Nytt varje torsdag 12:00</strong>
       <small data-drop-countdown>Räknar ner</small>
     </a>
     <a class="campaign-card campaign-card-deal" href="medlemskap.html">
+      <span class="campaign-visual" aria-hidden="true">
+        <img src="assets/hero-studio/snabbforsegling-tershine-amplify-500-ml.png" alt="">
+      </span>
       <span>Member Club</span>
       <strong>Priser som låses upp när du är medlem</strong>
       <small>Från 99 kr/mån</small>
     </a>
     <a class="campaign-card campaign-card-kit" href="produkter.html?kategori=Bilvård%20%26%20tvätt">
+      <span class="campaign-visual" aria-hidden="true">
+        <img src="assets/hero-studio/bilschampo-tershine-purify-s-keramiskt.png" alt="">
+        <img src="assets/hero-studio/kallavfettning-tershine-dissolve.png" alt="">
+      </span>
       <span>Bygg ditt kit</span>
       <strong>Schampo, skydd och mikrofiber i samma flöde</strong>
       <small>Shoppa bilvård</small>
     </a>
     <a class="campaign-card campaign-card-new" href="produkter.html">
+      <span class="campaign-visual" aria-hidden="true">
+        <img src="assets/versen-whey-hero.png" alt="">
+      </span>
       <span>Nya produkter</span>
       <strong>Färska deals med tydlig jämförelse</strong>
       <small>Se katalogen</small>
     </a>
+    <a class="campaign-card campaign-card-popular" href="produkter.html">
+      <span class="campaign-visual" aria-hidden="true">
+        <img src="assets/hero-studio/dackglans-tershine-refined-500-ml.png" alt="">
+        <img src="assets/hero-studio/snabbforsegling-tershine-amplify-500-ml.png" alt="">
+      </span>
+      <span>Populärt nu</span>
+      <strong>Produkter med högst medlemsvärde</strong>
+      <small>Shoppa favoriter</small>
+    </a>
   </section>
 
-  <section class="featured-categories fade" aria-label="Utvalda kategorier">
+  <section class="product-showcase fade">
     <div class="section-heading-row">
       <div>
-        <span class="eyebrow">Shop by category</span>
-        <h2>Hitta rätt produktvärld.</h2>
+        <span class="eyebrow">Shoppa nu</span>
+        <h2>Aktiva medlemsdeals.</h2>
       </div>
-      <a href="produkter.html">Alla produkter</a>
+      <a href="produkter.html">Till produkterna</a>
     </div>
-    <div class="category-tile-grid premium-category-grid">
-      <a class="category-tile category-exterior" href="produkter.html?kategori=Bilvård%20%26%20tvätt"><span>Exteriör</span><small>Schampo, avfettning och lackskydd</small></a>
-      <a class="category-tile category-interior" href="produkter.html?kategori=Bilvård%20%26%20tvätt"><span>Interiör</span><small>Rengöring, ytor och finish</small></a>
-      <a class="category-tile category-microfiber" href="produkter.html?kategori=Bilvård%20%26%20tvätt"><span>Mikrofiber</span><small>Dukar, tvätthandskar och tork</small></a>
-      <a class="category-tile category-accessories" href="produkter.html?kategori=Bilvård%20%26%20tvätt"><span>Tillbehör</span><small>Hinkar, borstar och smarta verktyg</small></a>
-      <a class="category-tile category-performance" href="produkter.html?kategori=Träning%20%26%20hälsa"><span>Träning &amp; hälsa</span><small>Protein, dryck och energi</small></a>
-      <a class="category-tile category-drops" href="drops.html"><span>Drops</span><small>Kommande släpp och countdown</small></a>
+    <div class="home-trending-grid" data-home-trending></div>
+  </section>
+
+  <section class="product-news-section fade" aria-label="Produktnyheter">
+    <div class="section-heading-row">
+      <div>
+        <span class="eyebrow">Produktnyheter</span>
+        <h2>Studio edits för veckans rutiner.</h2>
+      </div>
+      <a href="produkter.html">Utforska nyheter</a>
+    </div>
+    <div class="editorial-product-row">
+      <a class="editorial-product-card is-wide" href="produkter.html?kategori=Bilvård%20%26%20tvätt">
+        <span class="editorial-visual kit-visual" aria-hidden="true">
+          <img src="assets/hero-studio/bilschampo-tershine-purify-s-keramiskt.png" alt="">
+          <img src="assets/hero-studio/kallavfettning-tershine-dissolve.png" alt="">
+          <img src="assets/hero-studio/snabbforsegling-tershine-amplify-500-ml.png" alt="">
+        </span>
+        <span>Build your wash kit</span>
+        <strong>Allt för en renare finish.</strong>
+      </a>
+      <a class="editorial-product-card" href="produkter.html">
+        <span class="editorial-visual single-visual" aria-hidden="true">
+          <img src="assets/hero-studio/snabbforsegling-tershine-amplify-500-ml.png" alt="">
+        </span>
+        <span>Medlemsdeal</span>
+        <strong>Snabbförsegling, tydlig glans.</strong>
+      </a>
+      <a class="editorial-product-card" href="produkter.html?kategori=Träning%20%26%20hälsa">
+        <span class="editorial-visual performance-visual" aria-hidden="true">
+          <img src="assets/versen-whey-hero.png" alt="">
+        </span>
+        <span>Performance</span>
+        <strong>Fyll på veckans energi.</strong>
+      </a>
     </div>
   </section>
 
-  <section class="value-section fade" aria-label="Versens värde">
-    <div>
-      <span class="eyebrow">Medlemsmodellen</span>
-      <h2>Färre produkter. Mer värde per köp.</h2>
-    </div>
-    <div class="value-grid">
-      <article><strong>Kuraterat</strong><p>Veckans urval ska kännas valt, inte fyllt. Mindre brus och mer relevans.</p></article>
-      <article><strong>Tydligt pris</strong><p>Medlemspris, ordinarie pris och sparande visas rent och stort.</p></article>
-      <article><strong>Snabb checkout</strong><p>Kundkorgen sparas medan du låser upp medlemskap och går vidare.</p></article>
-    </div>
+  <section class="premium-trust-bar fade" aria-label="Trygg handel">
+    <span>1-3 dagars leverans</span>
+    <span>Medlemspriser varje vecka</span>
+    <span>Svensk support</span>
+    <span>Trygg checkout</span>
   </section>
 
   <section class="membership-benefits fade">
@@ -141,29 +188,6 @@
       <article><span>02</span><strong>Poäng och rewards</strong></article>
       <article><span>03</span><strong>Rösta fram kommande produkter</strong></article>
     </div>
-  </section>
-
-  <section class="weekly-drop-section fade">
-    <div class="drop-copy">
-      <span class="eyebrow">Nästa drop</span>
-      <h2 data-drop-countdown>Räknar ner</h2>
-      <p>Veckans sortiment byts ut torsdag 12:00. Lägg favoriter i kundkorgen när priset är rätt.</p>
-      <a class="product-btn secondary" href="drops.html">Se drops</a>
-    </div>
-    <div class="drop-visual" aria-hidden="true">
-      <img src="assets/versen-whey-hero.png" alt="">
-    </div>
-  </section>
-
-  <section class="product-showcase fade">
-    <div class="section-heading-row">
-      <div>
-        <span class="eyebrow">Shoppa nu</span>
-        <h2>Aktiva medlemsdeals.</h2>
-      </div>
-      <a href="produkter.html">Till produkterna</a>
-    </div>
-    <div class="home-trending-grid" data-home-trending></div>
   </section>
 
   <section class="reviews-section fade" aria-label="Omdömen">
@@ -202,6 +226,6 @@
   </section>
 </main>
 
-<script src="script.js?v=20260510-versen3"></script>
+<script src="script.js?v=20260510-versen6"></script>
 </body>
 </html>

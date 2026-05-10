@@ -632,7 +632,7 @@ document.querySelectorAll('.sort-pill').forEach((button) => {
 function productCard(product) {
   const image = product.image && product.image.url
     ? `<img src="${escapeHtml(product.image.url)}" alt="${escapeHtml(product.image.altText || product.title)}">`
-    : `<img src="assets/versen-whey-hero.png" alt="${escapeHtml(product.title || 'Versen produkt')}">`;
+    : `<img src="assets/hero-studio/snabbforsegling-tershine-amplify-500-ml.png" alt="${escapeHtml(product.title || 'Versen produkt')}">`;
 
   const compareAtPrice = product.compareAtPrice || product.price || '';
   const memberPrice = product.price || 'Pris kommer';
@@ -774,7 +774,7 @@ function homeTrendingCard(product) {
   const productUrl = `produkt.html?handle=${encodeURIComponent(product.handle)}`;
   const image = product.image && product.image.url
     ? `<img src="${escapeHtml(product.image.url)}" alt="${escapeHtml(product.image.altText || product.title)}">`
-    : `<img src="assets/versen-whey-hero.png" alt="${escapeHtml(product.title || 'Versen produkt')}">`;
+    : `<img src="assets/hero-studio/snabbforsegling-tershine-amplify-500-ml.png" alt="${escapeHtml(product.title || 'Versen produkt')}">`;
   const compareAtPrice = product.compareAtPrice && product.compareAtPrice !== product.price ? product.compareAtPrice : '';
   const discount = productDiscountPercent(product);
   const saving = productDiscountAmount(product);
@@ -782,8 +782,11 @@ function homeTrendingCard(product) {
 
   return `
     <article class="home-trending-card" data-category="${escapeHtml(product.category || '')}" data-product-handle="${escapeHtml(product.handle || '')}" data-variant-id="${escapeHtml(product.variantId || '')}" data-product-title="${escapeHtml(product.title || '')}" data-product-price="${escapeHtml(product.price || '')}" data-product-compare-at-price="${escapeHtml(product.compareAtPrice || '')}" data-product-image-url="${escapeHtml(product.image && product.image.url ? product.image.url : '')}" data-product-image-alt="${escapeHtml(product.image && product.image.altText ? product.image.altText : product.title || '')}">
-      ${discount ? `<span class="home-deal-badge">-${discount}%</span>` : ''}
-      <a class="home-trending-image" href="${escapeHtml(productUrl)}">${image}<span class="product-quick-add visual-only">+</span></a>
+      <div class="home-trending-image-wrap">
+        ${discount ? `<span class="home-deal-badge">-${discount}%</span>` : ''}
+        <a class="home-trending-image" href="${escapeHtml(productUrl)}">${image}</a>
+        <button class="home-add-button" type="button" data-catalog-add aria-label="Lägg ${escapeHtml(product.title)} i kundkorg">+</button>
+      </div>
       <a class="home-trending-copy" href="${escapeHtml(productUrl)}">
         <small>${escapeHtml(vendor)}</small>
         <strong>${escapeHtml(product.title)}</strong>
@@ -794,7 +797,6 @@ function homeTrendingCard(product) {
         </span>
         ${saving ? `<span class="home-trending-saving">Du sparar ${escapeHtml(formatSek(saving))}</span>` : ''}
       </a>
-      <button class="home-add-button" type="button" data-catalog-add aria-label="Lägg ${escapeHtml(product.title)} i kundkorg">+</button>
     </article>
   `;
 }
@@ -904,7 +906,7 @@ function renderHomeTrendingFallback() {
     </article>
     <article class="home-trending-card home-static-card">
       <span class="home-deal-badge">-20%</span>
-      <span class="home-trending-image"><img src="assets/versen-whey-hero.png" alt=""></span>
+      <span class="home-trending-image"><img src="assets/hero-studio/bilschampo-tershine-purify-s-keramiskt.png" alt=""></span>
       <span class="home-trending-copy">
         <small>Versen</small>
         <strong>Purify S Keramiskt schampo</strong>
@@ -916,7 +918,7 @@ function renderHomeTrendingFallback() {
     </article>
     <article class="home-trending-card home-static-card">
       <span class="home-deal-badge">-25%</span>
-      <span class="home-trending-image"><img src="assets/versen-whey-hero.png" alt=""></span>
+      <span class="home-trending-image"><img src="assets/hero-studio/snabbforsegling-tershine-amplify-500-ml.png" alt=""></span>
       <span class="home-trending-copy">
         <small>Versen</small>
         <strong>Amplify snabbförsegling</strong>
