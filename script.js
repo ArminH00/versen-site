@@ -84,10 +84,8 @@ function renderLuxuryMenu() {
 
   const path = window.location.pathname.split('/').pop() || 'index.html';
   const links = [
-    { href: 'produkter.html', label: 'Shop', match: ['produkter.html', 'produkt.html'] },
-    { href: 'drops.html', label: 'Nyheter', match: ['drops.html'] },
-    { href: 'drops.html', label: 'Drops', match: ['drops.html'] },
-    { href: 'produkter.html?kategori=Bilvård%20%26%20tvätt', label: 'Kategorier', match: [] },
+    { href: 'produkter.html', label: 'Handla', match: ['produkter.html', 'produkt.html'] },
+    { href: 'medlemskap.html', label: 'Medlemskap', match: ['medlemskap.html', 'medlemskap-aktivt.html'] },
     { href: 'konto.html', label: 'Konto', match: ['konto.html', 'installningar.html', 'order.html'] },
     { href: 'kundkorg.html', label: 'Kundvagn', match: ['kundkorg.html'], cart: true },
   ];
