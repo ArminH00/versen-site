@@ -3146,7 +3146,7 @@ document.addEventListener('click', (event) => {
 
 const launchForm = document.querySelector('[data-launch-form]');
 const launchCountdown = document.querySelector('[data-launch-countdown]');
-const dropCountdown = document.querySelector('[data-drop-countdown]');
+const dropCountdowns = Array.from(document.querySelectorAll('[data-drop-countdown]'));
 
 function nextThursdayDrop() {
   const now = new Date();
@@ -3166,37 +3166,45 @@ function nextThursdayDrop() {
 }
 
 function updateDropCountdown() {
-  if (!dropCountdown) {
+  if (!dropCountdowns.length) {
     return;
   }
 
   const distance = Math.max(0, nextThursdayDrop().getTime() - Date.now());
   const totalMinutes = Math.max(1, Math.ceil(distance / 60000));
-  const days = Math.floor(distance / 86400000);
-  const hours = Math.floor((distance % 86400000) / 3600000);
+  const days = Math.floor(totalMinutes / 1440);
+  const hours = Math.floor((totalMinutes % 1440) / 60);
+  const minutes = totalMinutes % 60;
   const dayText = days === 1 ? '1 dag' : `${days} dagar`;
   const hourText = hours === 1 ? '1h' : `${hours}h`;
 
-  if (totalMinutes < 60) {
-    const minuteText = totalMinutes === 1 ? '1 minut' : `${totalMinutes} minuter`;
-    dropCountdown.textContent = `${minuteText} kvar av dessa deals`;
-    return;
-  }
+  dropCountdowns.forEach((dropCountdown) => {
+    if (dropCountdown.dataset.dropCountdownFormat === 'clock') {
+      dropCountdown.textContent = `${String(days).padStart(2, '0')} : ${String(hours).padStart(2, '0')} : ${String(minutes).padStart(2, '0')}`;
+      return;
+    }
 
-  const homeCompact = document.body && document.body.classList.contains('page-home');
-  if (days > 0 && hours > 0) {
-    dropCountdown.textContent = `${dayText}${homeCompact ? ' ' : ' och '}${hourText} kvar av dessa deals`;
-    return;
-  }
+    if (totalMinutes < 60) {
+      const minuteText = totalMinutes === 1 ? '1 minut' : `${totalMinutes} minuter`;
+      dropCountdown.textContent = `${minuteText} kvar av dessa deals`;
+      return;
+    }
 
-  dropCountdown.textContent = days > 0
-    ? `${dayText} kvar av dessa deals`
-    : `${hourText} kvar av dessa deals`;
+    const homeCompact = document.body && document.body.classList.contains('page-home');
+    if (days > 0 && hours > 0) {
+      dropCountdown.textContent = `${dayText}${homeCompact ? ' ' : ' och '}${hourText} kvar av dessa deals`;
+      return;
+    }
+
+    dropCountdown.textContent = days > 0
+      ? `${dayText} kvar av dessa deals`
+      : `${hourText} kvar av dessa deals`;
+  });
 }
 
-if (dropCountdown) {
+if (dropCountdowns.length) {
   updateDropCountdown();
-  window.setInterval(updateDropCountdown, 60000);
+  window.setInterval(updateDropCountdown, 1000);
 }
 
 function updateLaunchCountdown() {
