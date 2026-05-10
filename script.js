@@ -895,7 +895,7 @@ function productMatchesCategory(product, category) {
     return true;
   }
 
-  if (target === 'bilvård') {
+  if (target === 'bilvård' || target === 'bilvård & tvätt') {
     return values.some((value) => ['tershine', 'gyeon', 'bilvard', 'car care'].some((needle) => value.includes(needle)));
   }
 
@@ -1141,7 +1141,7 @@ async function loadProducts() {
     renderCategoryLaunch(visibleProducts);
 
     const categoryFromUrl = new URLSearchParams(window.location.search).get('kategori');
-    const initialCategory = categoryFromUrl || selectedCatalogCategory || 'Bilvård';
+    const initialCategory = categoryFromUrl || selectedCatalogCategory || 'Bilvård & Tvätt';
 
     selectCatalogCategory(initialCategory, { scroll: false });
   } catch (error) {
