@@ -9604,3 +9604,17 @@ body.mobile-menu-open{
     font-size:13px!important;
   }
 }
+
+.product-card:nth-child(1),
+.product-card:nth-child(7),
+.home-trending-card:nth-child(1),
+.home-trending-card:nth-child(6){
+  grid-column:auto!important;
+}
+
+.product-card:nth-child(1) .product-image,
+.product-card:nth-child(7) .product-image,
+.home-trending-card:nth-child(1) .home-trending-image,
+.home-trending-card:nth-child(6) .home-trending-image{
+  aspect-ratio:1/1!important;
+}
