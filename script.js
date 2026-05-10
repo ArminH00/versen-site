@@ -1401,7 +1401,7 @@ function renderProductDescription(description) {
         : '';
       const restText = rest ? renderBodyText(rest) : '';
 
-      return `<section class="product-copy-section ${index === 0 ? 'is-intro' : ''}">${title}${restText}${specs}${noteList}</section>`;
+      return `<section class="product-copy-section product-spec-section ${index === 0 ? 'is-intro' : ''}">${title}${restText}${specs}${noteList}</section>`;
     }
 
     if (isIngredientSection) {
@@ -1483,8 +1483,7 @@ function updateProductVariant(product, variant) {
 
   const urgency = document.querySelector('[data-product-urgency]');
   if (urgency) {
-    const left = stableNumber(detail.dataset.cartHandle || product.title || '', 9, 18);
-    urgency.textContent = `Endast ${left} kvar i denna storlek`;
+    urgency.textContent = 'Få kvar';
   }
 
   const imageElement = document.querySelector('[data-product-image]');
@@ -2306,11 +2305,16 @@ function showAccountAuthMode(mode = 'create') {
   accountAuthMode = mode === 'login' ? 'login' : 'create';
 
   if (createCard && !verificationToken && !resetToken) {
-    createCard.hidden = accountAuthMode !== 'create';
+    createCard.hidden = false;
   }
 
   if (loginCard && !resetToken) {
-    loginCard.hidden = accountAuthMode !== 'login';
+    loginCard.hidden = false;
+  }
+
+  const targetCard = accountAuthMode === 'login' ? loginCard : createCard;
+  if (targetCard && document.readyState === 'complete') {
+    targetCard.scrollIntoView({ block: 'center', behavior: 'smooth' });
   }
 }
 
@@ -2331,7 +2335,7 @@ function setAccountFlowStep(activeStep) {
 
 if (accountNext === 'membership' && createCard) {
   createCard.classList.add('is-priority');
-  if (loginCard) loginCard.hidden = true;
+  if (loginCard && !verificationToken && !resetToken) loginCard.hidden = false;
 }
 
 if (verificationToken && registerForm) {
