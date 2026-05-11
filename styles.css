@@ -11373,11 +11373,9 @@ body.mobile-menu-open{
 
 .suggest-drop-stage{
   position:relative;
-  min-height:clamp(310px,38vw,460px);
-  display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(210px,.42fr);
+  min-height:clamp(280px,32vw,390px);
+  display:flex;
   align-items:center;
-  gap:clamp(20px,4vw,48px);
 }
 
 .suggest-drop-copy{
@@ -11448,39 +11446,6 @@ body.mobile-menu-open{
   color:#6f6a61!important;
   font-size:17px!important;
   line-height:1.75!important;
-}
-
-.suggest-product-visual{
-  position:relative;
-  z-index:1;
-  width:min(255px,100%);
-  aspect-ratio:1;
-  justify-self:end;
-  align-self:end;
-  margin:0;
-  overflow:visible;
-  opacity:.78;
-}
-
-.suggest-product-visual::before{
-  content:"";
-  position:absolute;
-  inset:24% 6% 4%;
-  z-index:-1;
-  border-radius:50%;
-  background:radial-gradient(circle,rgba(201,169,109,.22),rgba(201,169,109,0) 64%);
-  filter:blur(8px);
-}
-
-.suggest-product-visual img{
-  width:100%;
-  height:100%;
-  display:block;
-  object-fit:contain;
-  mix-blend-mode:multiply;
-  filter:drop-shadow(0 18px 24px rgba(81,61,35,.07));
-  -webkit-mask-image:radial-gradient(ellipse at center,#000 54%,rgba(0,0,0,.76) 76%,transparent 100%);
-  mask-image:radial-gradient(ellipse at center,#000 54%,rgba(0,0,0,.76) 76%,transparent 100%);
 }
 
 .suggest-form-shell{
@@ -11707,13 +11672,6 @@ body.mobile-menu-open{
     max-width:315px;
     font-size:14px!important;
     line-height:1.65!important;
-  }
-
-  .suggest-product-visual{
-    width:min(185px,52vw);
-    justify-self:end;
-    margin-top:-18px;
-    margin-right:6px;
   }
 
   .suggest-form-shell{
