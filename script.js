@@ -89,13 +89,15 @@ function renderLuxuryMenu() {
     authenticated ? null : { href: 'medlemskap.html', label: 'Medlemskap', match: ['medlemskap.html', 'medlemskap-aktivt.html'] },
     { href: 'konto.html', label: 'Konto', match: ['konto.html', 'installningar.html', 'order.html'] },
     { href: 'kundkorg.html', label: 'Kundvagn', match: ['kundkorg.html'], cart: true },
+    { href: 'forslag.html', label: 'Föreslå drop', match: ['forslag.html'], featured: true },
   ].filter(Boolean);
 
   menu.innerHTML = `
     <div class="menu-link-stack">
       ${links.map((link) => {
         const isActive = link.match.includes(path);
-        return `<a class="${isActive ? 'active' : ''}" href="${link.href}">${link.label}${link.cart ? '<span data-cart-count></span>' : ''}</a>`;
+        const classes = [isActive ? 'active' : '', link.featured ? 'suggest-drop-link' : ''].filter(Boolean).join(' ');
+        return `<a class="${classes}" href="${link.href}">${link.label}${link.cart ? '<span data-cart-count></span>' : ''}</a>`;
       }).join('')}
     </div>
   `;
@@ -109,7 +111,8 @@ function renderLuxuryMenu() {
       <div class="luxury-menu-links">
         ${links.map((link) => {
           const isActive = link.match.includes(path);
-          return `<a class="${isActive ? 'active' : ''}" href="${link.href}"><span>${link.label}${link.cart ? '<span data-cart-count></span>' : ''}</span></a>`;
+          const classes = [isActive ? 'active' : '', link.featured ? 'suggest-drop-link' : ''].filter(Boolean).join(' ');
+          return `<a class="${classes}" href="${link.href}"><span>${link.label}${link.cart ? '<span data-cart-count></span>' : ''}</span></a>`;
         }).join('')}
       </div>
       <div class="luxury-menu-footer" aria-label="Snabbval">
@@ -647,10 +650,6 @@ function applyGlobalSessionUi(session = accountSession) {
   document.body.classList.toggle('is-authenticated', authenticated);
   document.body.classList.toggle('is-member', member);
   renderLuxuryMenu();
-
-  document.querySelectorAll('.menu a[href="forslag.html"]').forEach((link) => {
-    link.hidden = !member;
-  });
 
   document.querySelectorAll('a[href="medlemskap.html"], a[href^="medlemskap.html?"]').forEach((link) => {
     link.hidden = authenticated;
@@ -3657,6 +3656,8 @@ if (suggestionForm) {
         action: 'suggest_product',
         product: formData.get('product'),
         category: formData.get('category'),
+        name: formData.get('name'),
+        email: formData.get('email'),
         link: formData.get('link'),
         message: formData.get('message'),
       });
