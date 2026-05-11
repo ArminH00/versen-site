@@ -11063,12 +11063,10 @@ body.mobile-menu-open{
   padding-inline:16px!important;
   border:1px solid rgba(180,149,84,.32)!important;
   background:
-    radial-gradient(circle at 18% 24%,rgba(255,255,255,.92) 0 1.5px,transparent 2px),
-    radial-gradient(circle at 42% 68%,rgba(180,149,84,.42) 0 1px,transparent 1.8px),
-    radial-gradient(circle at 68% 28%,rgba(180,149,84,.36) 0 1.1px,transparent 1.9px),
-    radial-gradient(circle at 88% 72%,rgba(180,149,84,.8) 0 1.4px,transparent 2px),
+    radial-gradient(circle at 70% 35%,rgba(255,255,255,.72) 0 1.5px,transparent 2px),
+    radial-gradient(circle at 84% 64%,rgba(180,149,84,.74) 0 1.4px,transparent 2px),
     linear-gradient(135deg,rgba(255,249,229,.92),rgba(250,241,210,.58))!important;
-  background-size:100% 100%,32px 24px,38px 28px,100% 100%,100% 100%;
+  background-size:100% 100%,100% 100%,100% 100%;
   color:#7f5c16!important;
   box-shadow:0 12px 28px rgba(144,106,34,.12), inset 0 1px 0 rgba(255,255,255,.78);
   animation:suggestDropDust 5.4s ease-in-out infinite;
@@ -11088,14 +11086,14 @@ body.mobile-menu-open{
 }
 
 .menu-link-stack .suggest-drop-link::before{
-  left:8px;
-  top:-4px;
+  left:calc(100% - 54px);
+  top:8px;
   opacity:.82;
 }
 
 .menu-link-stack .suggest-drop-link::after{
-  right:10px;
-  bottom:-5px;
+  right:16px;
+  bottom:8px;
   width:6px;
   height:6px;
   opacity:.66;
@@ -11106,24 +11104,18 @@ body.mobile-menu-open{
   position:relative;
   margin-top:22px;
   padding:18px 16px!important;
+  overflow:hidden;
   border:1px solid rgba(218,185,105,.36)!important;
   border-radius:14px;
   background:
-    radial-gradient(circle at 14% 30%,rgba(255,255,255,.95) 0 1.5px,transparent 2px),
-    radial-gradient(circle at 28% 78%,rgba(243,217,144,.58) 0 1.2px,transparent 2px),
-    radial-gradient(circle at 58% 34%,rgba(243,217,144,.42) 0 1.1px,transparent 2px),
-    radial-gradient(circle at 74% 64%,rgba(243,217,144,.5) 0 1px,transparent 1.8px),
-    radial-gradient(circle at 82% 18%,rgba(237,207,132,.9) 0 1.3px,transparent 2px),
     linear-gradient(135deg,rgba(117,82,21,.54),rgba(32,25,15,.34))!important;
-  background-size:100% 100%,44px 34px,54px 42px,36px 30px,100% 100%,100% 100%;
   color:#f3d990!important;
   box-shadow:0 18px 46px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.12);
-  animation:suggestDropDust 6.2s ease-in-out infinite;
 }
 
 .luxury-menu-links .suggest-drop-link::before{
-  right:46px;
-  top:14px;
+  left:74%;
+  top:19px;
   background:#f1d58b;
   filter:drop-shadow(0 0 9px rgba(241,213,139,.55));
   animation-duration:3.2s;
@@ -11131,6 +11123,11 @@ body.mobile-menu-open{
 
 .luxury-menu-links .suggest-drop-link::after{
   border-color:#f3d990!important;
+}
+
+.luxury-menu-links .suggest-drop-link span{
+  position:relative;
+  z-index:1;
 }
 
 .luxury-menu-links .suggest-drop-link span::before,
@@ -11143,31 +11140,40 @@ body.mobile-menu-open{
   background:#f3d990;
   opacity:.76;
   pointer-events:none;
-  box-shadow:18px -10px 0 rgba(243,217,144,.58), 38px 9px 0 rgba(243,217,144,.46);
+  box-shadow:
+    28px -18px 0 rgba(243,217,144,.7),
+    68px -8px 0 rgba(243,217,144,.48),
+    116px 10px 0 rgba(243,217,144,.56),
+    154px -12px 0 rgba(243,217,144,.44),
+    186px 6px 0 rgba(243,217,144,.5);
   animation:suggestDropFloat 4.8s ease-in-out infinite;
 }
 
 .luxury-menu-links .suggest-drop-link span::before{
-  right:70px;
-  top:22px;
+  left:calc(100% + 28px);
+  top:46%;
 }
 
 .luxury-menu-links .suggest-drop-link span::after{
-  right:30px;
-  bottom:20px;
+  left:calc(100% + 92px);
+  top:15%;
   width:4px;
   height:4px;
+  box-shadow:
+    32px 20px 0 rgba(243,217,144,.6),
+    76px 2px 0 rgba(243,217,144,.5),
+    116px 25px 0 rgba(243,217,144,.46);
   animation-delay:1.4s;
 }
 
 @keyframes suggestDropDust{
   0%,
   100%{
-    background-position:0 0,0 0,0 0,0 0,0 0,0 0;
+    background-position:0 0,0 0,0 0;
   }
 
   50%{
-    background-position:0 0,10px -8px,-12px 9px,8px 6px,0 0,0 0;
+    background-position:8px -6px,-10px 7px,0 0;
   }
 }
 
