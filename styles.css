@@ -11064,10 +11064,14 @@ body.mobile-menu-open{
   border:1px solid rgba(180,149,84,.32)!important;
   background:
     radial-gradient(circle at 18% 24%,rgba(255,255,255,.92) 0 1.5px,transparent 2px),
+    radial-gradient(circle at 42% 68%,rgba(180,149,84,.42) 0 1px,transparent 1.8px),
+    radial-gradient(circle at 68% 28%,rgba(180,149,84,.36) 0 1.1px,transparent 1.9px),
     radial-gradient(circle at 88% 72%,rgba(180,149,84,.8) 0 1.4px,transparent 2px),
     linear-gradient(135deg,rgba(255,249,229,.92),rgba(250,241,210,.58))!important;
+  background-size:100% 100%,32px 24px,38px 28px,100% 100%,100% 100%;
   color:#7f5c16!important;
   box-shadow:0 12px 28px rgba(144,106,34,.12), inset 0 1px 0 rgba(255,255,255,.78);
+  animation:suggestDropDust 5.4s ease-in-out infinite;
 }
 
 .menu-link-stack .suggest-drop-link::before,
@@ -11080,6 +11084,7 @@ body.mobile-menu-open{
   background:#b49554;
   clip-path:polygon(50% 0,61% 38%,100% 50%,61% 62%,50% 100%,39% 62%,0 50%,39% 38%);
   pointer-events:none;
+  animation:suggestDropSpark 3.8s ease-in-out infinite;
 }
 
 .menu-link-stack .suggest-drop-link::before{
@@ -11094,6 +11099,7 @@ body.mobile-menu-open{
   width:6px;
   height:6px;
   opacity:.66;
+  animation-delay:1.2s;
 }
 
 .luxury-menu-links .suggest-drop-link{
@@ -11104,10 +11110,15 @@ body.mobile-menu-open{
   border-radius:14px;
   background:
     radial-gradient(circle at 14% 30%,rgba(255,255,255,.95) 0 1.5px,transparent 2px),
+    radial-gradient(circle at 28% 78%,rgba(243,217,144,.58) 0 1.2px,transparent 2px),
+    radial-gradient(circle at 58% 34%,rgba(243,217,144,.42) 0 1.1px,transparent 2px),
+    radial-gradient(circle at 74% 64%,rgba(243,217,144,.5) 0 1px,transparent 1.8px),
     radial-gradient(circle at 82% 18%,rgba(237,207,132,.9) 0 1.3px,transparent 2px),
     linear-gradient(135deg,rgba(117,82,21,.54),rgba(32,25,15,.34))!important;
+  background-size:100% 100%,44px 34px,54px 42px,36px 30px,100% 100%,100% 100%;
   color:#f3d990!important;
   box-shadow:0 18px 46px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.12);
+  animation:suggestDropDust 6.2s ease-in-out infinite;
 }
 
 .luxury-menu-links .suggest-drop-link::before{
@@ -11115,10 +11126,92 @@ body.mobile-menu-open{
   top:14px;
   background:#f1d58b;
   filter:drop-shadow(0 0 9px rgba(241,213,139,.55));
+  animation-duration:3.2s;
 }
 
 .luxury-menu-links .suggest-drop-link::after{
   border-color:#f3d990!important;
+}
+
+.luxury-menu-links .suggest-drop-link span::before,
+.luxury-menu-links .suggest-drop-link span::after{
+  content:"";
+  position:absolute;
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:#f3d990;
+  opacity:.76;
+  pointer-events:none;
+  box-shadow:18px -10px 0 rgba(243,217,144,.58), 38px 9px 0 rgba(243,217,144,.46);
+  animation:suggestDropFloat 4.8s ease-in-out infinite;
+}
+
+.luxury-menu-links .suggest-drop-link span::before{
+  right:70px;
+  top:22px;
+}
+
+.luxury-menu-links .suggest-drop-link span::after{
+  right:30px;
+  bottom:20px;
+  width:4px;
+  height:4px;
+  animation-delay:1.4s;
+}
+
+@keyframes suggestDropDust{
+  0%,
+  100%{
+    background-position:0 0,0 0,0 0,0 0,0 0,0 0;
+  }
+
+  50%{
+    background-position:0 0,10px -8px,-12px 9px,8px 6px,0 0,0 0;
+  }
+}
+
+@keyframes suggestDropSpark{
+  0%,
+  100%{
+    opacity:.48;
+    transform:translate3d(0,0,0) scale(.88) rotate(0deg);
+  }
+
+  45%{
+    opacity:1;
+    transform:translate3d(3px,-4px,0) scale(1.18) rotate(18deg);
+  }
+
+  72%{
+    opacity:.7;
+    transform:translate3d(-2px,2px,0) scale(.96) rotate(32deg);
+  }
+}
+
+@keyframes suggestDropFloat{
+  0%,
+  100%{
+    opacity:.44;
+    transform:translate3d(0,0,0);
+  }
+
+  50%{
+    opacity:.95;
+    transform:translate3d(6px,-5px,0);
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .menu-link-stack .suggest-drop-link,
+  .menu-link-stack .suggest-drop-link::before,
+  .menu-link-stack .suggest-drop-link::after,
+  .luxury-menu-links .suggest-drop-link,
+  .luxury-menu-links .suggest-drop-link::before,
+  .luxury-menu-links .suggest-drop-link span::before,
+  .luxury-menu-links .suggest-drop-link span::after{
+    animation:none!important;
+  }
 }
 
 .page-suggest-drop .suggest-drop-hero{
