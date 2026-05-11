@@ -50,12 +50,10 @@
   </header>
 
   <div class="dashboard-layout">
-    <aside class="dashboard-sidebar" aria-label="Kontomeny">
+    <aside class="dashboard-sidebar account-page-nav" aria-label="Kontomeny">
       <a class="active" href="konto.html">Översikt</a>
       <a href="order.html">Mina beställningar</a>
       <a href="gillar.html">Gillade</a>
-      <a href="konto.html">Adressbok</a>
-      <a href="konto.html">Betalningsmetoder</a>
       <a href="installningar.html">Inställningar</a>
       <button class="account-link" type="button" data-logout-button hidden>Logga ut</button>
     </aside>
@@ -68,15 +66,15 @@
 
       <div class="account-metrics">
         <div class="account-metric">
-          <span>Sparat totalt</span>
+          <span>Medlemskap</span>
           <strong data-dashboard-membership>Kontrollerar</strong>
         </div>
         <div class="account-metric">
-          <span>Beställningar</span>
+          <span>Rabatter</span>
           <strong data-dashboard-discount>Låsta</strong>
         </div>
         <div class="account-metric">
-          <span>Medlemskap</span>
+          <span>Förnyelse</span>
           <strong data-dashboard-renewal>Ej aktivt</strong>
         </div>
         <div class="account-metric">
@@ -130,15 +128,16 @@
       <p class="form-message" data-reset-message></p>
     </article>
 
-    <article class="account-card member-card" data-status-card hidden>
+    <article class="account-card member-card account-status-card" data-status-card hidden>
+      <span class="account-card-kicker">Inloggad</span>
       <h2>Konto</h2>
       <div class="status-pill" data-member-status>Ej inloggad</div>
       <p data-account-email>Kontrollerar konto.</p>
       <p data-member-note>Din kontostatus visas här.</p>
       <div class="account-actions">
+        <a class="product-btn secondary account-settings-link" href="installningar.html" data-settings-link hidden>Inställningar</a>
         <button class="product-btn account-logout-button" type="button" data-logout-button hidden>Logga ut</button>
       </div>
-      <a class="account-link account-settings-link" href="installningar.html" data-settings-link hidden>Inställningar</a>
     </article>
 
     <article class="account-card order-card" data-orders-card hidden>

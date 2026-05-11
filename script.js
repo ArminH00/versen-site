@@ -512,11 +512,11 @@ function applyGlobalSessionUi(session = accountSession) {
     setText('[data-account-hero-title]', 'Nytt lösenord');
     setText('[data-account-hero-copy]', 'Välj ett nytt lösenord för ditt konto.');
   } else {
-    setText('[data-account-hero-title]', member ? 'Ditt konto' : 'Skapa konto eller logga in');
+    setText('[data-account-hero-title]', member ? 'Ditt Versen' : 'Skapa konto eller logga in');
     setText(
       '[data-account-hero-copy]',
       member
-        ? 'Här ser du status, rabatter och senaste aktivitet.'
+        ? 'Medlemskap, poäng och orderhistorik samlat på ett ställe.'
         : 'Logga in för att se orderhistorik och spara dina uppgifter.'
     );
   }
@@ -2327,17 +2327,17 @@ function updateMemberStatus(session = accountSession) {
   if (createCard) createCard.hidden = true;
   if (resetCard) resetCard.hidden = true;
 
-  status.textContent = session.customer.membershipStatus;
+  status.textContent = hasMemberDiscount ? 'Aktivt medlemskap' : 'Konto aktivt';
   status.classList.toggle('is-active', hasMemberDiscount);
   if (greeting) greeting.textContent = `Hej ${firstName}`;
-  if (summary) summary.textContent = `${session.customer.email} är kopplat till ditt Versen-konto.`;
+  if (summary) summary.textContent = `Inloggad som ${session.customer.email}.`;
   if (email) email.textContent = session.customer.email;
   if (memberNote) {
     memberNote.textContent = hasMemberDiscount
       ? (membership.cancellationRequested
-        ? `Medlemskapet är avslutat men aktivt till ${nextDate || 'sista perioden'}.`
-        : `Ditt medlemskap är aktivt.${nextDate ? ` Nästa förnyelse ${nextDate}.` : ''}`)
-      : 'Kontot är redo. Checkoutstatus visas när du går vidare från kundkorgen.';
+        ? `Medlemskapet är aktivt till ${nextDate || 'sista perioden'} och förnyas inte efter det.`
+        : `Medlemspriser, poäng och checkout är upplåsta.${nextDate ? ` Nästa förnyelse ${nextDate}.` : ''}`)
+      : 'Kontot är klart. Starta medlemskap för att låsa upp checkout, poäng och medlemspriser.';
   }
   if (dashboardMembership) dashboardMembership.textContent = hasMemberDiscount
     ? (membership.cancellationRequested ? 'Aktivt till slutdatum' : 'Aktivt')
@@ -2421,8 +2421,8 @@ function renderSettingsPage(session = accountSession) {
     status.innerHTML = member
       ? `
         <span>${membership.cancellationRequested ? 'Avslutas' : 'Aktivt medlemskap'}</span>
-        <strong>${membership.cancellationRequested ? `Aktivt till ${date || 'sista perioden'}` : (date ? `Nästa förnyelse ${date}` : 'Aktivt')}</strong>
-        <p>${membership.cancellationRequested ? 'Du behåller medlemspriserna till slutdatumet. Ingen ny dragning görs.' : 'Du kan avsluta prenumerationen här. Medlemskapet ligger kvar till sista betalda datumet.'}</p>
+        <strong>${membership.cancellationRequested ? `Aktivt till ${date || 'sista perioden'}` : (date ? `Förnyas ${date}` : 'Aktivt')}</strong>
+        <p>${membership.cancellationRequested ? 'Du behåller medlemspriserna till slutdatumet. Ingen ny dragning görs.' : 'Medlemspriser, poäng och checkout är aktiva. Avslutar du ligger access kvar till sista betalda datumet.'}</p>
       `
       : `
         <span>Ej aktivt</span>

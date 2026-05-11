@@ -9909,6 +9909,238 @@ body.mobile-menu-open{
   overflow-wrap:anywhere;
 }
 
+.page-account.is-authenticated .account-dashboard-shell,
+.page-settings .account-dashboard-shell{
+  width:min(760px,100% - 32px)!important;
+}
+
+.page-account.is-authenticated .page-hero{
+  padding:34px 0 18px!important;
+}
+
+.page-account.is-authenticated .page-hero h1{
+  max-width:560px;
+  font-size:clamp(40px,10vw,68px)!important;
+  line-height:.94!important;
+}
+
+.page-account.is-authenticated .page-hero p{
+  max-width:430px;
+  font-size:14px!important;
+  line-height:1.55!important;
+}
+
+.page-account.is-authenticated .dashboard-layout{
+  display:block!important;
+}
+
+.page-account.is-authenticated .dashboard-sidebar,
+.page-settings .dashboard-sidebar{
+  position:static!important;
+  display:flex!important;
+  gap:8px!important;
+  width:100%;
+  margin:0 0 18px!important;
+  padding:0!important;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+
+.page-account.is-authenticated .dashboard-sidebar::-webkit-scrollbar,
+.page-settings .dashboard-sidebar::-webkit-scrollbar{
+  display:none;
+}
+
+.page-account.is-authenticated .dashboard-sidebar a,
+.page-account.is-authenticated .dashboard-sidebar button,
+.page-settings .dashboard-sidebar a,
+.page-settings .dashboard-sidebar button{
+  min-height:38px!important;
+  flex:0 0 auto;
+  padding:0 14px!important;
+  border:1px solid var(--line)!important;
+  border-radius:999px!important;
+  background:#fffdfa!important;
+  color:#5f5b53!important;
+  font-size:12px!important;
+  font-weight:500!important;
+}
+
+.page-account.is-authenticated .dashboard-sidebar .active,
+.page-settings .dashboard-sidebar .active{
+  border-color:#111!important;
+  background:#111!important;
+  color:#fff!important;
+}
+
+.page-account.is-authenticated .account-grid,
+.page-settings .account-grid{
+  gap:14px!important;
+  padding-bottom:64px!important;
+}
+
+.page-account.is-authenticated .account-card,
+.page-settings .account-card{
+  padding:22px!important;
+  border-radius:14px!important;
+}
+
+.page-account.is-authenticated .account-overview{
+  display:grid;
+  gap:16px;
+  border:0!important;
+  background:transparent!important;
+  padding:0!important;
+}
+
+.page-account.is-authenticated .account-overview .status-pill{
+  width:max-content;
+  min-height:28px;
+  padding:0 10px!important;
+  border-radius:999px;
+  background:#111!important;
+  color:#fff!important;
+  font-size:10px!important;
+}
+
+.page-account.is-authenticated .account-overview h2,
+.page-account.is-authenticated .member-card h2,
+.page-settings .settings-card h2{
+  margin:0!important;
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:clamp(31px,8vw,46px)!important;
+  font-weight:500!important;
+  line-height:.98!important;
+}
+
+.page-account.is-authenticated .account-overview > p,
+.page-account.is-authenticated .member-card > p,
+.page-settings .settings-card > p{
+  max-width:440px;
+  margin:0!important;
+  color:#6f6b64!important;
+  font-size:13px!important;
+  line-height:1.55!important;
+}
+
+.page-account.is-authenticated .account-metrics{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:10px!important;
+  margin-top:2px!important;
+}
+
+.page-account.is-authenticated .account-metric{
+  min-height:104px;
+  display:grid;
+  align-content:space-between;
+  padding:14px!important;
+  border:1px solid rgba(9,11,12,.08)!important;
+  border-radius:12px!important;
+  background:#fffdfa!important;
+}
+
+.page-account.is-authenticated .account-metric span,
+.account-card-kicker{
+  color:#77736b!important;
+  font-size:10px!important;
+  font-weight:500!important;
+  letter-spacing:.09em!important;
+  text-transform:uppercase!important;
+}
+
+.page-account.is-authenticated .account-metric strong{
+  color:#111!important;
+  font-size:20px!important;
+  font-weight:600!important;
+  line-height:1.05!important;
+}
+
+.page-account.is-authenticated .points-metric{
+  grid-column:1 / -1;
+}
+
+.page-account.is-authenticated .points-metric small{
+  color:#6f6b64!important;
+  font-size:12px!important;
+  line-height:1.4!important;
+}
+
+.page-account.is-authenticated .account-status-card,
+.page-settings .settings-card{
+  display:grid;
+  gap:12px!important;
+}
+
+.page-account.is-authenticated .account-status-card .status-pill{
+  min-height:32px;
+  padding:0 10px!important;
+  border-radius:999px!important;
+  font-size:10px!important;
+}
+
+.page-account.is-authenticated .account-actions{
+  display:grid!important;
+  grid-template-columns:1fr 1fr;
+  gap:10px!important;
+  margin-top:6px!important;
+}
+
+.page-account.is-authenticated .account-actions .product-btn{
+  width:100%;
+  margin:0!important;
+  border-radius:8px!important;
+}
+
+.page-account.is-authenticated .account-logout-button{
+  border-color:rgba(9,11,12,.12)!important;
+  background:#fffdfa!important;
+  color:#111!important;
+}
+
+.page-account.is-authenticated .order-card .empty-state{
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+}
+
+.page-settings .settings-grid{
+  grid-template-columns:1fr!important;
+}
+
+.page-settings .settings-status{
+  padding:16px!important;
+  border-radius:12px!important;
+  background:#f7f4ef!important;
+}
+
+.page-settings .danger-link{
+  width:100%;
+  min-height:44px!important;
+  border-radius:8px!important;
+  background:#fffdfa!important;
+}
+
+.page-settings .settings-back{
+  width:100%;
+  border-radius:8px!important;
+}
+
+@media (max-width:640px){
+  .page-account.is-authenticated .account-dashboard-shell,
+  .page-settings .account-dashboard-shell{
+    width:min(430px,100% - 28px)!important;
+  }
+
+  .page-account.is-authenticated .account-metrics{
+    grid-template-columns:1fr!important;
+  }
+
+  .page-account.is-authenticated .account-actions{
+    grid-template-columns:1fr!important;
+  }
+}
+
 .cart-screen{
   padding-bottom:34px;
 }

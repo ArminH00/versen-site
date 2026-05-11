@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="styles.css?v=20260510-filter-copy-clock">
 </head>
 
-<body class="auth-loading">
+<body class="auth-loading page-account page-settings">
 
 <div class="top-strip" aria-label="Versen fördelar">
   <span>1-3 dagars leverans</span>
@@ -21,29 +21,45 @@
   <a href="kontakt.html">Kontakt</a>
 </div>
 
-<nav class="nav">
+<nav class="nav launch-nav">
+  <button class="nav-mobile-menu" type="button" aria-label="Meny"></button>
   <a class="logo" href="index.html">VERSEN</a>
-
   <div class="menu" aria-label="Huvudmeny">
-    <a href="index.html">Hem</a>
     <a href="produkter.html">Produkter</a>
-    <a class="active" href="konto.html">Konto</a>
-    <a href="kundkorg.html">Kundkorg <span data-cart-count></span></a>
+    <a href="produkter.html?kategori=Bilvård%20%26%20tvätt">Bilvård</a>
+    <a href="produkter.html?kategori=Träning%20%26%20hälsa">Träning &amp; hälsa</a>
+    <a href="drops.html">Drops</a>
+    <a href="faq.html">Guider</a>
+    <a href="medlemskap.html">Medlemskap</a>
+  </div>
+  <div class="nav-actions" aria-label="Snabbval">
+    <a class="nav-icon nav-account active" href="konto.html" aria-label="Konto"></a>
+    <a class="nav-icon nav-wishlist" href="gillar.html" aria-label="Gillade"></a>
+    <a class="nav-icon nav-cart" href="kundkorg.html" aria-label="Kundkorg"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h8.7a2 2 0 0 0 2-1.6L22 6H6"/></svg><span data-cart-count></span></a>
+    <a class="nav-member-cta" href="medlemskap.html">Bli medlem</a>
   </div>
 </nav>
 
-<main>
+<main class="account-dashboard-shell">
   <header class="page-hero fade">
-    <div class="glow"></div>
     <div class="page-hero-content">
-      <div class="badge">Inställningar</div>
+      <span class="eyebrow">Inställningar</span>
       <h1>Konto och medlemskap</h1>
       <p>Hantera medlemsstatus och prenumeration.</p>
     </div>
   </header>
 
+  <aside class="dashboard-sidebar account-page-nav" aria-label="Kontomeny">
+    <a href="konto.html">Översikt</a>
+    <a href="order.html">Mina beställningar</a>
+    <a href="gillar.html">Gillade</a>
+    <a class="active" href="installningar.html">Inställningar</a>
+    <button class="account-link" type="button" data-logout-button hidden>Logga ut</button>
+  </aside>
+
   <section class="account-grid settings-grid fade" aria-label="Kontoinställningar" data-settings-page>
     <article class="account-card settings-card">
+      <span class="account-card-kicker">Medlemskap</span>
       <h2>Medlemskap</h2>
       <div class="activation-status settings-status" data-settings-membership-status>
         <span>Status</span>
@@ -54,7 +70,12 @@
       <p class="form-message" data-settings-message></p>
     </article>
 
-    <a class="product-btn secondary settings-back" href="konto.html">Tillbaka till konto</a>
+    <article class="account-card settings-card account-settings-help">
+      <span class="account-card-kicker">Konto</span>
+      <h2>Översikt</h2>
+      <p>Gå tillbaka till kontot för orderhistorik, poäng och sparade uppgifter.</p>
+      <a class="product-btn secondary settings-back" href="konto.html">Tillbaka till konto</a>
+    </article>
   </section>
 </main>
 
