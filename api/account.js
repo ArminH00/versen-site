@@ -506,6 +506,7 @@ async function sendWaitlistEmail(res, body) {
 }
 
 async function sendProductSuggestionEmail(req, res, body) {
+  const suggestionThanks = 'Tack för ditt förslag, vi kikar på det!';
   const session = await getCustomerSession(getCookie(req, 'versen_customer_token'));
   const product = clean(body.product, 180);
   const category = clean(body.category, 80) || 'Övrigt';
@@ -542,7 +543,7 @@ async function sendProductSuggestionEmail(req, res, body) {
   const supportEmail = process.env.VERSEN_SUPPORT_EMAIL || 'hej@versen.se';
 
   if (!apiKey) {
-    sendJson(res, 200, { status: saved.ok ? 'Förslaget är sparat i admin.' : 'Förslaget är mottaget.' });
+    sendJson(res, 200, { status: suggestionThanks });
     return;
   }
 
@@ -583,11 +584,11 @@ async function sendProductSuggestionEmail(req, res, body) {
   });
 
   if (!response.ok) {
-    sendJson(res, 200, { status: saved.ok ? 'Förslaget är sparat i admin.' : 'Förslaget är mottaget.' });
+    sendJson(res, 200, { status: suggestionThanks });
     return;
   }
 
-  sendJson(res, 200, { status: saved.ok ? 'Förslaget är sparat i admin.' : 'Förslaget är skickat. Vi tar med det inför nästa drop.' });
+  sendJson(res, 200, { status: suggestionThanks });
 }
 
 function fallbackActiveUntil() {
