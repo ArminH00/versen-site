@@ -3709,6 +3709,7 @@ function renderSiteFooter() {
       <div class="footer-column">
         <strong>Om Versen</strong>
         <a href="konto.html">Mitt konto</a>
+        <a href="villkor.html">Terms & Conditions</a>
         <a href="integritet.html">Integritet</a>
       </div>
       <div class="footer-column footer-org-number">
