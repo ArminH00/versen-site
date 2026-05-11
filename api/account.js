@@ -111,6 +111,66 @@ function escapeHtml(value) {
     .replace(/'/g, '&#039;');
 }
 
+function normalizeVisitDevice(device = {}) {
+  const screen = device.screen && typeof device.screen === 'object' ? device.screen : {};
+  const connection = device.connection && typeof device.connection === 'object' ? device.connection : null;
+
+  return {
+    path: clean(device.path, 260),
+    referrer: clean(device.referrer, 160),
+    title: clean(device.title, 160),
+    language: clean(device.language, 40),
+    languages: Array.isArray(device.languages) ? device.languages.map((item) => clean(item, 40)).slice(0, 5) : [],
+    platform: clean(device.platform, 80),
+    userAgent: clean(device.userAgent, 500),
+    brands: Array.isArray(device.brands) ? device.brands.slice(0, 8).map((brand) => ({
+      brand: clean(brand && brand.brand, 80),
+      version: clean(brand && brand.version, 20),
+    })) : [],
+    mobileHint: Boolean(device.mobileHint),
+    deviceType: clean(device.deviceType, 40),
+    os: clean(device.os, 80),
+    browser: clean(device.browser, 80),
+    screen: {
+      width: Number(screen.width) || 0,
+      height: Number(screen.height) || 0,
+      dpr: Number(screen.dpr) || 1,
+      viewportWidth: Number(screen.viewportWidth) || 0,
+      viewportHeight: Number(screen.viewportHeight) || 0,
+    },
+    touch: Number(device.touch) || 0,
+    connection: connection ? {
+      effectiveType: clean(connection.effectiveType, 40),
+      saveData: Boolean(connection.saveData),
+    } : null,
+    deviceModelGuess: clean(device.deviceModelGuess, 120),
+  };
+}
+
+function normalizeVisitCustomer(customer = null) {
+  if (!customer || typeof customer !== 'object') {
+    return null;
+  }
+
+  return {
+    id: clean(customer.id, 120),
+    email: clean(customer.email, 180).toLowerCase(),
+    member: Boolean(customer.member),
+  };
+}
+
+function logDeviceVisit(req, body) {
+  console.log(JSON.stringify({
+    level: 'info',
+    msg: 'device_visit',
+    route: '/api/account',
+    at: new Date().toISOString(),
+    vercelId: req.headers['x-vercel-id'] || '',
+    device: normalizeVisitDevice(body.device),
+    customer: normalizeVisitCustomer(body.customer),
+  }));
+}
+
 function getBaseUrl(req) {
   return process.env.VERSEN_SITE_URL || `https://${req.headers.host}`;
 }
@@ -954,6 +1014,12 @@ module.exports = async function handler(req, res) {
 
   if (body.action === 'waitlist') {
     await sendWaitlistEmail(res, body);
+    return;
+  }
+
+  if (body.action === 'device_visit') {
+    logDeviceVisit(req, body);
+    sendJson(res, 200, { ok: true });
     return;
   }
 

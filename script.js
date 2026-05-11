@@ -433,11 +433,14 @@ function logVisit(session = null) {
     });
   }
 
-  fetch('/api/visit', {
+  fetch('/api/account', {
     method: 'POST',
     credentials: 'same-origin',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({
+      action: 'device_visit',
+      ...payload,
+    }),
     keepalive: true,
   }).catch(() => {});
 }
