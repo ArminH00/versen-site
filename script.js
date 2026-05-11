@@ -598,37 +598,6 @@ function adjustAccountScroll(session = accountSession) {
   if (!document.querySelector('[data-account-area]')) {
     return;
   }
-
-  window.requestAnimationFrame(() => {
-    if (isActiveMember(session)) {
-      window.scrollTo(0, 0);
-      return;
-    }
-
-    const isMobile = window.matchMedia('(max-width: 767px)').matches;
-
-    if (!isMobile) {
-      return;
-    }
-
-    if (session && session.authenticated) {
-      const statusCard = document.querySelector('[data-status-card]');
-
-      if (statusCard && !statusCard.hidden) {
-        statusCard.scrollIntoView({ block: 'center', behavior: 'smooth' });
-      }
-
-      return;
-    }
-
-    if (accountNext === 'membership' || verificationToken) {
-      const createCard = document.querySelector('[data-create-card]');
-
-      if (createCard && !createCard.hidden) {
-        createCard.scrollIntoView({ block: 'center', behavior: 'smooth' });
-      }
-    }
-  });
 }
 
 function addToCart(product, quantity = 1) {
@@ -2605,10 +2574,6 @@ function showAccountAuthMode(mode = 'create') {
     loginCard.hidden = false;
   }
 
-  const targetCard = accountAuthMode === 'login' ? loginCard : createCard;
-  if (targetCard && document.readyState === 'complete') {
-    targetCard.scrollIntoView({ block: 'center', behavior: 'smooth' });
-  }
 }
 
 document.querySelector('[data-show-login]')?.addEventListener('click', () => showAccountAuthMode('login'));
