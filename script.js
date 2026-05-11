@@ -294,6 +294,157 @@ async function postJson(url, payload) {
   return { response, data };
 }
 
+function loadVercelAnalytics() {
+  window.va = window.va || function () {
+    (window.vaq = window.vaq || []).push(arguments);
+  };
+
+  if (document.querySelector('script[src="/_vercel/insights/script.js"]')) {
+    return;
+  }
+
+  const script = document.createElement('script');
+  script.defer = true;
+  script.src = '/_vercel/insights/script.js';
+  document.head.appendChild(script);
+}
+
+function getBrowserName(userAgent) {
+  if (/Edg\//.test(userAgent)) return 'Edge';
+  if (/CriOS|Chrome\//.test(userAgent) && !/Edg\//.test(userAgent)) return 'Chrome';
+  if (/FxiOS|Firefox\//.test(userAgent)) return 'Firefox';
+  if (/Safari\//.test(userAgent) && !/Chrome|CriOS|Android/.test(userAgent)) return 'Safari';
+  return 'Unknown';
+}
+
+function getOsName(userAgent) {
+  if (/iPhone|iPad|iPod/.test(userAgent)) return 'iOS';
+  if (/Android/.test(userAgent)) return 'Android';
+  if (/Mac OS X|Macintosh/.test(userAgent)) return 'macOS';
+  if (/Windows NT/.test(userAgent)) return 'Windows';
+  if (/Linux/.test(userAgent)) return 'Linux';
+  return 'Unknown';
+}
+
+function getDeviceType(userAgent) {
+  if (/iPad|Tablet/.test(userAgent)) return 'tablet';
+  if (/Mobi|iPhone|iPod|Android/.test(userAgent)) return 'mobile';
+  return 'desktop';
+}
+
+function getIphoneModelGuess(width, height, dpr) {
+  const shortSide = Math.min(Number(width) || 0, Number(height) || 0);
+  const longSide = Math.max(Number(width) || 0, Number(height) || 0);
+  const ratio = Number(dpr) || 1;
+  const key = `${shortSide}x${longSide}@${ratio}`;
+  const models = {
+    '320x568@2': 'iPhone SE 1 / 5s',
+    '375x667@2': 'iPhone SE 2/3 / 6/7/8',
+    '375x812@3': 'iPhone X/XS/11 Pro eller 12/13 mini',
+    '390x844@3': 'iPhone 12/13/14/15-familjen',
+    '393x852@3': 'iPhone 14 Pro / 15 / 15 Pro / 16',
+    '402x874@3': 'iPhone 16 Pro',
+    '414x736@3': 'iPhone 6/7/8 Plus',
+    '414x896@2': 'iPhone XR / 11',
+    '414x896@3': 'iPhone XS Max / 11 Pro Max',
+    '428x926@3': 'iPhone 12/13/14 Plus eller Pro Max',
+    '430x932@3': 'iPhone 14/15/16 Plus eller Pro Max',
+    '440x956@3': 'iPhone 16 Pro Max',
+  };
+
+  return models[key] || '';
+}
+
+function getReferrerHost() {
+  if (!document.referrer) {
+    return '';
+  }
+
+  try {
+    return new URL(document.referrer).hostname;
+  } catch (error) {
+    return '';
+  }
+}
+
+function collectDeviceInfo() {
+  const userAgent = navigator.userAgent || '';
+  const width = window.screen && window.screen.width;
+  const height = window.screen && window.screen.height;
+  const dpr = window.devicePixelRatio || 1;
+  const os = getOsName(userAgent);
+
+  return {
+    path: `${window.location.pathname}${window.location.search.replace(/([?&])(verify|reset|token|email)=[^&]*/gi, '$1$2=redacted')}`,
+    referrer: getReferrerHost(),
+    title: document.title || '',
+    language: navigator.language || '',
+    languages: Array.isArray(navigator.languages) ? navigator.languages.slice(0, 5) : [],
+    platform: navigator.platform || '',
+    userAgent,
+    brands: navigator.userAgentData && Array.isArray(navigator.userAgentData.brands) ? navigator.userAgentData.brands : [],
+    mobileHint: Boolean(navigator.userAgentData && navigator.userAgentData.mobile),
+    deviceType: getDeviceType(userAgent),
+    os,
+    browser: getBrowserName(userAgent),
+    screen: {
+      width,
+      height,
+      dpr,
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight,
+    },
+    touch: navigator.maxTouchPoints || 0,
+    connection: navigator.connection ? {
+      effectiveType: navigator.connection.effectiveType || '',
+      saveData: Boolean(navigator.connection.saveData),
+    } : null,
+    deviceModelGuess: os === 'iOS' && /iPhone/.test(userAgent) ? getIphoneModelGuess(width, height, dpr) : '',
+  };
+}
+
+let visitLogKey = '';
+
+function logVisit(session = null) {
+  const customer = session && session.authenticated && session.customer ? session.customer : null;
+  const nextKey = customer ? `customer:${customer.id || customer.email}` : 'anonymous';
+
+  if (visitLogKey === nextKey) {
+    return;
+  }
+
+  visitLogKey = nextKey;
+  const device = collectDeviceInfo();
+  const payload = {
+    device,
+    customer: customer ? {
+      id: customer.id || '',
+      email: customer.email || '',
+      member: Boolean(customer.member),
+    } : null,
+  };
+
+  if (window.va) {
+    window.va('event', 'Device visit', {
+      deviceType: device.deviceType,
+      os: device.os,
+      browser: device.browser,
+      model: device.deviceModelGuess || 'unknown',
+    });
+  }
+
+  fetch('/api/visit', {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+    keepalive: true,
+  }).catch(() => {});
+}
+
+loadVercelAnalytics();
+logVisit();
+
 function updateCartCount() {
   const count = cartQuantity();
   document.querySelectorAll('[data-cart-count]').forEach((element) => {
@@ -2432,6 +2583,7 @@ async function refreshAccount() {
     const response = await fetch('/api/account', { credentials: 'same-origin' });
     accountSession = await response.json();
     mergeProfileLikes(accountSession);
+    logVisit(accountSession);
     updateMemberStatus(accountSession);
     renderLikedPage();
     renderOrderPage(accountSession);
