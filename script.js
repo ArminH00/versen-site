@@ -3545,22 +3545,14 @@ function renderSiteFooter() {
         </div>
       </div>
       <div class="footer-column">
-        <strong>Handla</strong>
-        <a href="produkter.html">Veckans deals</a>
+        <strong>Kundservice</strong>
+        <a href="faq.html">FAQ</a>
+        <a href="kontakt.html">Kontakt</a>
       </div>
       <div class="footer-column">
         <strong>Om Versen</strong>
-        <a href="faq.html">Om oss</a>
         <a href="konto.html">Mitt konto</a>
-        <a href="gillar.html">Gillade</a>
         <a href="integritet.html">Integritet</a>
-      </div>
-      <div class="footer-column">
-        <strong>Kundservice</strong>
-        <a href="faq.html">FAQ</a>
-        <a href="returer.html">Returer</a>
-        <a href="kontakt.html">Kontakt</a>
-        <a href="villkor.html">Villkor</a>
       </div>
       <div class="footer-column footer-org-number">
         <strong>Org-nummer</strong>

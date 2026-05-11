@@ -10737,6 +10737,141 @@ body:not(.cart-has-items) .empty-cart .product-btn{
   line-height:1.55!important;
 }
 
+.page-footer-info .page-hero{
+  width:min(560px,100% - 48px)!important;
+  margin-inline:auto!important;
+  padding:34px 0 12px!important;
+}
+
+.page-footer-info .page-hero-content{
+  max-width:430px!important;
+}
+
+.page-footer-info .badge,
+.page-footer-info .eyebrow{
+  margin-bottom:12px!important;
+  color:#77736b!important;
+  font-size:10px!important;
+  font-weight:500!important;
+  letter-spacing:.18em!important;
+}
+
+.page-footer-info .badge{
+  min-height:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+.page-footer-info .page-hero h1{
+  max-width:390px!important;
+  margin:0!important;
+  font-size:30px!important;
+  font-weight:400!important;
+  line-height:1!important;
+}
+
+.page-footer-info .page-hero p{
+  max-width:360px!important;
+  margin-top:14px!important;
+  color:#77736b!important;
+  font-size:13px!important;
+  line-height:1.6!important;
+}
+
+.footer-info-list{
+  width:min(560px,100% - 48px)!important;
+  margin:0 auto!important;
+  padding:18px 0 62px!important;
+}
+
+.footer-info-row{
+  display:grid;
+  gap:8px;
+  padding:22px 0;
+  border-bottom:1px solid rgba(9,11,12,.1);
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+.footer-info-row:first-child{
+  border-top:1px solid rgba(9,11,12,.1);
+}
+
+.footer-info-row h2{
+  margin:0!important;
+  color:#111!important;
+  font-family:Inter,Arial,sans-serif!important;
+  font-size:15px!important;
+  font-weight:300!important;
+  line-height:1.25!important;
+  letter-spacing:0!important;
+}
+
+.footer-info-row p{
+  max-width:440px;
+  margin:0!important;
+  color:#77736b!important;
+  font-size:13px!important;
+  line-height:1.65!important;
+}
+
+.footer-info-row a{
+  color:#111!important;
+  text-underline-offset:3px;
+}
+
+.contact-info-list{
+  gap:0!important;
+}
+
+.contact-card{
+  gap:16px!important;
+}
+
+.contact-card .member-form{
+  width:100%;
+}
+
+.contact-card input,
+.contact-card select,
+.contact-card textarea{
+  border-radius:12px!important;
+  font-size:13px!important;
+}
+
+.contact-card .product-btn{
+  width:100%;
+  min-height:48px!important;
+  border-radius:999px!important;
+  font-size:13px!important;
+}
+
+@media (max-width:640px){
+  .page-footer-info .page-hero,
+  .footer-info-list{
+    width:min(100% - 34px,430px)!important;
+  }
+
+  .page-footer-info .page-hero{
+    padding-top:28px!important;
+  }
+
+  .page-footer-info .page-hero h1{
+    font-size:28px!important;
+  }
+
+  .footer-info-row{
+    padding:20px 0;
+  }
+
+  .footer-info-row h2{
+    font-size:14px!important;
+  }
+}
+
 @media (min-width:700px){
   .product-buy-box{
     left:50%!important;
