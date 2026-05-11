@@ -10934,3 +10934,112 @@ body:not(.cart-has-items) .empty-cart .product-btn{
     width:min(430px,100% - 28px)!important;
   }
 }
+
+/* Universal scroll stability: every page should use the document for vertical scroll. */
+html,
+body{
+  width:100%;
+  max-width:100%;
+  min-height:100%;
+  height:auto!important;
+  overflow-x:clip!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:none;
+}
+
+body:not(.mobile-menu-open){
+  touch-action:pan-y;
+}
+
+body:not(.mobile-menu-open) main,
+body:not(.mobile-menu-open) .home-shell,
+body:not(.mobile-menu-open) .premium-home,
+body:not(.mobile-menu-open) .cart-screen,
+body:not(.mobile-menu-open) .liked-shell,
+body:not(.mobile-menu-open) .drops-screen,
+body:not(.mobile-menu-open) .order-screen,
+body:not(.mobile-menu-open) .account-dashboard-shell,
+body:not(.mobile-menu-open) .product-detail-page,
+body:not(.mobile-menu-open) .membership-page,
+body:not(.mobile-menu-open) .page-hero,
+body:not(.mobile-menu-open) .product-detail,
+body:not(.mobile-menu-open) .cart-layout,
+body:not(.mobile-menu-open) .account-grid,
+body:not(.mobile-menu-open) .membership-hero,
+body:not(.mobile-menu-open) .membership-value-proof,
+body:not(.mobile-menu-open) .membership-compare,
+body:not(.mobile-menu-open) .membership-faq,
+body:not(.mobile-menu-open) .footer-info-list,
+body:not(.mobile-menu-open) .legal-section,
+body:not(.mobile-menu-open) .catalog-section,
+body:not(.mobile-menu-open) .category-launch,
+body:not(.mobile-menu-open) .pdp-information,
+body:not(.mobile-menu-open) .related-products-section{
+  max-width:100%;
+  overflow-x:clip!important;
+  overflow-y:visible!important;
+  overscroll-behavior-x:none;
+}
+
+main img,
+.product-image img,
+.home-trending-image img,
+.cart-item-image img,
+.product-large-image img,
+.product-thumb img,
+.liked-product-image img,
+.category-image-row img,
+.membership-card-visual img{
+  -webkit-user-drag:none;
+  -webkit-touch-callout:none;
+  -webkit-user-select:none;
+  user-select:none;
+}
+
+.product-card,
+.home-trending-card,
+.cart-item,
+.liked-product-card,
+.account-card,
+.membership-panel,
+.footer-info-row,
+.legal-card{
+  touch-action:pan-y;
+}
+
+body.mobile-menu-open{
+  overflow:hidden!important;
+  touch-action:none;
+}
+
+@supports not (overflow:clip){
+  html,
+  body,
+  body:not(.mobile-menu-open) main,
+  body:not(.mobile-menu-open) .home-shell,
+  body:not(.mobile-menu-open) .premium-home,
+  body:not(.mobile-menu-open) .cart-screen,
+  body:not(.mobile-menu-open) .liked-shell,
+  body:not(.mobile-menu-open) .drops-screen,
+  body:not(.mobile-menu-open) .order-screen,
+  body:not(.mobile-menu-open) .account-dashboard-shell,
+  body:not(.mobile-menu-open) .product-detail-page,
+  body:not(.mobile-menu-open) .membership-page,
+  body:not(.mobile-menu-open) .page-hero,
+  body:not(.mobile-menu-open) .product-detail,
+  body:not(.mobile-menu-open) .cart-layout,
+  body:not(.mobile-menu-open) .account-grid,
+  body:not(.mobile-menu-open) .membership-hero,
+  body:not(.mobile-menu-open) .membership-value-proof,
+  body:not(.mobile-menu-open) .membership-compare,
+  body:not(.mobile-menu-open) .membership-faq,
+  body:not(.mobile-menu-open) .footer-info-list,
+  body:not(.mobile-menu-open) .legal-section,
+  body:not(.mobile-menu-open) .catalog-section,
+  body:not(.mobile-menu-open) .category-launch,
+  body:not(.mobile-menu-open) .pdp-information,
+  body:not(.mobile-menu-open) .related-products-section{
+    overflow-x:hidden!important;
+  }
+}
