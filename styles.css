@@ -10935,9 +10935,8 @@ body:not(.cart-has-items) .empty-cart .product-btn{
   }
 }
 
-/* Universal scroll stability: every page should use the document for vertical scroll. */
-html,
-body{
+/* Universal scroll stability: the viewport is the only vertical scroll owner. */
+html{
   width:100%;
   max-width:100%;
   min-height:100%;
@@ -10945,6 +10944,16 @@ body{
   overflow-x:clip!important;
   overflow-y:auto!important;
   -webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:none;
+}
+
+body{
+  width:100%;
+  max-width:100%;
+  min-height:100svh;
+  height:auto!important;
+  overflow-x:clip!important;
+  overflow-y:visible!important;
   overscroll-behavior-x:none;
 }
 
@@ -11008,6 +11017,7 @@ main img,
   touch-action:pan-y;
 }
 
+html.mobile-menu-open,
 body.mobile-menu-open{
   overflow:hidden!important;
   touch-action:none;
@@ -11015,7 +11025,6 @@ body.mobile-menu-open{
 
 @supports not (overflow:clip){
   html,
-  body,
   body:not(.mobile-menu-open) main,
   body:not(.mobile-menu-open) .home-shell,
   body:not(.mobile-menu-open) .premium-home,
@@ -11040,6 +11049,10 @@ body.mobile-menu-open{
   body:not(.mobile-menu-open) .category-launch,
   body:not(.mobile-menu-open) .pdp-information,
   body:not(.mobile-menu-open) .related-products-section{
+    overflow-x:hidden!important;
+  }
+
+  body{
     overflow-x:hidden!important;
   }
 }

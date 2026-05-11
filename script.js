@@ -138,10 +138,18 @@ document.querySelectorAll('.nav-mobile-menu[aria-label="Tillbaka"], [data-back-b
   });
 });
 
+function setMobileMenuOpen(isOpen) {
+  document.documentElement.classList.toggle('mobile-menu-open', isOpen);
+  document.body.classList.toggle('mobile-menu-open', isOpen);
+  document.querySelectorAll('.nav-mobile-menu[aria-label="Meny"]').forEach((button) => {
+    button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+}
+
 document.querySelectorAll('.nav-mobile-menu[aria-label="Meny"]').forEach((button) => {
   button.addEventListener('click', () => {
-    const isOpen = document.body.classList.toggle('mobile-menu-open');
-    button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    const isOpen = !document.body.classList.contains('mobile-menu-open');
+    setMobileMenuOpen(isOpen);
     if (isOpen) {
       document.querySelector('.menu')?.scrollTo({ top: 0, left: 0 });
     }
@@ -150,10 +158,7 @@ document.querySelectorAll('.nav-mobile-menu[aria-label="Meny"]').forEach((button
 
 document.querySelectorAll('.menu a, .luxury-menu-overlay a').forEach((link) => {
   link.addEventListener('click', () => {
-    document.body.classList.remove('mobile-menu-open');
-    document.querySelectorAll('.nav-mobile-menu[aria-label="Meny"]').forEach((button) => {
-      button.setAttribute('aria-expanded', 'false');
-    });
+    setMobileMenuOpen(false);
   });
 });
 
@@ -162,10 +167,7 @@ document.addEventListener('click', (event) => {
     return;
   }
 
-  document.body.classList.remove('mobile-menu-open');
-  document.querySelectorAll('.nav-mobile-menu[aria-label="Meny"]').forEach((button) => {
-    button.setAttribute('aria-expanded', 'false');
-  });
+  setMobileMenuOpen(false);
 });
 
 const observer = new IntersectionObserver((entries) => {
