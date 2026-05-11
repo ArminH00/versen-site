@@ -2238,15 +2238,19 @@ function renderOrders(orders) {
     return;
   }
 
-  list.innerHTML = orders.map((order) => `
+  const latestOrder = [...orders].sort((a, b) => orderTime(b) - orderTime(a))[0];
+  const orderDate = formatDate(latestOrder.processedAt || latestOrder.createdAt) || '';
+
+  list.innerHTML = `
     <div class="order-row">
-      <strong>${escapeHtml(order.name)}</strong>
-      <span>${escapeHtml(order.total || '')}</span>
-      <small>${escapeHtml(new Date(order.processedAt).toLocaleDateString('sv-SE'))}</small>
-      <p>${escapeHtml((order.items || []).join(', '))}</p>
-      ${order.statusUrl ? `<a href="${escapeHtml(order.statusUrl)}" target="_blank" rel="noreferrer">Visa order</a>` : ''}
+      <strong>${escapeHtml(latestOrder.name)}</strong>
+      <span>${escapeHtml(latestOrder.total || '')}</span>
+      <small>${escapeHtml(orderDate)}</small>
+      <p>${escapeHtml((latestOrder.items || []).join(', '))}</p>
+      ${latestOrder.statusUrl ? `<a href="${escapeHtml(latestOrder.statusUrl)}" target="_blank" rel="noreferrer">Visa order</a>` : ''}
     </div>
-  `).join('');
+    <a class="account-order-link" href="order.html"><span>Se alla ordrar</span><i aria-hidden="true"></i></a>
+  `;
 }
 
 function orderTime(order) {

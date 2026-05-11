@@ -128,13 +128,22 @@
       <p data-account-email>Kontrollerar konto.</p>
       <p data-member-note>Din kontostatus visas här.</p>
       <div class="account-actions">
-        <a class="product-btn secondary account-settings-link" href="installningar.html" data-settings-link hidden>Inställningar</a>
-        <button class="product-btn account-logout-button" type="button" data-logout-button hidden>Logga ut</button>
+        <a class="product-btn secondary account-settings-link account-action-row" href="installningar.html" data-settings-link hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 0 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.3a2 2 0 0 1-4 0V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 0 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.6-1H2.7a2 2 0 0 1 0-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 0 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.6v-.3a2 2 0 0 1 4 0V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 0 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.3a2 2 0 0 1 0 4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg>
+          <span>Inställningar</span>
+          <i aria-hidden="true"></i>
+        </a>
+        <button class="product-btn account-logout-button account-action-row" type="button" data-logout-button hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+          <span>Logga ut</span>
+          <i aria-hidden="true"></i>
+        </button>
       </div>
     </article>
 
     <article class="account-card order-card" data-orders-card hidden>
-      <h2>Orderhistorik</h2>
+      <span class="account-card-kicker">Orderhistorik</span>
+      <h2>Senaste order</h2>
       <div class="empty-state" data-orders-list>
         <span>Inga ordrar ännu</span>
         <p>Dina köp visas här när du är inloggad.</p>
