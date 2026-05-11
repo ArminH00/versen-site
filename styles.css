@@ -9770,7 +9770,7 @@ body.mobile-menu-open{
   gap:10px!important;
   padding:12px max(14px,env(safe-area-inset-left)) calc(12px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))!important;
   border:0!important;
-  border-radius:16px 16px 0 0!important;
+  border-radius:0!important;
   background:#050505!important;
   box-shadow:0 -16px 38px rgba(5,5,5,.18)!important;
 }
