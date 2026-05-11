@@ -10405,6 +10405,166 @@ body.mobile-menu-open{
   }
 }
 
+.page-account.is-authenticated .account-dashboard-shell{
+  width:min(560px,100% - 48px)!important;
+}
+
+.page-account.is-authenticated .page-hero{
+  padding:28px 0 12px!important;
+}
+
+.page-account.is-authenticated .page-hero h1{
+  max-width:360px!important;
+  margin-top:10px!important;
+  font-size:34px!important;
+  line-height:.96!important;
+}
+
+.page-account.is-authenticated .page-hero p{
+  max-width:320px!important;
+  margin-top:12px!important;
+  font-size:12px!important;
+  line-height:1.55!important;
+}
+
+.page-account.is-authenticated .account-grid{
+  gap:30px!important;
+  padding-bottom:48px!important;
+}
+
+.page-account.is-authenticated .account-metric{
+  gap:10px!important;
+  padding-bottom:18px!important;
+  margin-bottom:18px!important;
+}
+
+.page-account.is-authenticated .account-metric span,
+.page-account.is-authenticated .account-card-kicker{
+  font-size:9px!important;
+  font-weight:500!important;
+  letter-spacing:.15em!important;
+}
+
+.page-account.is-authenticated .account-metric strong{
+  font-size:23px!important;
+  font-weight:500!important;
+}
+
+.page-account.is-authenticated .points-metric small{
+  margin-top:-4px!important;
+  font-size:12px!important;
+  line-height:1.45!important;
+}
+
+.page-account.is-authenticated .account-status-card{
+  gap:12px!important;
+}
+
+.page-account.is-authenticated .account-status-card h2,
+.page-account.is-authenticated .order-card h2{
+  font-size:32px!important;
+  line-height:1!important;
+}
+
+.page-account.is-authenticated .account-status-card .status-pill{
+  min-height:32px!important;
+  padding:0 14px!important;
+  font-size:9px!important;
+  letter-spacing:.13em!important;
+}
+
+.page-account.is-authenticated .account-status-card > p{
+  max-width:340px!important;
+  font-size:12px!important;
+  line-height:1.65!important;
+}
+
+.page-account.is-authenticated [data-account-email]{
+  margin-top:3px!important;
+}
+
+.page-account.is-authenticated .account-actions{
+  margin-top:14px!important;
+}
+
+.page-account.is-authenticated .account-action-row{
+  min-height:54px!important;
+  grid-template-columns:30px 1fr 18px!important;
+  gap:12px!important;
+  font-size:15px!important;
+}
+
+.page-account.is-authenticated .account-action-row svg{
+  width:20px!important;
+  height:20px!important;
+  stroke-width:1.55!important;
+}
+
+.page-account.is-authenticated .account-action-row i,
+.page-account.is-authenticated .account-order-link i{
+  width:9px!important;
+  height:9px!important;
+  border-width:1.6px!important;
+}
+
+.page-account.is-authenticated .order-card{
+  gap:16px!important;
+}
+
+.page-account.is-authenticated .order-row{
+  gap:10px!important;
+  padding-bottom:22px!important;
+}
+
+.page-account.is-authenticated .order-row strong,
+.page-account.is-authenticated .order-row small{
+  font-size:12px!important;
+}
+
+.page-account.is-authenticated .order-row span{
+  font-size:24px!important;
+  font-weight:400!important;
+}
+
+.page-account.is-authenticated .order-row p{
+  margin:-8px 0 0!important;
+  font-size:12px!important;
+}
+
+.page-account.is-authenticated .account-order-link{
+  min-height:42px!important;
+  grid-template-columns:1fr 18px!important;
+  font-size:13px!important;
+}
+
+.page-account.is-authenticated .order-card .empty-state{
+  gap:5px!important;
+  padding-bottom:18px!important;
+}
+
+.page-account.is-authenticated .order-card .empty-state span{
+  font-size:15px!important;
+  font-weight:400!important;
+}
+
+.page-account.is-authenticated .order-card .empty-state p{
+  font-size:12px!important;
+}
+
+@media (max-width:640px){
+  .page-account.is-authenticated .account-dashboard-shell{
+    width:min(430px,100% - 46px)!important;
+  }
+
+  .page-account.is-authenticated .page-hero h1{
+    font-size:32px!important;
+  }
+
+  .page-account.is-authenticated .account-metric strong{
+    font-size:22px!important;
+  }
+}
+
 .cart-screen{
   padding-bottom:34px;
 }
