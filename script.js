@@ -650,6 +650,7 @@ function applyGlobalSessionUi(session = accountSession) {
   document.body.classList.toggle('is-authenticated', authenticated);
   document.body.classList.toggle('is-member', member);
   renderLuxuryMenu();
+  renderSuggestionAccess(session);
 
   document.querySelectorAll('a[href="medlemskap.html"], a[href^="medlemskap.html?"]').forEach((link) => {
     link.hidden = authenticated;
@@ -1298,6 +1299,40 @@ function showCheckoutMembershipGate() {
     href: authenticated ? 'medlemskap.html' : 'konto.html?next=membership',
     cta: authenticated ? 'Bli medlem & fortsätt' : 'Skapa konto & fortsätt',
   });
+}
+
+function renderSuggestionAccess(session = accountSession) {
+  const page = document.querySelector('[data-suggestion-page]');
+  const form = document.querySelector('[data-suggestion-form]');
+
+  if (!page || !form || !session) {
+    return;
+  }
+
+  const member = isActiveMember(session);
+  const authenticated = Boolean(session && session.authenticated);
+  const lockNote = document.querySelector('[data-suggestion-lock-note]');
+
+  document.body.classList.toggle('suggestion-locked', !member);
+  page.classList.toggle('is-locked', !member);
+  if (lockNote) lockNote.hidden = member;
+
+  form.querySelectorAll('input, textarea, button').forEach((field) => {
+    field.disabled = !member;
+  });
+
+  if (!member && !document.body.dataset.suggestionGateShown) {
+    document.body.dataset.suggestionGateShown = '1';
+    window.setTimeout(() => {
+      showMembershipGate({
+        badge: 'Community drop',
+        title: 'Bli medlem för att föreslå nästa drop.',
+        copy: 'Medlemmar kan tipsa om produkter och påverka vad vi jagar in till kommande veckor.',
+        href: authenticated ? 'medlemskap.html' : 'konto.html?next=membership',
+        cta: authenticated ? 'Bli medlem' : 'Skapa konto & bli medlem',
+      });
+    }, 260);
+  }
 }
 
 function prepareProductCardLinks(root = document) {
@@ -3642,9 +3677,24 @@ const suggestionForm = document.querySelector('[data-suggestion-form]');
 
 if (suggestionForm) {
   const suggestionMessage = document.querySelector('[data-suggestion-message]');
+  const suggestionTextarea = suggestionForm.querySelector('textarea[name="message"]');
+  const suggestionCounter = suggestionForm.querySelector('.suggest-field-message small');
+
+  if (suggestionTextarea && suggestionCounter) {
+    const updateSuggestionCounter = () => {
+      suggestionCounter.textContent = `${suggestionTextarea.value.length}/250`;
+    };
+    suggestionTextarea.addEventListener('input', updateSuggestionCounter);
+    updateSuggestionCounter();
+  }
 
   suggestionForm.addEventListener('submit', async (event) => {
     event.preventDefault();
+    if (!isActiveMember()) {
+      renderSuggestionAccess(accountSession || { authenticated: false });
+      return;
+    }
+
     const formData = new FormData(suggestionForm);
     const button = suggestionForm.querySelector('button');
 

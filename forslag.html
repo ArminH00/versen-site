@@ -9,7 +9,7 @@
 <script>try{if(Date.now()<1777500000000&&!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen - Produktförslag</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260511-scroll-owner">
+<link rel="stylesheet" href="styles.css?v=20260511-community-drop">
 </head>
 
 <body class="auth-loading page-footer-info page-suggest-drop">
@@ -40,59 +40,110 @@
   </div>
 </nav>
 
-<main>
-  <header class="page-hero suggest-drop-hero fade">
-    <div class="suggest-star-field" aria-hidden="true">
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
+<main class="suggest-drop-page" data-suggestion-page>
+  <section class="suggest-drop-stage fade" aria-label="Föreslå drop">
+    <div class="suggest-drop-copy">
+      <span class="suggest-kicker"><i aria-hidden="true"></i> Community drop</span>
+      <h1>Du bestämmer nästa fynd</h1>
+      <p>Tipsa om produkter och varumärken du vill att vi jagar inför nästa veckas drop.</p>
+      <div class="suggest-proof" aria-label="Förslag skickade">
+        <span aria-hidden="true"><b></b><b></b><b></b><b></b></span>
+        <strong>2 341 förslag skickade</strong>
+      </div>
     </div>
-    <div class="page-hero-content">
-      <div class="badge">Nästa drop</div>
-      <h1>Föreslå nästa drop</h1>
-      <p>Tipsa om produkter du vill att vi ska leta fram till nästa vecka. Länkar, varumärken och små önskningar räcker.</p>
+
+    <figure class="suggest-product-visual" aria-label="Versen community drop">
+      <img src="assets/community-drop-hero.jpg" alt="Versen produktmockup med shaker, påse och bar">
+    </figure>
+  </section>
+
+  <section class="suggest-form-shell fade" aria-label="Produktförslag">
+    <div class="suggest-lock-note" data-suggestion-lock-note hidden>
+      <strong>Medlemsförslag</strong>
+      <span>Bli medlem för att skicka in produkter till kommande drops.</span>
     </div>
-  </header>
 
-  <section class="footer-info-list suggest-drop-list fade" aria-label="Produktförslag">
-    <article class="footer-info-row suggest-oracle-card">
-      <h2>Vi jagar nästa fynd</h2>
-      <p>Skriv vad du saknar i shoppen. Ju tydligare förslag, desto enklare blir det för oss att hitta rätt produkt och rätt pris.</p>
-    </article>
+    <form class="suggestion-form" data-suggestion-form>
+      <fieldset>
+        <legend>1. Vad vill du tipsa om?</legend>
+        <label class="suggest-field suggest-field-large">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg>
+          <span>
+            <strong>Produkt eller varumärke</strong>
+            <input type="text" name="product" placeholder="T.ex. Barebells, Celsius, Sony WH-1000XM5" required>
+          </span>
+        </label>
+      </fieldset>
 
-    <article class="footer-info-row contact-card suggest-drop-card">
-      <p>Förslagen går direkt till vårt urval inför nästa veckas drop.</p>
-      <form class="member-form" data-suggestion-form>
-        <input type="text" name="product" placeholder="Produkt eller varumärke" required>
-        <select name="category" aria-label="Kategori">
-          <option value="Bilvård">Bilvård</option>
-          <option value="Träning & hälsa">Träning & hälsa</option>
-          <option value="Hudvård">Hudvård</option>
-          <option value="Mat och dryck">Mat och dryck</option>
-          <option value="Hem och städ">Hem och städ</option>
-          <option value="Teknik">Teknik</option>
-          <option value="Husdjur">Husdjur</option>
-          <option value="Kläder">Kläder</option>
-          <option value="Barn och familj">Barn och familj</option>
-          <option value="Annat">Annat</option>
-        </select>
-        <input type="text" name="name" placeholder="Namn" autocomplete="name">
-        <input type="email" name="email" placeholder="Email" autocomplete="email" required>
-        <input type="text" name="link" placeholder="Länk om du har en" inputmode="url" autocomplete="url">
-        <textarea name="message" placeholder="Varför borde den finnas hos Versen?" rows="6"></textarea>
-        <button class="product-btn" type="submit">Skicka förslag</button>
-      </form>
+      <fieldset>
+        <legend>2. Välj kategori</legend>
+        <div class="suggest-category-grid">
+          <label>
+            <input type="radio" name="category" value="Träning & hälsa" checked>
+            <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4M8 7v10M16 7v10M20 10v4M8 12h8"/></svg>Träning &amp; hälsa</span>
+          </label>
+          <label>
+            <input type="radio" name="category" value="Dryck">
+            <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8l-1 18H9L8 3Z"/><path d="M9 8h6"/></svg>Dryck</span>
+          </label>
+          <label>
+            <input type="radio" name="category" value="Hudvård">
+            <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6 6.1 6 10a6 6 0 0 1-12 0c0-3.9 6-10 6-10Z"/></svg>Skincare</span>
+          </label>
+          <label>
+            <input type="radio" name="category" value="Snacks">
+            <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14c6-8 12-8 16-8-1 7-5 12-13 12"/><path d="M4 20c3-5 7-8 13-10"/></svg>Snacks</span>
+          </label>
+          <label>
+            <input type="radio" name="category" value="Teknik">
+            <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><path d="M4 14v4h4v-6H4ZM20 14v4h-4v-6h4Z"/></svg>Tech</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>3. Ditt förslag</legend>
+        <div class="suggest-field-row">
+          <label class="suggest-field">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.4"/><path d="M5.5 19c1.3-3.2 3.5-4.8 6.5-4.8s5.2 1.6 6.5 4.8"/></svg>
+            <span>
+              <strong>Namn</strong>
+              <input type="text" name="name" placeholder="Ditt namn" autocomplete="name">
+            </span>
+          </label>
+          <label class="suggest-field">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg>
+            <span>
+              <strong>E-mail</strong>
+              <input type="email" name="email" placeholder="du@email.se" autocomplete="email" required>
+            </span>
+          </label>
+        </div>
+
+        <label class="suggest-field suggest-field-large">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.1 0l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1"/><path d="M14 11a5 5 0 0 0-7.1 0l-2 2A5 5 0 0 0 12 20l1.1-1.1"/></svg>
+          <span>
+            <strong>Länk om du har en</strong>
+            <input type="text" name="link" placeholder="Klistra in länk (valfritt)" inputmode="url" autocomplete="url">
+          </span>
+        </label>
+
+        <label class="suggest-field suggest-field-message">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 20 4.5-1 10-10a2.8 2.8 0 0 0-4-4l-10 10L4 20Z"/><path d="m13 6 5 5"/></svg>
+          <span>
+            <strong>Varför borde den finnas hos Versen?</strong>
+            <textarea name="message" placeholder="Berätta kort varför just denna produkt borde tas in." maxlength="250" rows="4"></textarea>
+          </span>
+          <small>0/250</small>
+        </label>
+      </fieldset>
+
+      <button class="product-btn suggest-submit" type="submit">Skicka förslag</button>
       <p class="form-message" data-suggestion-message></p>
-    </article>
-
-    <article class="footer-info-row suggest-rhythm-row">
-      <h2>Så väljer vi</h2>
-      <p>Vi tittar på efterfrågan, möjlig rabatt och om produkten passar veckans kurering. De bästa förslagen kan hamna i kommande drops.</p>
-    </article>
+    </form>
   </section>
 </main>
 
-<script src="script.js?v=20260511-scroll-owner"></script>
+<script src="script.js?v=20260511-community-drop"></script>
 </body>
 </html>
