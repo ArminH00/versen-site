@@ -1985,7 +1985,7 @@ function renderCart() {
       <div class="empty-cart">
         <h2>Kundkorgen är tom</h2>
         <p>Lägg till produkter från katalogen innan du går vidare till checkout.</p>
-        <a class="product-btn" href="produkter.html">Visa produkter</a>
+        <a class="product-btn" href="produkter.html">Handla</a>
       </div>
     `;
   } else {
