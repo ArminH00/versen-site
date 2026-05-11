@@ -104,19 +104,6 @@ module.exports = async function handler(req, res) {
   const requestedDiscountCode = normalizeDiscountCode(body.discountCode);
   const customerAccessToken = getCookie(req, 'versen_customer_token');
   const session = await getCustomerSession(customerAccessToken);
-  const legacyMemberCode = process.env.VERSEN_MEMBER_ACCESS_CODE;
-  const hasLegacyMembership = legacyMemberCode && body.memberCode === legacyMemberCode;
-  const hasValidMembership = (session.authenticated && session.customer.member) || hasLegacyMembership;
-
-  if (!hasValidMembership) {
-    sendJson(res, 401, {
-      error: session.authenticated ? 'Aktivt medlemskap krävs' : 'Logga in som medlem först',
-      membershipRequired: true,
-      loginRequired: !session.authenticated,
-    });
-    return;
-  }
-
   const input = {
     lines,
     attributes: [

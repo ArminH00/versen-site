@@ -2230,13 +2230,6 @@ if (cartCheckoutButton) {
       return;
     }
 
-    if (!isActiveMember()) {
-      if (message) message.textContent = '';
-      showCheckoutMembershipGate();
-      syncShoppingAccess();
-      return;
-    }
-
     cartCheckoutButton.disabled = true;
     cartCheckoutButton.textContent = 'Skapar betalning...';
     if (message) message.textContent = '';
