@@ -9936,14 +9936,7 @@ body.mobile-menu-open{
 
 .page-account.is-authenticated .dashboard-sidebar,
 .page-settings .dashboard-sidebar{
-  position:static!important;
-  display:flex!important;
-  gap:8px!important;
-  width:100%;
-  margin:0 0 18px!important;
-  padding:0!important;
-  overflow-x:auto;
-  scrollbar-width:none;
+  display:none!important;
 }
 
 .page-account.is-authenticated .dashboard-sidebar::-webkit-scrollbar,
@@ -10108,6 +10101,14 @@ body.mobile-menu-open{
   grid-template-columns:1fr!important;
 }
 
+.page-settings .account-card,
+.page-settings .settings-card,
+.page-settings .settings-status{
+  max-width:100%!important;
+  min-width:0!important;
+  overflow:hidden!important;
+}
+
 .page-settings .settings-status{
   padding:16px!important;
   border-radius:12px!important;
@@ -10122,8 +10123,16 @@ body.mobile-menu-open{
 }
 
 .page-settings .settings-back{
-  width:100%;
+  width:max-content;
+  max-width:100%;
+  min-height:42px!important;
+  padding:0 18px!important;
   border-radius:8px!important;
+}
+
+.page-settings .account-back-button{
+  justify-self:start;
+  margin-top:2px;
 }
 
 @media (max-width:640px){

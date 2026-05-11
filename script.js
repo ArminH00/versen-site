@@ -2422,7 +2422,7 @@ function renderSettingsPage(session = accountSession) {
       ? `
         <span>${membership.cancellationRequested ? 'Avslutas' : 'Aktivt medlemskap'}</span>
         <strong>${membership.cancellationRequested ? `Aktivt till ${date || 'sista perioden'}` : (date ? `Förnyas ${date}` : 'Aktivt')}</strong>
-        <p>${membership.cancellationRequested ? 'Du behåller medlemspriserna till slutdatumet. Ingen ny dragning görs.' : 'Medlemspriser, poäng och checkout är aktiva. Avslutar du ligger access kvar till sista betalda datumet.'}</p>
+        <p>${membership.cancellationRequested ? 'Du behåller medlemspriserna till slutdatumet. Ingen ny dragning görs.' : 'Medlemspriser, poäng och checkout är aktiva.'}</p>
       `
       : `
         <span>Ej aktivt</span>
