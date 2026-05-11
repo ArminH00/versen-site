@@ -9,7 +9,7 @@
 <script>try{if(Date.now()<1777500000000&&!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen - Produktförslag</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260511-community-drop">
+<link rel="stylesheet" href="styles.css?v=20260512-community-drop">
 </head>
 
 <body class="auth-loading page-footer-info page-suggest-drop">
@@ -46,10 +46,6 @@
       <span class="suggest-kicker"><i aria-hidden="true"></i> Community drop</span>
       <h1>Du bestämmer nästa fynd</h1>
       <p>Tipsa om produkter och varumärken du vill att vi jagar inför nästa veckas drop.</p>
-      <div class="suggest-proof" aria-label="Förslag skickade">
-        <span aria-hidden="true"><b></b><b></b><b></b><b></b></span>
-        <strong>2 341 förslag skickade</strong>
-      </div>
     </div>
 
     <figure class="suggest-product-visual" aria-label="Versen community drop">
@@ -98,6 +94,10 @@
             <input type="radio" name="category" value="Teknik">
             <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><path d="M4 14v4h4v-6H4ZM20 14v4h-4v-6h4Z"/></svg>Tech</span>
           </label>
+          <label>
+            <input type="radio" name="category" value="Fordon">
+            <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 14l1.6-4.2A2 2 0 0 1 8.5 8h7a2 2 0 0 1 1.9 1.3L19 14"/><path d="M4 14h16v4H4z"/><circle cx="7.5" cy="18" r="1.5"/><circle cx="16.5" cy="18" r="1.5"/><path d="M8 11h8"/></svg>Fordon</span>
+          </label>
         </div>
       </fieldset>
 
@@ -144,6 +144,6 @@
   </section>
 </main>
 
-<script src="script.js?v=20260511-community-drop"></script>
+<script src="script.js?v=20260512-community-drop"></script>
 </body>
 </html>
