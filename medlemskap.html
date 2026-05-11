@@ -45,9 +45,23 @@
     <div class="membership-panel">
       <div class="membership-copy">
         <span class="eyebrow">Versen Member Club</span>
-        <h1>En premium access-klubb för smartare köp.</h1>
+        <h1>En premium access-klubb för billigare köp.</h1>
         <p>Lås upp veckans medlemspriser, samla poäng och påverka vilka produkter Versen jagar in nästa gång.</p>
-        <button class="cta" type="button" data-membership-checkout>Starta medlemskap</button>
+        <div class="plan-grid membership-hero-plans">
+          <article>
+            <span>Månad</span>
+            <strong>99 kr/mån</strong>
+            <p>Flexibel access till aktiva deals och checkout.</p>
+            <button class="product-btn secondary" type="button" data-membership-checkout>Välj månad</button>
+          </article>
+          <article class="featured">
+            <em>Rekommenderad</em>
+            <span>År</span>
+            <strong>899 kr/år</strong>
+            <p>Spara 3 månader och få högsta prioritet på kommande medlemsfunktioner.</p>
+            <button class="product-btn" type="button" data-membership-checkout>Välj år</button>
+          </article>
+        </div>
         <p class="form-message" data-membership-message></p>
       </div>
 
@@ -59,12 +73,6 @@
     </div>
   </header>
 
-  <section class="membership-benefit-band fade">
-    <article><span>01</span><strong>Medlemspris</strong><p>Utvalda produkter med tydlig jämförelse mot ordinarie pris.</p></article>
-    <article><span>02</span><strong>Poäng</strong><p>Samla rewards och bygg mer värde över tid.</p></article>
-    <article><span>03</span><strong>Inflytande</strong><p>Föreslå produkter och påverka kommande drops.</p></article>
-  </section>
-
   <section class="membership-value-proof fade" aria-label="Exempel på medlemsvärde">
     <div>
       <span class="eyebrow">Räkna på känslan</span>
@@ -72,38 +80,14 @@
     </div>
     <div class="savings-example-grid">
       <article>
-        <span>Bilvårdskit</span>
-        <strong>199 kr sparat</strong>
-        <p>Schampo, försegling och mikrofiber till medlemspris.</p>
+        <span>Per beställning</span>
+        <strong>360 kr sparat</strong>
+        <p>I snitt per beställning hos Versen gentemot annan butik.</p>
       </article>
       <article>
-        <span>Performance refill</span>
-        <strong>120 kr sparat</strong>
-        <p>Protein och dryck när veckans träning fylls på.</p>
-      </article>
-    </div>
-  </section>
-
-  <section class="membership-plans fade">
-    <div class="section-heading-row">
-      <div>
-        <span class="eyebrow">Pricing</span>
-        <h2>Välj medlemskap.</h2>
-      </div>
-    </div>
-    <div class="plan-grid">
-      <article>
-        <span>Månad</span>
-        <strong>99 kr/mån</strong>
-        <p>Flexibel access till aktiva deals och checkout.</p>
-        <button class="product-btn secondary" type="button" data-membership-checkout>Välj månad</button>
-      </article>
-      <article class="featured">
-        <em>Rekommenderad</em>
-        <span>År</span>
-        <strong>899 kr/år</strong>
-        <p>Spara 3 månader och få högsta prioritet på kommande medlemsfunktioner.</p>
-        <button class="product-btn" type="button" data-membership-checkout>Välj år</button>
+        <span>Medlemspris</span>
+        <strong>40-70% rabatt</strong>
+        <p>På produkter i genomsnitt jämfört med andra återförsäljares priser.</p>
       </article>
     </div>
   </section>
@@ -130,7 +114,12 @@
       <em>Upplåst</em>
     </div>
     <div class="compare-row">
-      <span>Poäng och produktförslag</span>
+      <span>Poäng</span>
+      <em>-</em>
+      <em>Ingår</em>
+    </div>
+    <div class="compare-row">
+      <span>Produktförslag</span>
       <em>-</em>
       <em>Ingår</em>
     </div>
@@ -140,7 +129,7 @@
     <div class="faq-stack">
       <details open>
         <summary>Vad ingår?</summary>
-        <p>Medlemspriser, poäng, produktförslag och möjlighet att slutföra checkout på aktiva deals.</p>
+        <p>Medlemspriser, extra rabatter ovanpå de redan låga priserna, poäng, produktförslag och möjlighet att slutföra checkout på aktiva deals.</p>
       </details>
       <details>
         <summary>Kan jag avsluta?</summary>
@@ -149,6 +138,10 @@
       <details>
         <summary>Måste jag skapa konto?</summary>
         <p>Ja, kontot används för att koppla medlemskap, poäng, orderhistorik och checkout.</p>
+      </details>
+      <details>
+        <summary>Vad kan jag göra med poäng?</summary>
+        <p>Du kan byta dina poäng direkt mot extra rabatt, 1kr handlat för ger 2 poäng.</p>
       </details>
     </div>
   </section>

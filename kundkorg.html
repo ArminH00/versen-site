@@ -44,8 +44,8 @@
   <header class="page-hero fade">
     <div class="page-hero-content">
       <span class="eyebrow">Checkout</span>
-      <h1>Kundkorg <span data-cart-heading-items>0 st</span></h1>
-      <p>Granska produkter, justera antal och gå vidare till säker checkout när allt är klart.</p>
+      <h1 data-cart-heading-title>Kundkorg <span data-cart-heading-items>0 st</span></h1>
+      <p data-cart-heading-copy>Kika igenom vad du lagt till och glöm inte skriva in rabattkod om du har det.</p>
     </div>
   </header>
 
@@ -85,13 +85,13 @@
       <form class="discount-form" data-discount-form>
         <label for="discount-code">Rabattkod</label>
         <div class="discount-row">
-          <input id="discount-code" type="text" name="discountCode" placeholder="Ange kod" autocomplete="off" data-discount-code>
-          <button class="product-btn secondary" type="submit">Kontrollera</button>
+          <input id="discount-code" type="text" name="discountCode" placeholder="Rabattkod anger du här" autocomplete="off" data-discount-code>
+          <button class="product-btn secondary" type="submit">Kontrollera koden</button>
         </div>
         <p class="form-message" data-discount-message></p>
       </form>
       <p data-cart-help>Om du har en rabattkod kan du ange den i kassan.</p>
-      <button class="cta cart-checkout" type="button" data-cart-checkout>Till kassan</button>
+      <button class="cta cart-checkout" type="button" data-cart-checkout>Gå till betalning</button>
       <p class="form-message" data-cart-message></p>
     </aside>
   </section>
