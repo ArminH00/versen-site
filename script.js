@@ -3103,8 +3103,8 @@ function showAccountExpressMembership() {
   });
   expressMembership.hidden = false;
   document.body.classList.add('is-authenticated', 'account-express-active');
-  setText('[data-account-hero-title]', 'Starta medlemskap');
-  setText('[data-account-hero-copy]', 'Välj medlemskap direkt här, så fortsätter du till betalningen för kundkorgen när accessen är aktiv.');
+  setText('[data-account-hero-title]', 'Välj medlemskap');
+  setText('[data-account-hero-copy]', '');
   expressMembership.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -3690,9 +3690,7 @@ if (membershipCheckoutButtons.length) {
   const payButton = document.querySelector('[data-membership-pay-button]');
 
   refreshAccount().then(() => {
-    if (pageParams.get('ready') === '1' && message) {
-      message.textContent = 'Kontot är klart. Starta medlemskapet när du är redo.';
-    }
+    if (pageParams.get('ready') === '1' && message) message.textContent = '';
   });
 
   membershipCheckoutButtons.forEach((membershipCheckoutButton) => membershipCheckoutButton.addEventListener('click', async () => {

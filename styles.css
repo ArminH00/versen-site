@@ -11687,6 +11687,13 @@ main img,
   gap:18px!important;
 }
 
+.account-express-active .page-hero p,
+.account-express-active .account-express-membership > .account-card-kicker,
+.account-express-active .account-express-membership > h2,
+.account-express-active .account-express-membership > p:not(.form-message){
+  display:none!important;
+}
+
 @media (max-width:760px){
   .membership-payment-panel{
     grid-template-columns:1fr;
