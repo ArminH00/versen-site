@@ -2648,6 +2648,8 @@ function goCheckoutStep(step) {
   window.location.href = `/checkout?step=${encodeURIComponent(step)}`;
 }
 
+const CHECKOUT_STANDARD_SHIPPING = 55;
+
 function renderCheckoutSummary(data = {}) {
   const items = data.items || readCart().map((item) => ({
     title: item.title,
@@ -2659,9 +2661,9 @@ function renderCheckoutSummary(data = {}) {
   const fallbackSubtotal = readCart().reduce((sum, item) => sum + (parsePrice(item.price) * (Number(item.quantity) || 1)), 0);
   const summary = data.summary || {
     subtotal: formatSek(fallbackSubtotal),
-    shipping: '49 kr',
-    tax: formatSek((fallbackSubtotal + 49) * 0.25),
-    total: formatSek(fallbackSubtotal + 49),
+    shipping: `${CHECKOUT_STANDARD_SHIPPING} kr`,
+    tax: formatSek((fallbackSubtotal + CHECKOUT_STANDARD_SHIPPING) * 0.25),
+    total: formatSek(fallbackSubtotal + CHECKOUT_STANDARD_SHIPPING),
   };
   const list = document.querySelector('[data-checkout-summary-items]');
 

@@ -1107,8 +1107,19 @@
 }
 
 .checkout-total-lines .is-total strong{
+  display:grid;
+  gap:2px;
+  justify-items:end;
   font-size:16px;
   font-weight:700;
+  text-align:right;
+}
+
+.checkout-total-lines .is-total small{
+  color:#9a9690;
+  font-size:11px;
+  font-weight:500;
+  line-height:1.25;
 }
 
 .checkout-pay-button{

@@ -172,8 +172,13 @@
           <div class="checkout-total-lines">
             <div><span>Delsumma</span><strong data-checkout-subtotal>0 kr</strong></div>
             <div><span>Frakt</span><strong data-checkout-shipping>0 kr</strong></div>
-            <div><span>Moms (25%)</span><strong data-checkout-tax>0 kr</strong></div>
-            <div class="is-total"><span>Totalt</span><strong data-checkout-total>0 kr</strong></div>
+            <div class="is-total">
+              <span>Totalt</span>
+              <strong>
+                <span data-checkout-total>0 kr</span>
+                <small>Inkl. moms: <span data-checkout-tax>0 kr</span></small>
+              </strong>
+            </div>
           </div>
           <button class="cta checkout-pay-button" type="submit" form="" data-checkout-pay-button>Betala</button>
           <p class="checkout-terms">Genom att slutföra köpet godkänner du våra <a href="/villkor">köpvillkor</a> och <a href="/integritet">integritetspolicy</a>.</p>
@@ -208,6 +213,6 @@
 </main>
 
 <script src="https://js.stripe.com/v3/"></script>
-<script src="script.js?v=20260512-member-menu-visibility"></script>
+<script src="script.js?v=20260512-shipping-55"></script>
 </body>
 </html>
