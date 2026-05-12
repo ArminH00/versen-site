@@ -11694,6 +11694,14 @@ main img,
   display:none!important;
 }
 
+.page-membership .premium-membership-hero{
+  padding-bottom:clamp(26px,4vw,46px)!important;
+}
+
+.page-membership .membership-value-proof{
+  padding-top:clamp(30px,5vw,58px)!important;
+}
+
 @media (max-width:760px){
   .membership-payment-panel{
     grid-template-columns:1fr;
@@ -11739,6 +11747,14 @@ main img,
   .account-membership-payment{
     width:100%!important;
     margin-bottom:30px;
+  }
+
+  .page-membership .premium-membership-hero{
+    padding-bottom:24px!important;
+  }
+
+  .page-membership .membership-value-proof{
+    padding-top:32px!important;
   }
 }
 
