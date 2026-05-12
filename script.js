@@ -18,6 +18,8 @@ let memberLiveProducts = [];
 let memberLiveTimer = null;
 const pageParams = new URLSearchParams(window.location.search);
 const accountNext = pageParams.get('next') || '';
+const isAccountPage = /(^|\/)konto\.html$/.test(window.location.pathname);
+const accountCheckoutIntent = accountNext === 'checkout' || pageParams.get('return') === 'checkout';
 const verificationToken = pageParams.get('verify') || '';
 const resetToken = pageParams.get('reset') || '';
 const isLaunchPage = window.location.pathname.endsWith('/snart.html') || window.location.pathname.endsWith('snart.html');
@@ -613,27 +615,21 @@ function clearMembershipReturn() {
 
 function membershipReturnTarget() {
   const target = readMembershipReturn();
-  if (target && target.type === 'checkout' && readCart().length) {
+  if (target && target.type === 'checkout') {
     const step = target.step || 'betalning';
     return `checkout.html?step=${encodeURIComponent(step)}`;
   }
   return 'produkter.html?unlocked=1';
 }
 
-if (pageParams.get('return') === 'checkout') {
+if (accountCheckoutIntent) {
   rememberMembershipReturn({
     type: 'checkout',
     step: pageParams.get('step') || 'betalning',
     startedAt: new Date().toISOString(),
   });
-}
-
-if (accountNext === 'checkout') {
-  rememberMembershipReturn({
-    type: 'checkout',
-    step: pageParams.get('step') || 'betalning',
-    startedAt: new Date().toISOString(),
-  });
+} else if (isAccountPage) {
+  clearMembershipReturn();
 }
 
 function readCheckoutDraft() {
@@ -3114,7 +3110,7 @@ function showAccountExpressMembership() {
 function completeAccountIntent(options = {}) {
   if (accountNext === 'liked') {
     window.location.href = 'gillar.html';
-  } else if (accountNext === 'checkout') {
+  } else if (accountCheckoutIntent) {
     if (isActiveMember()) {
       window.location.href = membershipReturnTarget();
     } else if (options.inlineMembership) {
@@ -3393,7 +3389,7 @@ if (registerForm) {
       updateMemberStatus(accountSession);
       queueLikedSync();
       if (message) message.textContent = 'Kontot är skapat och du är inloggad.';
-      completeAccountIntent({ inlineMembership: accountNext === 'checkout' });
+      completeAccountIntent({ inlineMembership: accountCheckoutIntent });
     } catch (error) {
       if (message) message.textContent = 'Kunde inte kontakta servern.';
     }
