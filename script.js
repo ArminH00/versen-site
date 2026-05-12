@@ -1,6 +1,8 @@
 const CART_KEY = 'versenCart';
 const DISCOUNT_KEY = 'versenDiscountCode';
 const CHECKOUT_KEY = 'versenCheckoutPending';
+const CHECKOUT_DRAFT_KEY = 'versenCheckoutDraft';
+const LAST_ORDER_KEY = 'versenLastOrder';
 const ADMIN_SECRET_KEY = 'versenAdminSecret';
 const MEMBERSHIP_REVEAL_KEY = 'versenMembershipRevealSeen';
 const LAUNCH_GATE_KEY = 'versenLaunchAccess';
@@ -88,7 +90,7 @@ function renderLuxuryMenu() {
     { href: 'produkter.html', label: 'Handla', match: ['produkter.html', 'produkt.html'] },
     authenticated ? null : { href: 'medlemskap.html', label: 'Medlemskap', match: ['medlemskap.html', 'medlemskap-aktivt.html'] },
     { href: 'konto.html', label: 'Konto', match: ['konto.html', 'installningar.html', 'order.html'] },
-    { href: 'kundkorg.html', label: 'Kundvagn', match: ['kundkorg.html'], cart: true },
+    { href: 'kundkorg.html', label: 'Kundvagn', match: ['kundkorg.html', 'checkout.html'], cart: true },
     { href: 'forslag.html', label: 'Föreslå drop', match: ['forslag.html'], featured: true },
   ].filter(Boolean);
 
@@ -590,6 +592,37 @@ function clearPendingCheckout() {
   localStorage.removeItem(CHECKOUT_KEY);
 }
 
+function readCheckoutDraft() {
+  try {
+    return JSON.parse(localStorage.getItem(CHECKOUT_DRAFT_KEY) || '{}') || {};
+  } catch (error) {
+    return {};
+  }
+}
+
+function writeCheckoutDraft(next) {
+  const draft = {
+    ...readCheckoutDraft(),
+    ...(next || {}),
+    updatedAt: new Date().toISOString(),
+  };
+  localStorage.setItem(CHECKOUT_DRAFT_KEY, JSON.stringify(draft));
+  return draft;
+}
+
+function writeLastOrder(order) {
+  if (!order) return;
+  localStorage.setItem(LAST_ORDER_KEY, JSON.stringify(order));
+}
+
+function readLastOrder() {
+  try {
+    return JSON.parse(localStorage.getItem(LAST_ORDER_KEY) || 'null');
+  } catch (error) {
+    return null;
+  }
+}
+
 function unlockLaunchGate(destination = '') {
   localStorage.setItem(LAUNCH_GATE_KEY, '1');
   window.location.href = destination || pageParams.get('next') || 'index.html';
@@ -737,8 +770,8 @@ function syncShoppingAccess() {
 
   if (cartHelp) {
     cartHelp.textContent = member
-      ? 'Du kommer tas vidare till ett nytt fönster för betalning och kan sedan komma tillbaks hit för att se din orderstatus.'
-      : 'När du är klar öppnar vi säker checkout och sparar kundkorgen här.';
+      ? 'Fortsätt till Versens checkout med kontakt, leverans och säker kortbetalning.'
+      : 'Fortsätt till Versens checkout. Du behöver vara inloggad för att slutföra köpet.';
   }
 
   if (membershipCheckout) {
@@ -2255,7 +2288,7 @@ document.addEventListener('change', (event) => {
 const cartCheckoutButton = document.querySelector('[data-cart-checkout]');
 
 if (cartCheckoutButton) {
-  cartCheckoutButton.addEventListener('click', async () => {
+  cartCheckoutButton.addEventListener('click', () => {
     const cart = readCart();
     const message = document.querySelector('[data-cart-message]');
 
@@ -2264,47 +2297,8 @@ if (cartCheckoutButton) {
       return;
     }
 
-    cartCheckoutButton.disabled = true;
-    cartCheckoutButton.textContent = 'Skapar betalning...';
     if (message) message.textContent = '';
-    const checkoutWindow = prepareCheckoutWindow();
-
-    try {
-      const response = await fetch('/api/cart', {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          items: cart.map((item) => ({
-            variantId: item.variantId,
-            quantity: item.quantity,
-          })),
-          discountCode: readDiscountCode(),
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (data.membershipRequired) {
-          if (message) message.textContent = data.loginRequired ? 'Logga in på kontosidan först.' : 'Aktivt medlemskap krävs innan checkout.';
-        } else if (message) {
-          message.textContent = data.error || 'Kunde inte skapa checkout.';
-        }
-        if (checkoutWindow) checkoutWindow.close();
-        return;
-      }
-
-      openCheckout(data.checkoutUrl, 'produkt', checkoutWindow);
-    } catch (error) {
-      if (checkoutWindow) checkoutWindow.close();
-      if (message) message.textContent = 'Kunde inte kontakta checkout.';
-    } finally {
-      cartCheckoutButton.disabled = false;
-      cartCheckoutButton.textContent = 'Gå till betalning';
-    }
+    window.location.href = 'checkout.html?step=kontakt';
   });
 }
 
@@ -2378,6 +2372,396 @@ if (discountForm) {
   });
 }
 
+let checkoutStripe = null;
+let checkoutElements = null;
+let checkoutPaymentReady = false;
+let checkoutPaymentIntentId = '';
+
+function currentCheckoutStep() {
+  const requested = pageParams.get('step') || 'kontakt';
+  return ['kontakt', 'leverans', 'betalning', 'bekraftelse'].includes(requested) ? requested : 'kontakt';
+}
+
+function checkoutItemsPayload() {
+  return readCart().map((item) => ({
+    variantId: item.variantId,
+    quantity: item.quantity,
+  }));
+}
+
+function fillForm(form, values = {}) {
+  if (!form) return;
+
+  Object.entries(values).forEach(([name, value]) => {
+    const field = form.elements[name];
+    if (!field || field.type === 'checkbox') return;
+    if (!field.value && value) field.value = value;
+  });
+}
+
+function formValues(form) {
+  return Object.fromEntries(new FormData(form).entries());
+}
+
+function setCheckoutStep(step) {
+  document.querySelectorAll('[data-checkout-step]').forEach((panel) => {
+    panel.hidden = panel.dataset.checkoutStep !== step;
+  });
+
+  const order = ['kontakt', 'leverans', 'betalning', 'bekraftelse'];
+  const activeIndex = order.indexOf(step);
+  document.querySelectorAll('[data-progress-step]').forEach((item) => {
+    const index = order.indexOf(item.dataset.progressStep);
+    item.classList.toggle('is-active', index === activeIndex);
+    item.classList.toggle('is-complete', index < activeIndex);
+  });
+}
+
+function goCheckoutStep(step) {
+  window.location.href = `checkout.html?step=${encodeURIComponent(step)}`;
+}
+
+function renderCheckoutSummary(data = {}) {
+  const items = data.items || readCart().map((item) => ({
+    title: item.title,
+    category: item.category,
+    image: item.image,
+    quantity: Number(item.quantity) || 1,
+    total_price: parsePrice(item.price) * (Number(item.quantity) || 1) * 100,
+  }));
+  const fallbackSubtotal = readCart().reduce((sum, item) => sum + (parsePrice(item.price) * (Number(item.quantity) || 1)), 0);
+  const summary = data.summary || {
+    subtotal: formatSek(fallbackSubtotal),
+    shipping: '49 kr',
+    tax: formatSek((fallbackSubtotal + 49) * 0.25),
+    total: formatSek(fallbackSubtotal + 49),
+  };
+  const list = document.querySelector('[data-checkout-summary-items]');
+
+  if (list) {
+    list.innerHTML = items.map((item) => {
+      const image = item.image && item.image.url
+        ? `<img src="${escapeHtml(item.image.url)}" alt="${escapeHtml(item.image.altText || item.title)}">`
+        : '';
+      return `
+        <article class="checkout-mini-item">
+          <span class="checkout-mini-image">${image}</span>
+          <span>
+            <small>${escapeHtml(item.category || 'Produkt')}</small>
+            <strong>${escapeHtml(item.title || item.product_title || 'Produkt')}</strong>
+          </span>
+          <em>${escapeHtml(formatSek((Number(item.total_price) || 0) / 100))}</em>
+        </article>
+      `;
+    }).join('');
+  }
+
+  setText('[data-checkout-subtotal]', summary.subtotal || '0 kr');
+  setText('[data-checkout-shipping]', summary.shipping || '0 kr');
+  setText('[data-checkout-tax]', summary.tax || '0 kr');
+  setText('[data-checkout-total]', summary.total || '0 kr');
+
+  const payButton = document.querySelector('[data-checkout-pay-button]');
+  if (payButton) {
+    payButton.textContent = summary.total ? `Betala ${summary.total}` : 'Betala';
+  }
+}
+
+async function quoteCheckout() {
+  const { response, data } = await postJson('/api/checkout', {
+    action: 'quote',
+    items: checkoutItemsPayload(),
+    discountCode: readDiscountCode(),
+  });
+
+  if (!response.ok) {
+    throw new Error(data.error || 'Kunde inte validera varukorgen.');
+  }
+
+  renderCheckoutSummary(data);
+  return data;
+}
+
+async function setupCheckoutPayment() {
+  const form = document.querySelector('[data-checkout-payment-form]');
+  const message = document.querySelector('[data-checkout-payment-message]');
+  const payButton = document.querySelector('[data-checkout-pay-button]');
+
+  if (!form || checkoutPaymentReady) {
+    return;
+  }
+
+  const draft = readCheckoutDraft();
+  if (!draft.contact || !draft.shippingAddress) {
+    goCheckoutStep(!draft.contact ? 'kontakt' : 'leverans');
+    return;
+  }
+
+  if (payButton) payButton.disabled = true;
+  if (message) message.textContent = 'Validerar din beställning...';
+
+  try {
+    const { response, data } = await postJson('/api/checkout', {
+      action: 'payment_intent',
+      items: checkoutItemsPayload(),
+      discountCode: readDiscountCode(),
+      contact: draft.contact,
+      shippingAddress: draft.shippingAddress,
+    });
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Kunde inte starta betalning.');
+    }
+
+    checkoutPaymentIntentId = data.paymentIntentId;
+    renderCheckoutSummary(data);
+
+    if (!data.stripeReady || !data.publishableKey || !data.clientSecret || !window.Stripe) {
+      if (message) message.textContent = 'Stripe är inte färdigkonfigurerat. Lägg till Stripe-nycklar i Vercel innan köp kan tas betalt.';
+      return;
+    }
+
+    checkoutStripe = window.Stripe(data.publishableKey);
+    checkoutElements = checkoutStripe.elements({
+      clientSecret: data.clientSecret,
+      appearance: {
+        theme: 'stripe',
+        variables: {
+          colorPrimary: '#0b0c0c',
+          colorText: '#0b0c0c',
+          colorBackground: '#fffdfa',
+          borderRadius: '8px',
+          fontFamily: 'Inter, system-ui, sans-serif',
+        },
+      },
+    });
+
+    const paymentElement = checkoutElements.create('payment', {
+      fields: {
+        billingDetails: {
+          email: 'never',
+        },
+      },
+    });
+    paymentElement.mount('#payment-element');
+    checkoutPaymentReady = true;
+    if (payButton) payButton.disabled = false;
+    if (message) message.textContent = '';
+  } catch (error) {
+    if (message) message.textContent = error.message || 'Kunde inte starta betalning.';
+  }
+}
+
+async function completeCheckoutOrder(paymentIntentId) {
+  const message = document.querySelector('[data-checkout-confirmation-message], [data-checkout-payment-message]');
+  const draft = readCheckoutDraft();
+
+  if (!paymentIntentId) {
+    if (message) message.textContent = 'Betalningsreferens saknas.';
+    return null;
+  }
+
+  if (message) message.textContent = 'Bekräftar din order...';
+
+  try {
+    const { response, data } = await postJson('/api/checkout', {
+      action: 'complete',
+      paymentIntentId,
+      items: checkoutItemsPayload(),
+      discountCode: readDiscountCode(),
+      contact: draft.contact,
+      shippingAddress: draft.shippingAddress,
+    });
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Kunde inte skapa order.');
+    }
+
+    writeLastOrder(data.order);
+    clearCart();
+    localStorage.removeItem(CHECKOUT_DRAFT_KEY);
+    renderCheckoutConfirmation(data.order);
+    return data.order;
+  } catch (error) {
+    if (message) message.textContent = error.message || 'Kunde inte bekräfta ordern.';
+    return null;
+  }
+}
+
+function renderCheckoutConfirmation(order = readLastOrder()) {
+  const paymentIntentFromUrl = pageParams.get('payment_intent');
+
+  if (!order && paymentIntentFromUrl) {
+    fetch(`/api/orders?payment_intent=${encodeURIComponent(paymentIntentFromUrl)}`, { credentials: 'same-origin' })
+      .then((response) => response.json().then((data) => ({ response, data })))
+      .then(({ response, data }) => {
+        if (response.ok && data.order) {
+          writeLastOrder(data.order);
+          renderCheckoutConfirmation(data.order);
+        } else {
+          completeCheckoutOrder(paymentIntentFromUrl);
+        }
+      })
+      .catch(() => completeCheckoutOrder(paymentIntentFromUrl));
+    return;
+  }
+
+  if (!order && checkoutPaymentIntentId) {
+    completeCheckoutOrder(checkoutPaymentIntentId);
+    return;
+  }
+
+  if (!order) {
+    const message = document.querySelector('[data-checkout-confirmation-message]');
+    if (message) message.textContent = 'Vi hittar ingen order ännu. Ladda om sidan om betalningen precis blev klar.';
+    return;
+  }
+
+  setText('[data-confirmation-email]', `En orderbekräftelse har skickats till ${order.email || 'din e-post'}`);
+  setText('[data-confirmation-order-number]', order.order_number || order.id || '#V000000');
+}
+
+function initCheckoutPage(session = accountSession) {
+  const page = document.querySelector('[data-checkout-page]');
+
+  if (!page) {
+    return;
+  }
+
+  if (session && !session.authenticated) {
+    window.location.href = 'konto.html?next=checkout';
+    return;
+  }
+
+  const cart = readCart();
+  const step = currentCheckoutStep();
+
+  if (!cart.length && step !== 'bekraftelse') {
+    window.location.href = 'kundkorg.html';
+    return;
+  }
+
+  setCheckoutStep(step);
+
+  const draft = readCheckoutDraft();
+  const customer = session && session.customer ? session.customer : {};
+  const contactForm = document.querySelector('[data-checkout-contact-form]');
+  const shippingForm = document.querySelector('[data-checkout-shipping-form]');
+
+  fillForm(contactForm, {
+    email: draft.contact && draft.contact.email,
+    phone: draft.contact && draft.contact.phone,
+  });
+  fillForm(contactForm, {
+    email: customer.email,
+  });
+  fillForm(shippingForm, {
+    ...(draft.shippingAddress || {}),
+    firstName: (draft.shippingAddress && draft.shippingAddress.firstName) || customer.firstName,
+    lastName: (draft.shippingAddress && draft.shippingAddress.lastName) || customer.lastName,
+    country: (draft.shippingAddress && draft.shippingAddress.country) || 'Sverige',
+  });
+
+  if (step === 'betalning') {
+    renderCheckoutSummary();
+    setupCheckoutPayment();
+  }
+
+  if (step === 'bekraftelse') {
+    renderCheckoutConfirmation();
+  }
+}
+
+const checkoutContactForm = document.querySelector('[data-checkout-contact-form]');
+
+if (checkoutContactForm) {
+  checkoutContactForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const values = formValues(checkoutContactForm);
+    writeCheckoutDraft({
+      contact: {
+        email: values.email,
+        phone: values.phone,
+      },
+    });
+    goCheckoutStep('leverans');
+  });
+}
+
+const checkoutShippingForm = document.querySelector('[data-checkout-shipping-form]');
+
+if (checkoutShippingForm) {
+  checkoutShippingForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const values = formValues(checkoutShippingForm);
+    writeCheckoutDraft({
+      shippingAddress: {
+        firstName: values.firstName,
+        lastName: values.lastName,
+        address1: values.address1,
+        address2: values.address2,
+        postalCode: values.postalCode,
+        city: values.city,
+        country: values.country || 'Sverige',
+        alternateAddress: Boolean(values.alternateAddress),
+      },
+    });
+    goCheckoutStep('betalning');
+  });
+}
+
+const checkoutPayButton = document.querySelector('[data-checkout-pay-button]');
+
+if (checkoutPayButton) {
+  checkoutPayButton.addEventListener('click', async () => {
+    const message = document.querySelector('[data-checkout-payment-message]');
+
+    if (!checkoutStripe || !checkoutElements) {
+      if (message) message.textContent = 'Betalningen är inte redo ännu.';
+      return;
+    }
+
+    checkoutPayButton.disabled = true;
+    checkoutPayButton.textContent = 'Bekräftar...';
+    if (message) message.textContent = '';
+
+    const draft = readCheckoutDraft();
+    const result = await checkoutStripe.confirmPayment({
+      elements: checkoutElements,
+      confirmParams: {
+        return_url: new URL('checkout.html?step=bekraftelse', window.location.href).href,
+        payment_method_data: {
+          billing_details: {
+            email: draft.contact && draft.contact.email,
+            phone: draft.contact && draft.contact.phone,
+            name: draft.shippingAddress ? `${draft.shippingAddress.firstName || ''} ${draft.shippingAddress.lastName || ''}`.trim() : undefined,
+          },
+        },
+      },
+      redirect: 'if_required',
+    });
+
+    if (result.error) {
+      if (message) message.textContent = result.error.message || 'Betalningen kunde inte genomföras.';
+      checkoutPayButton.disabled = false;
+      renderCheckoutSummary();
+      return;
+    }
+
+    const paymentIntentId = result.paymentIntent && result.paymentIntent.id
+      ? result.paymentIntent.id
+      : checkoutPaymentIntentId;
+    const order = await completeCheckoutOrder(paymentIntentId);
+
+    if (order) {
+      window.location.href = `checkout.html?step=bekraftelse&order=${encodeURIComponent(order.id)}`;
+    } else {
+      checkoutPayButton.disabled = false;
+      renderCheckoutSummary();
+    }
+  });
+}
+
 function renderOrders(orders) {
   const list = document.querySelector('[data-orders-list]');
 
@@ -2403,6 +2787,38 @@ function renderOrders(orders) {
     </div>
     <a class="account-order-link" href="order.html"><span>Se alla ordrar</span><i aria-hidden="true"></i></a>
   `;
+}
+
+async function renderStoredOrders(existingOrders = []) {
+  const list = document.querySelector('[data-orders-list]');
+
+  if (!list || !accountSession || !accountSession.authenticated) {
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/orders', { credentials: 'same-origin' });
+    const data = await response.json();
+
+    if (!response.ok || !Array.isArray(data.orders) || !data.orders.length) {
+      return;
+    }
+
+    const storedOrders = data.orders.map((order) => ({
+      id: order.id,
+      name: order.order_number || order.id,
+      processedAt: order.created_at,
+      statusUrl: '',
+      total: order.summary && order.summary.total ? order.summary.total : formatSek((Number(order.total) || 0) / 100),
+      items: (order.items || []).map((item) => `${item.quantity} x ${item.title}`),
+    }));
+    const merged = [...storedOrders, ...(existingOrders || [])]
+      .filter((order, index, listItems) => listItems.findIndex((item) => (item.id || item.name) === (order.id || order.name)) === index);
+
+    renderOrders(merged);
+  } catch (error) {
+    // Shopify orders remain visible if the internal order store is unavailable.
+  }
 }
 
 function orderTime(order) {
@@ -2511,6 +2927,7 @@ function updateMemberStatus(session = accountSession) {
   if (membershipLink) membershipLink.hidden = hasMemberDiscount;
   if (settingsLink) settingsLink.hidden = false;
   renderOrders(session.customer.orders);
+  renderStoredOrders(session.customer.orders);
   renderSettingsPage(session);
 }
 
@@ -2599,6 +3016,8 @@ function renderSettingsPage(session = accountSession) {
 function completeAccountIntent() {
   if (accountNext === 'liked') {
     window.location.href = 'gillar.html';
+  } else if (accountNext === 'checkout') {
+    window.location.href = 'checkout.html?step=kontakt';
   } else if (isActiveMember()) {
     window.location.href = 'index.html';
   } else if (accountNext === 'membership' || verificationToken) {
@@ -2618,12 +3037,14 @@ async function refreshAccount() {
     renderLikedPage();
     renderOrderPage(accountSession);
     renderMembershipActivation(accountSession);
+    initCheckoutPage(accountSession);
   } catch (error) {
     accountSession = { authenticated: false };
     updateMemberStatus(accountSession);
     renderLikedPage();
     renderOrderPage(accountSession);
     renderMembershipActivation(accountSession);
+    initCheckoutPage(accountSession);
   } finally {
     document.body.classList.remove('auth-loading');
     adjustAccountScroll(accountSession);

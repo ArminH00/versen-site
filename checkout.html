@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f7f7f4">
+<meta name="color-scheme" content="light">
+<script>try{const p=localStorage.getItem("versenThemePreference")||"light";const d=p==="dark"||(p==="auto"&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.dataset.theme=d?"dark":"light";document.documentElement.dataset.themePreference=p;}catch(e){document.documentElement.dataset.theme="light";}</script>
+<script>try{if(Date.now()<1777500000000&&!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
+<title>Versen - Checkout</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=20260512-checkout">
+</head>
+
+<body class="auth-loading page-checkout">
+
+<div class="top-strip" aria-label="Versen fördelar">
+  <span>1-3 dagars leverans</span>
+  <span>Medlemspriser varje vecka</span>
+  <span>Nya drops varje torsdag</span>
+  <a href="kontakt.html">Kontakt</a>
+</div>
+
+<nav class="nav launch-nav">
+  <button class="nav-mobile-menu" type="button" aria-label="Meny"></button>
+  <a class="logo" href="index.html">VERSEN</a>
+  <div class="menu" aria-label="Huvudmeny">
+    <a href="produkter.html">Produkter</a>
+    <a href="produkter.html?kategori=Bilvård%20%26%20tvätt">Bilvård</a>
+    <a href="produkter.html?kategori=Träning%20%26%20hälsa">Träning &amp; hälsa</a>
+    <a href="drops.html">Drops</a>
+    <a href="faq.html">Guider</a>
+    <a href="medlemskap.html">Medlemskap</a>
+  </div>
+  <div class="nav-actions" aria-label="Snabbval">
+    <a class="nav-icon nav-account" href="konto.html" aria-label="Konto"></a>
+    <a class="nav-icon nav-wishlist" href="gillar.html" aria-label="Gillade"></a>
+    <a class="nav-icon nav-cart" href="kundkorg.html" aria-label="Kundkorg"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h8.7a2 2 0 0 0 2-1.6L22 6H6"/></svg><span data-cart-count></span></a>
+    <a class="nav-member-cta" href="medlemskap.html">Bli medlem</a>
+  </div>
+</nav>
+
+<main class="checkout-screen" data-checkout-page>
+  <section class="checkout-flow fade" aria-label="Checkout">
+    <div class="checkout-kicker">Checkout</div>
+    <ol class="checkout-progress" aria-label="Checkout steg" data-checkout-progress>
+      <li data-progress-step="kontakt"><span>1</span><small>Kontakt</small></li>
+      <li data-progress-step="leverans"><span>2</span><small>Leverans</small></li>
+      <li data-progress-step="betalning"><span>3</span><small>Betalning</small></li>
+      <li data-progress-step="bekraftelse"><span>4</span><small>Bekräftelse</small></li>
+    </ol>
+
+    <section class="checkout-step-panel" data-checkout-step="kontakt" hidden>
+      <header class="checkout-step-header">
+        <h1>Kontakt</h1>
+        <p>Vi använder dina uppgifter för orderbekräftelse och uppdateringar.</p>
+      </header>
+      <form class="checkout-form" data-checkout-contact-form>
+        <label>
+          <span>E-post <i>*</i></span>
+          <input type="email" name="email" autocomplete="email" placeholder="exempel@email.se" required>
+        </label>
+        <label>
+          <span>Telefon</span>
+          <input type="tel" name="phone" autocomplete="tel" placeholder="070 123 45 67">
+        </label>
+        <div class="checkout-note">Du kommer alltid att vara inloggad när du handlar hos oss.</div>
+        <button class="cta checkout-primary" type="submit">Fortsätt</button>
+        <p class="form-message" data-checkout-contact-message></p>
+      </form>
+    </section>
+
+    <section class="checkout-step-panel" data-checkout-step="leverans" hidden>
+      <header class="checkout-step-header">
+        <h1>Leverans</h1>
+        <p>Fyll i var du vill få din beställning levererad.</p>
+      </header>
+      <form class="checkout-form checkout-address-form" data-checkout-shipping-form>
+        <div class="checkout-field-row">
+          <label>
+            <span>Förnamn <i>*</i></span>
+            <input type="text" name="firstName" autocomplete="given-name" placeholder="John" required>
+          </label>
+          <label>
+            <span>Efternamn <i>*</i></span>
+            <input type="text" name="lastName" autocomplete="family-name" placeholder="Andersson" required>
+          </label>
+        </div>
+        <label>
+          <span>Adress <i>*</i></span>
+          <input type="text" name="address1" autocomplete="street-address" placeholder="Storgatan 12" required>
+        </label>
+        <label>
+          <span>Lägenhet, våning, port, c/o etc</span>
+          <input type="text" name="address2" autocomplete="address-line2" placeholder="1203">
+        </label>
+        <div class="checkout-field-row">
+          <label>
+            <span>Postnummer <i>*</i></span>
+            <input type="text" name="postalCode" autocomplete="postal-code" placeholder="123 45" required>
+          </label>
+          <label>
+            <span>Stad <i>*</i></span>
+            <input type="text" name="city" autocomplete="address-level2" placeholder="Stockholm" required>
+          </label>
+        </div>
+        <label>
+          <span>Land <i>*</i></span>
+          <select name="country" autocomplete="country-name" required>
+            <option value="Sverige">Sverige</option>
+            <option value="Danmark">Danmark</option>
+            <option value="Norge">Norge</option>
+            <option value="Finland">Finland</option>
+          </select>
+        </label>
+        <label class="checkout-checkbox">
+          <input type="checkbox" name="alternateAddress">
+          <span>Leverera till annan adress</span>
+        </label>
+        <button class="cta checkout-primary" type="submit">Fortsätt</button>
+        <a class="checkout-back-link" href="checkout.html?step=kontakt">← Tillbaka</a>
+        <p class="form-message" data-checkout-shipping-message></p>
+      </form>
+    </section>
+
+    <section class="checkout-step-panel" data-checkout-step="betalning" hidden>
+      <header class="checkout-step-header">
+        <h1>Betalning</h1>
+        <p>Välj betalningsmetod och slutför ditt köp.</p>
+      </header>
+      <div class="checkout-payment-grid">
+        <form class="checkout-payment-card" data-checkout-payment-form>
+          <div class="payment-method-head">
+            <strong>Betalningsmetod</strong>
+            <div class="card-brands" aria-label="Kort som stöds">
+              <span>VISA</span>
+              <span>MC</span>
+              <span>AMEX</span>
+            </div>
+          </div>
+          <div class="stripe-element-shell" id="payment-element" data-payment-element>
+            <p>Laddar säker kortbetalning...</p>
+          </div>
+          <label class="checkout-checkbox checkout-save-card">
+            <input type="checkbox" name="saveCard" disabled>
+            <span>Spara kort för framtida köp</span>
+          </label>
+          <div class="stripe-safe">Säkert med Stripe</div>
+          <p class="form-message" data-checkout-payment-message></p>
+        </form>
+
+        <aside class="checkout-order-summary" aria-label="Din beställning">
+          <h2>Din beställning</h2>
+          <div class="checkout-summary-items" data-checkout-summary-items></div>
+          <div class="checkout-total-lines">
+            <div><span>Delsumma</span><strong data-checkout-subtotal>0 kr</strong></div>
+            <div><span>Frakt</span><strong data-checkout-shipping>0 kr</strong></div>
+            <div><span>Moms (25%)</span><strong data-checkout-tax>0 kr</strong></div>
+            <div class="is-total"><span>Totalt</span><strong data-checkout-total>0 kr</strong></div>
+          </div>
+          <button class="cta checkout-pay-button" type="submit" form="" data-checkout-pay-button>Betala</button>
+          <p class="checkout-terms">Genom att slutföra köpet godkänner du våra <a href="villkor.html">köpvillkor</a> och <a href="integritet.html">integritetspolicy</a>.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="checkout-step-panel checkout-confirmation" data-checkout-step="bekraftelse" hidden>
+      <div class="checkout-success-mark" aria-hidden="true"></div>
+      <header class="checkout-step-header">
+        <h1>Tack för ditt köp!</h1>
+        <p>Din beställning har nu mottagits.</p>
+      </header>
+      <p class="checkout-confirm-email" data-confirmation-email></p>
+      <div class="checkout-order-number">
+        <span>Ordernummer</span>
+        <strong data-confirmation-order-number>#V000000</strong>
+      </div>
+      <div class="checkout-next-list">
+        <strong>Vad händer nu?</strong>
+        <ul>
+          <li>Vi behandlar din order</li>
+          <li>Du får uppdatering när den skickas</li>
+          <li>Leveranstid: 1–3 arbetsdagar</li>
+        </ul>
+      </div>
+      <a class="cta checkout-primary" href="index.html">Tillbaka till startsidan</a>
+      <a class="checkout-orders-link" href="konto.html">Till mina ordrar</a>
+      <p class="form-message" data-checkout-confirmation-message></p>
+    </section>
+  </section>
+</main>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script src="script.js?v=20260512-checkout"></script>
+</body>
+</html>
