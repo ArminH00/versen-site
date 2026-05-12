@@ -888,6 +888,13 @@
   gap:14px;
 }
 
+.checkout-payment-locked .checkout-payment-grid{
+  filter:grayscale(1);
+  opacity:.42;
+  pointer-events:none;
+  user-select:none;
+}
+
 .checkout-payment-card,
 .checkout-order-summary{
   display:grid;

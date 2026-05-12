@@ -104,6 +104,20 @@ async function handleOrders(req, res) {
   });
 }
 
+function requireActiveMember(session) {
+  if (!session || !session.authenticated || !session.customer) {
+    const error = new Error('Du behöver skapa konto och medlemskap för att slutföra köpet.');
+    error.status = 401;
+    throw error;
+  }
+
+  if (!session.customer.member) {
+    const error = new Error('Aktivt medlemskap krävs för att slutföra köpet.');
+    error.status = 403;
+    throw error;
+  }
+}
+
 module.exports = async function handler(req, res) {
   if (req.method === 'POST' && req.query && req.query.webhook === 'stripe') {
     await handleStripeWebhook(req, res);
@@ -165,6 +179,8 @@ module.exports = async function handler(req, res) {
     }
 
     if (body.action === 'payment_intent') {
+      requireActiveMember(session);
+
       const contact = normalizeContact(body.contact, session);
       const shippingAddress = normalizeAddress(body.shippingAddress);
 
@@ -212,6 +228,8 @@ module.exports = async function handler(req, res) {
     }
 
     if (body.action === 'complete') {
+      requireActiveMember(session);
+
       const paymentIntent = await retrievePaymentIntent(body.paymentIntentId);
       let fallbackDraft = null;
 

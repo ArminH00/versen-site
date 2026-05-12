@@ -2403,6 +2403,25 @@ function formValues(form) {
   return Object.fromEntries(new FormData(form).entries());
 }
 
+function setCheckoutPaymentLocked(locked) {
+  const page = document.querySelector('[data-checkout-page]');
+  const paymentPanel = document.querySelector('[data-checkout-step="betalning"]');
+  const payButton = document.querySelector('[data-checkout-pay-button]');
+
+  document.body.classList.toggle('checkout-payment-locked', Boolean(locked));
+  if (page) page.classList.toggle('is-payment-locked', Boolean(locked));
+
+  if (paymentPanel) {
+    paymentPanel.querySelectorAll('input, select, button').forEach((field) => {
+      field.disabled = Boolean(locked);
+    });
+  }
+
+  if (payButton && locked) {
+    payButton.disabled = true;
+  }
+}
+
 function setCheckoutStep(step) {
   document.querySelectorAll('[data-checkout-step]').forEach((panel) => {
     panel.hidden = panel.dataset.checkoutStep !== step;
@@ -2490,6 +2509,16 @@ async function setupCheckoutPayment() {
   if (!form || checkoutPaymentReady) {
     return;
   }
+
+  if (!isActiveMember()) {
+    renderCheckoutSummary();
+    setCheckoutPaymentLocked(true);
+    if (message) message.textContent = '';
+    window.setTimeout(() => showCheckoutMembershipGate(), 180);
+    return;
+  }
+
+  setCheckoutPaymentLocked(false);
 
   const draft = readCheckoutDraft();
   if (!draft.contact || !draft.shippingAddress) {
@@ -2628,11 +2657,6 @@ function initCheckoutPage(session = accountSession) {
     return;
   }
 
-  if (session && !session.authenticated) {
-    window.location.href = 'konto.html?next=checkout';
-    return;
-  }
-
   const cart = readCart();
   const step = currentCheckoutStep();
 
@@ -2642,6 +2666,7 @@ function initCheckoutPage(session = accountSession) {
   }
 
   setCheckoutStep(step);
+  setCheckoutPaymentLocked(false);
 
   const draft = readCheckoutDraft();
   const customer = session && session.customer ? session.customer : {};
