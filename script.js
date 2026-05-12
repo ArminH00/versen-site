@@ -628,6 +628,14 @@ if (pageParams.get('return') === 'checkout') {
   });
 }
 
+if (accountNext === 'checkout') {
+  rememberMembershipReturn({
+    type: 'checkout',
+    step: pageParams.get('step') || 'betalning',
+    startedAt: new Date().toISOString(),
+  });
+}
+
 function readCheckoutDraft() {
   try {
     return JSON.parse(localStorage.getItem(CHECKOUT_DRAFT_KEY) || '{}') || {};
@@ -737,10 +745,10 @@ function applyGlobalSessionUi(session = accountSession) {
     setText('[data-account-hero-title]', 'Nytt lösenord');
     setText('[data-account-hero-copy]', 'Välj ett nytt lösenord för ditt konto.');
   } else {
-    setText('[data-account-hero-title]', member ? 'Ditt Versen' : 'Skapa konto eller logga in');
+    setText('[data-account-hero-title]', authenticated ? 'Ditt Versen' : 'Skapa konto eller logga in');
     setText(
       '[data-account-hero-copy]',
-      member
+      authenticated
         ? 'Medlemskap, poäng och orderhistorik samlat på ett ställe.'
         : 'Logga in för att se orderhistorik och spara dina uppgifter.'
     );
@@ -1366,11 +1374,16 @@ function showMembershipGate(options = {}) {
 
 function showCheckoutMembershipGate() {
   const authenticated = Boolean(accountSession && accountSession.authenticated);
+  rememberMembershipReturn({
+    type: 'checkout',
+    step: currentCheckoutStep(),
+    startedAt: new Date().toISOString(),
+  });
   showMembershipGate({
     badge: 'Checkout',
     title: 'Bli medlem för att slutföra ditt köp.',
     copy: 'Versen är en medlemsklubb med exklusiva priser och utvalda drops. Din kundkorg är sparad.',
-    href: authenticated ? 'medlemskap.html?return=checkout&step=betalning' : 'konto.html?next=checkout',
+    href: authenticated ? `medlemskap.html?return=checkout&step=${encodeURIComponent(currentCheckoutStep())}` : `konto.html?next=checkout&step=${encodeURIComponent(currentCheckoutStep())}`,
     cta: authenticated ? 'Bli medlem & fortsätt' : 'Skapa konto & fortsätt',
     required: true,
   });
@@ -3080,11 +3093,35 @@ function renderSettingsPage(session = accountSession) {
   }
 }
 
-function completeAccountIntent() {
+function showAccountExpressMembership() {
+  const expressMembership = document.querySelector('[data-account-express-membership]');
+
+  if (!expressMembership) {
+    window.location.href = 'medlemskap.html?return=checkout&step=betalning';
+    return;
+  }
+
+  document.querySelectorAll('[data-auth-card], [data-status-card], [data-orders-card], [data-login-card], [data-create-card], [data-reset-card]').forEach((element) => {
+    element.hidden = true;
+  });
+  expressMembership.hidden = false;
+  document.body.classList.add('is-authenticated', 'account-express-active');
+  setText('[data-account-hero-title]', 'Starta medlemskap');
+  setText('[data-account-hero-copy]', 'Välj medlemskap direkt här, så fortsätter du till betalningen för kundkorgen när accessen är aktiv.');
+  expressMembership.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function completeAccountIntent(options = {}) {
   if (accountNext === 'liked') {
     window.location.href = 'gillar.html';
   } else if (accountNext === 'checkout') {
-    window.location.href = 'checkout.html?step=kontakt';
+    if (isActiveMember()) {
+      window.location.href = membershipReturnTarget();
+    } else if (options.inlineMembership) {
+      showAccountExpressMembership();
+    } else {
+      window.location.href = 'medlemskap.html?return=checkout&step=betalning';
+    }
   } else if (isActiveMember()) {
     window.location.href = 'index.html';
   } else if (accountNext === 'membership' || verificationToken) {
@@ -3356,7 +3393,7 @@ if (registerForm) {
       updateMemberStatus(accountSession);
       queueLikedSync();
       if (message) message.textContent = 'Kontot är skapat och du är inloggad.';
-      completeAccountIntent();
+      completeAccountIntent({ inlineMembership: accountNext === 'checkout' });
     } catch (error) {
       if (message) message.textContent = 'Kunde inte kontakta servern.';
     }

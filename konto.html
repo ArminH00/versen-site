@@ -9,7 +9,7 @@
 <script>try{if(Date.now()<1777500000000&&!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen - Konto</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260512-no-focus-zoom">
+<link rel="stylesheet" href="styles.css?v=20260512-account-membership-flow">
 </head>
 
 <body class="auth-loading page-account">
@@ -121,6 +121,42 @@
       <p class="form-message" data-reset-message></p>
     </article>
 
+    <article class="account-card account-express-membership" data-account-express-membership hidden>
+      <span class="account-card-kicker">Medlemskap</span>
+      <h2>Välj medlemskap</h2>
+      <p>Kontot är klart. Starta medlemskapet här, så skickas du vidare till betalningen för din kundkorg när medlemskapet är aktivt.</p>
+      <div class="plan-grid membership-hero-plans account-express-plans">
+        <article>
+          <span>Månad</span>
+          <strong>149 kr/mån</strong>
+          <p>Flexibel access till aktiva deals och checkout.</p>
+          <button class="product-btn secondary" type="button" data-membership-checkout data-membership-plan="monthly">Välj månad</button>
+        </article>
+        <article class="featured">
+          <em>Rekommenderad</em>
+          <span>År</span>
+          <strong>899 kr/år</strong>
+          <p>Spara nästan halva året och få högsta prioritet.</p>
+          <button class="product-btn" type="button" data-membership-checkout data-membership-plan="yearly">Välj år</button>
+        </article>
+      </div>
+      <p class="form-message" data-membership-message></p>
+    </article>
+
+    <section class="membership-payment-panel account-membership-payment" data-membership-payment-panel hidden>
+      <div class="membership-payment-copy">
+        <span class="eyebrow">Säkert med Stripe</span>
+        <h2>Slutför medlemskapet.</h2>
+        <p>Medlemskapet kopplas direkt till ditt Versen-konto.</p>
+      </div>
+      <form class="membership-payment-card" data-membership-payment-form>
+        <strong data-membership-payment-title>Medlemskap</strong>
+        <div class="stripe-element-shell" id="membership-payment-element"></div>
+        <button class="cta checkout-primary" type="submit" data-membership-pay-button disabled>Betala medlemskap</button>
+        <p class="form-message" data-membership-payment-message></p>
+      </form>
+    </section>
+
     <article class="account-card member-card account-status-card" data-status-card hidden>
       <span class="account-card-kicker">Inloggad</span>
       <h2>Konto</h2>
@@ -154,6 +190,7 @@
   </div>
 </main>
 
-<script src="script.js?v=20260512-stripe-membership"></script>
+<script src="https://js.stripe.com/v3/"></script>
+<script src="script.js?v=20260512-account-membership-flow"></script>
 </body>
 </html>

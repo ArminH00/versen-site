@@ -11660,6 +11660,33 @@ main img,
   margin-bottom:14px;
 }
 
+.account-express-membership{
+  display:grid;
+  gap:16px!important;
+}
+
+.account-express-membership[hidden]{
+  display:none!important;
+}
+
+.account-express-membership > p{
+  max-width:520px;
+}
+
+.account-express-plans{
+  margin-top:4px!important;
+}
+
+.account-membership-payment{
+  grid-column:1 / -1;
+  width:100%;
+  margin:0 0 40px;
+}
+
+.account-express-active .account-grid{
+  gap:18px!important;
+}
+
 @media (max-width:760px){
   .membership-payment-panel{
     grid-template-columns:1fr;
@@ -11669,6 +11696,42 @@ main img,
 
   .membership-payment-card{
     padding:14px;
+  }
+}
+
+@media (max-width:640px){
+  .page-settings .account-dashboard-shell{
+    width:min(430px,100% - 56px)!important;
+  }
+
+  .page-settings .page-hero{
+    width:100%!important;
+    margin:0!important;
+  }
+
+  .page-settings .settings-grid{
+    width:100%!important;
+    margin:0!important;
+  }
+
+  .page-settings .settings-status{
+    box-sizing:border-box!important;
+    width:100%!important;
+    overflow:visible!important;
+  }
+
+  .page-settings .settings-status p{
+    max-width:100%!important;
+    overflow-wrap:break-word!important;
+  }
+
+  .account-express-plans{
+    grid-template-columns:1fr!important;
+  }
+
+  .account-membership-payment{
+    width:100%!important;
+    margin-bottom:30px;
   }
 }
 
