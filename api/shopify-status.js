@@ -2,7 +2,7 @@ const { adminFetch, getAdminAccessToken, getShopDomain, readBody, sendJson, shop
 
 const API_VERSION = process.env.SHOPIFY_API_VERSION || '2026-04';
 const THEME_REDIRECT_MARKER = 'VERSEN_STOREFRONT_REDIRECT';
-const DEFAULT_THEME_REDIRECT_TARGET = 'https://versen.se/produkter.html';
+const DEFAULT_THEME_REDIRECT_TARGET = 'https://versen.se/produkter';
 
 const SHOP_QUERY = `
   query VersenShopStatus {

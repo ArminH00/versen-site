@@ -18,11 +18,42 @@ let memberLiveProducts = [];
 let memberLiveTimer = null;
 const pageParams = new URLSearchParams(window.location.search);
 const accountNext = pageParams.get('next') || '';
-const isAccountPage = /(^|\/)konto\.html$/.test(window.location.pathname);
+
+function normalizedRoutePath(pathname = window.location.pathname) {
+  const path = pathname.replace(/\/+$/, '') || '/';
+  const legacyRoutes = {
+    '/index.html': '/',
+    '/produkter.html': '/produkter',
+    '/produkt.html': '/produkt',
+    '/kundkorg.html': '/kundvagn',
+    '/checkout.html': '/checkout',
+    '/konto.html': '/konto',
+    '/medlemskap.html': '/medlemskap',
+    '/medlemskap-aktivt.html': '/medlemskap-aktivt',
+    '/drops.html': '/drops',
+    '/gillar.html': '/gillar',
+    '/forslag.html': '/forslag',
+    '/installningar.html': '/installningar',
+    '/order.html': '/order',
+    '/villkor.html': '/villkor',
+    '/integritet.html': '/integritet',
+    '/returer.html': '/returer',
+    '/faq.html': '/faq',
+    '/kontakt.html': '/kontakt',
+    '/snart.html': '/snart',
+    '/admin.html': '/admin',
+    '/gross-kontrollrum.html': '/gross-kontrollrum',
+  };
+
+  return legacyRoutes[path] || path;
+}
+
+const currentRoutePath = normalizedRoutePath();
+const isAccountPage = currentRoutePath === '/konto';
 const accountCheckoutIntent = accountNext === 'checkout' || pageParams.get('return') === 'checkout';
 const verificationToken = pageParams.get('verify') || '';
 const resetToken = pageParams.get('reset') || '';
-const isLaunchPage = window.location.pathname.endsWith('/snart.html') || window.location.pathname.endsWith('snart.html');
+const isLaunchPage = currentRoutePath === '/snart';
 let catalogProducts = [];
 let selectedCatalogCategory = null;
 let likedSyncTimer = null;
@@ -75,8 +106,8 @@ function isLaunchOpen() {
 }
 
 if (!isLaunchPage && !isLaunchOpen() && localStorage.getItem(LAUNCH_GATE_KEY) !== '1') {
-  const currentPage = `${window.location.pathname.split('/').pop() || 'index.html'}${window.location.search}${window.location.hash}`;
-  window.location.replace(`snart.html?next=${encodeURIComponent(currentPage)}`);
+  const currentPage = `${window.location.pathname || '/'}${window.location.search}${window.location.hash}`;
+  window.location.replace(`/snart?next=${encodeURIComponent(currentPage)}`);
 }
 
 if ('scrollRestoration' in history) {
@@ -87,15 +118,15 @@ function renderLuxuryMenu() {
   const menu = document.querySelector('.menu');
   if (!menu) return;
 
-  const path = window.location.pathname.split('/').pop() || 'index.html';
+  const path = normalizedRoutePath();
   const authenticated = Boolean(accountSession && accountSession.authenticated);
   const member = isActiveMember();
   const links = [
-    { href: 'produkter.html', label: 'Handla', match: ['produkter.html', 'produkt.html'] },
-    member ? null : { href: 'medlemskap.html', label: 'Medlemskap', match: ['medlemskap.html', 'medlemskap-aktivt.html'] },
-    { href: 'konto.html', label: authenticated ? 'Mitt konto' : 'Konto', match: ['konto.html', 'installningar.html', 'order.html'] },
-    { href: 'kundkorg.html', label: 'Kundvagn', match: ['kundkorg.html', 'checkout.html'], cart: true },
-    { href: 'forslag.html', label: 'Föreslå drop', match: ['forslag.html'], featured: true },
+    { href: '/produkter', label: 'Handla', match: ['/produkter', '/produkt'] },
+    member ? null : { href: '/medlemskap', label: 'Medlemskap', match: ['/medlemskap', '/medlemskap-aktivt'] },
+    { href: '/konto', label: authenticated ? 'Mitt konto' : 'Konto', match: ['/konto', '/installningar', '/order'] },
+    { href: '/kundvagn', label: 'Kundvagn', match: ['/kundvagn', '/checkout'], cart: true },
+    { href: '/forslag', label: 'Föreslå drop', match: ['/forslag'], featured: true },
   ].filter(Boolean);
 
   menu.innerHTML = `
@@ -122,8 +153,8 @@ function renderLuxuryMenu() {
         }).join('')}
       </div>
       <div class="luxury-menu-footer" aria-label="Snabbval">
-        <a class="luxury-menu-utility luxury-menu-login" href="konto.html"><svg class="luxury-menu-utility-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 19.2c1.2-3.1 3.4-4.7 6.5-4.7s5.3 1.6 6.5 4.7"/></svg>${authenticated ? 'Mitt konto' : 'Logga in'}</a>
-        <a class="luxury-menu-utility luxury-menu-support" href="kontakt.html">Kundtjänst</a>
+        <a class="luxury-menu-utility luxury-menu-login" href="/konto"><svg class="luxury-menu-utility-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 19.2c1.2-3.1 3.4-4.7 6.5-4.7s5.3 1.6 6.5 4.7"/></svg>${authenticated ? 'Mitt konto' : 'Logga in'}</a>
+        <a class="luxury-menu-utility luxury-menu-support" href="/kontakt">Kundtjänst</a>
       </div>
     </div>
   `;
@@ -142,7 +173,7 @@ document.querySelectorAll('.nav-mobile-menu[aria-label="Tillbaka"], [data-back-b
     if (window.history.length > 1) {
       window.history.back();
     } else {
-      window.location.href = 'produkter.html';
+      window.location.href = '/produkter';
     }
   });
 });
@@ -618,9 +649,9 @@ function membershipReturnTarget() {
   const target = readMembershipReturn();
   if (target && target.type === 'checkout') {
     const step = target.step || 'betalning';
-    return `checkout.html?step=${encodeURIComponent(step)}`;
+    return `/checkout?step=${encodeURIComponent(step)}`;
   }
-  return 'produkter.html?unlocked=1';
+  return '/produkter?unlocked=1';
 }
 
 if (accountCheckoutIntent) {
@@ -666,7 +697,7 @@ function readLastOrder() {
 
 function unlockLaunchGate(destination = '') {
   localStorage.setItem(LAUNCH_GATE_KEY, '1');
-  window.location.href = destination || pageParams.get('next') || 'index.html';
+  window.location.href = destination || pageParams.get('next') || '/';
 }
 
 function prepareCheckoutWindow() {
@@ -681,8 +712,8 @@ function prepareCheckoutWindow() {
 
 function checkoutReturnUrl(type) {
   const page = type === 'medlemskap'
-    ? 'medlemskap-aktivt.html?checkout=medlemskap'
-    : `order.html?checkout=${encodeURIComponent(type || 'produkt')}`;
+    ? '/medlemskap-aktivt?checkout=medlemskap'
+    : `/order?checkout=${encodeURIComponent(type || 'produkt')}`;
   return new URL(page, window.location.href).href;
 }
 
@@ -710,8 +741,8 @@ function openCheckout(checkoutUrl, type, checkoutWindow = null) {
 
   opened.location.href = checkoutWithReturn;
   window.location.href = type === 'medlemskap'
-    ? 'medlemskap-aktivt.html?checkout=medlemskap'
-    : `order.html?checkout=${encodeURIComponent(type || 'produkt')}`;
+    ? '/medlemskap-aktivt?checkout=medlemskap'
+    : `/order?checkout=${encodeURIComponent(type || 'produkt')}`;
 }
 
 function applyGlobalSessionUi(session = accountSession) {
@@ -726,7 +757,7 @@ function applyGlobalSessionUi(session = accountSession) {
   renderLuxuryMenu();
   renderSuggestionAccess(session);
 
-  document.querySelectorAll('a[href="medlemskap.html"], a[href^="medlemskap.html?"]').forEach((link) => {
+  document.querySelectorAll('a[href="/medlemskap"], a[href^="/medlemskap?"]').forEach((link) => {
     link.hidden = member;
   });
 
@@ -751,7 +782,7 @@ function applyGlobalSessionUi(session = accountSession) {
     );
   }
 
-  document.querySelectorAll('.menu a[href="konto.html"]').forEach((link) => {
+  document.querySelectorAll('.menu a[href="/konto"]').forEach((link) => {
     link.textContent = authenticated ? 'Mitt konto' : 'Konto';
   });
 }
@@ -895,7 +926,7 @@ function productCard(product) {
 
   const compareAtPrice = product.compareAtPrice || product.price || '';
   const memberPrice = product.price || 'Pris kommer';
-  const productUrl = `produkt.html?handle=${encodeURIComponent(product.handle)}`;
+  const productUrl = `/produkt?handle=${encodeURIComponent(product.handle)}`;
   const variantText = product.variants && product.variants.length > 1
     ? `<span>${product.variants.length} val</span>`
     : '';
@@ -1003,7 +1034,7 @@ function homeDealTeaserCard(products) {
       <div class="home-featured-stack">
         ${picks.map((product, index) => {
           const discount = productDiscountPercent(product);
-          const productUrl = `produkt.html?handle=${encodeURIComponent(product.handle)}`;
+          const productUrl = `/produkt?handle=${encodeURIComponent(product.handle)}`;
 
           return `
             <a class="home-featured-item item-${index + 1}" href="${escapeHtml(productUrl)}" aria-label="${escapeHtml(product.title)}">
@@ -1029,7 +1060,7 @@ function homeDealTeaserCard(products) {
 }
 
 function homeTrendingCard(product) {
-  const productUrl = `produkt.html?handle=${encodeURIComponent(product.handle)}`;
+  const productUrl = `/produkt?handle=${encodeURIComponent(product.handle)}`;
   const image = product.image && product.image.url
     ? `<img src="${escapeHtml(product.image.url)}" alt="${escapeHtml(product.image.altText || product.title)}">`
     : `<img src="assets/hero-studio/snabbforsegling-tershine-amplify-500-ml.png" alt="${escapeHtml(product.title || 'Versen produkt')}">`;
@@ -1096,7 +1127,7 @@ function renderRelatedProducts(currentProduct, products = []) {
       <div class="empty-state">
         <span>Relaterade produkter fylls på</span>
         <p>Gå till katalogen för att se alla aktiva medlemsdeals.</p>
-        <a class="product-btn" href="produkter.html">Visa produkter</a>
+        <a class="product-btn" href="/produkter">Visa produkter</a>
       </div>
     `;
     return;
@@ -1159,7 +1190,7 @@ function renderHomeTrendingFallback() {
         <span class="home-trending-prices"><em>119 kr</em><del>150 kr</del></span>
         <span class="home-trending-saving">Du sparar 31 kr</span>
       </span>
-      <a class="home-add-button" href="produkter.html" aria-label="Visa produkter">+</a>
+      <a class="home-add-button" href="/produkter" aria-label="Visa produkter">+</a>
     </article>
     <article class="home-trending-card home-static-card">
       <span class="home-deal-badge">-20%</span>
@@ -1171,7 +1202,7 @@ function renderHomeTrendingFallback() {
         <span class="home-trending-prices"><em>159 kr</em><del>199 kr</del></span>
         <span class="home-trending-saving">Du sparar 40 kr</span>
       </span>
-      <a class="home-add-button" href="produkter.html" aria-label="Visa produkter">+</a>
+      <a class="home-add-button" href="/produkter" aria-label="Visa produkter">+</a>
     </article>
     <article class="home-trending-card home-static-card">
       <span class="home-deal-badge">-25%</span>
@@ -1183,7 +1214,7 @@ function renderHomeTrendingFallback() {
         <span class="home-trending-prices"><em>149 kr</em><del>199 kr</del></span>
         <span class="home-trending-saving">Du sparar 50 kr</span>
       </span>
-      <a class="home-add-button" href="produkter.html" aria-label="Visa produkter">+</a>
+      <a class="home-add-button" href="/produkter" aria-label="Visa produkter">+</a>
     </article>
   `;
 }
@@ -1336,7 +1367,7 @@ function showMembershipGate(options = {}) {
   const badge = options.badge || 'Medlemskatalog';
   const title = options.title || 'Bli medlem för att öppna veckans deals';
   const copy = options.copy || 'Din kundkorg är sparad. Fortsätt för att slutföra checkout med de här priserna.';
-  const href = options.href || 'medlemskap.html';
+  const href = options.href || '/medlemskap';
   const cta = options.cta || 'Fortsätt';
   const required = Boolean(options.required);
 
@@ -1380,7 +1411,7 @@ function showCheckoutMembershipGate() {
     badge: 'Checkout',
     title: 'Bli medlem för att slutföra ditt köp.',
     copy: 'Versen är en medlemsklubb med exklusiva priser och utvalda drops. Din kundkorg är sparad.',
-    href: authenticated ? `medlemskap.html?return=checkout&step=${encodeURIComponent(currentCheckoutStep())}` : `konto.html?next=checkout&step=${encodeURIComponent(currentCheckoutStep())}`,
+    href: authenticated ? `/medlemskap?return=checkout&step=${encodeURIComponent(currentCheckoutStep())}` : `/konto?next=checkout&step=${encodeURIComponent(currentCheckoutStep())}`,
     cta: authenticated ? 'Bli medlem & fortsätt' : 'Skapa konto & fortsätt',
     required: true,
   });
@@ -1413,7 +1444,7 @@ function renderSuggestionAccess(session = accountSession) {
         badge: 'Community drop',
         title: 'Bli medlem för att föreslå nästa drop.',
         copy: 'Medlemmar kan tipsa om produkter och påverka vad vi jagar in till kommande veckor.',
-        href: authenticated ? 'medlemskap.html' : 'konto.html?next=membership',
+        href: authenticated ? '/medlemskap' : '/konto?next=membership',
         cta: authenticated ? 'Bli medlem' : 'Skapa konto & bli medlem',
       });
     }, 260);
@@ -1422,7 +1453,7 @@ function renderSuggestionAccess(session = accountSession) {
 
 function prepareProductCardLinks(root = document) {
   root.querySelectorAll('.product-card').forEach((card) => {
-    const link = card.querySelector('a[href*="produkt.html"]');
+    const link = card.querySelector('a[href*="/produkt"]');
 
     if (!link) {
       return;
@@ -2211,7 +2242,7 @@ if (buyNowButton) {
     }
 
     addToCart(product, quantity);
-    window.location.href = 'kundkorg.html';
+    window.location.href = '/kundvagn';
   });
 }
 
@@ -2222,7 +2253,7 @@ function cartItemTemplate(item) {
 
   return `
     <article class="cart-item" data-cart-item="${escapeHtml(item.variantId)}">
-      <a class="cart-item-image" href="produkt.html?handle=${encodeURIComponent(item.handle)}">${image}</a>
+      <a class="cart-item-image" href="/produkt?handle=${encodeURIComponent(item.handle)}">${image}</a>
       <div class="cart-item-info">
         <div class="product-category">${escapeHtml(item.category || 'Produkt')}</div>
         <h3>${escapeHtml(item.title)}</h3>
@@ -2260,7 +2291,7 @@ function renderCart() {
       <div class="empty-cart">
         <h2>Kundkorgen är tom</h2>
         <p>Lägg till produkter från katalogen innan du går vidare till checkout.</p>
-        <a class="product-btn" href="produkter.html">Handla</a>
+        <a class="product-btn" href="/produkter">Handla</a>
       </div>
     `;
   } else {
@@ -2350,7 +2381,7 @@ if (cartCheckoutButton) {
     }
 
     if (message) message.textContent = '';
-    window.location.href = 'checkout.html?step=kontakt';
+    window.location.href = '/checkout?step=kontakt';
   });
 }
 
@@ -2489,7 +2520,7 @@ function setCheckoutStep(step) {
 }
 
 function goCheckoutStep(step) {
-  window.location.href = `checkout.html?step=${encodeURIComponent(step)}`;
+  window.location.href = `/checkout?step=${encodeURIComponent(step)}`;
 }
 
 function renderCheckoutSummary(data = {}) {
@@ -2713,7 +2744,7 @@ function initCheckoutPage(session = accountSession) {
   const step = currentCheckoutStep();
 
   if (!cart.length && step !== 'bekraftelse') {
-    window.location.href = 'kundkorg.html';
+    window.location.href = '/kundvagn';
     return;
   }
 
@@ -2806,7 +2837,7 @@ if (checkoutPayButton) {
     const result = await checkoutStripe.confirmPayment({
       elements: checkoutElements,
       confirmParams: {
-        return_url: new URL('checkout.html?step=bekraftelse', window.location.href).href,
+        return_url: new URL('/checkout?step=bekraftelse', window.location.href).href,
         payment_method_data: {
           billing_details: {
             email: draft.contact && draft.contact.email,
@@ -2831,7 +2862,7 @@ if (checkoutPayButton) {
     const order = await completeCheckoutOrder(paymentIntentId);
 
     if (order) {
-      window.location.href = `checkout.html?step=bekraftelse&order=${encodeURIComponent(order.id)}`;
+      window.location.href = `/checkout?step=bekraftelse&order=${encodeURIComponent(order.id)}`;
     } else {
       checkoutPayButton.disabled = false;
       renderCheckoutSummary();
@@ -2862,7 +2893,7 @@ function renderOrders(orders) {
       <p>${escapeHtml((latestOrder.items || []).join(', '))}</p>
       ${latestOrder.statusUrl ? `<a href="${escapeHtml(latestOrder.statusUrl)}" target="_blank" rel="noreferrer">Visa order</a>` : ''}
     </div>
-    <a class="account-order-link" href="order.html"><span>Se alla ordrar</span><i aria-hidden="true"></i></a>
+    <a class="account-order-link" href="/order"><span>Se alla ordrar</span><i aria-hidden="true"></i></a>
   `;
 }
 
@@ -3094,7 +3125,7 @@ function showAccountExpressMembership() {
   const expressMembership = document.querySelector('[data-account-express-membership]');
 
   if (!expressMembership) {
-    window.location.href = 'medlemskap.html?return=checkout&step=betalning';
+    window.location.href = '/medlemskap?return=checkout&step=betalning';
     return;
   }
 
@@ -3110,21 +3141,21 @@ function showAccountExpressMembership() {
 
 function completeAccountIntent(options = {}) {
   if (accountNext === 'liked') {
-    window.location.href = 'gillar.html';
+    window.location.href = '/gillar';
   } else if (accountCheckoutIntent) {
     if (isActiveMember()) {
       window.location.href = membershipReturnTarget();
     } else if (options.inlineMembership) {
       showAccountExpressMembership();
     } else {
-      window.location.href = 'medlemskap.html?return=checkout&step=betalning';
+      window.location.href = '/medlemskap?return=checkout&step=betalning';
     }
   } else if (isActiveMember()) {
-    window.location.href = 'index.html';
+    window.location.href = '/';
   } else if (accountNext === 'membership' || verificationToken) {
-    window.location.href = 'medlemskap.html?ready=1';
+    window.location.href = '/medlemskap?ready=1';
   } else {
-    window.location.href = 'medlemskap.html?ready=1';
+    window.location.href = '/medlemskap?ready=1';
   }
 }
 
@@ -3178,7 +3209,7 @@ function renderMembershipActivation(session = accountSession) {
   if (member) {
     clearPendingCheckout();
     const returnTarget = membershipReturnTarget();
-    const returningToCheckout = returnTarget.startsWith('checkout.html');
+    const returningToCheckout = returnTarget.startsWith('/checkout');
     if (badge) badge.textContent = seenReveal ? 'Medlemskap aktivt' : 'Välkommen in';
     if (title) title.textContent = seenReveal ? 'Du är medlem' : `Medlemskap aktiverat${firstName ? `, ${firstName}` : ''}`;
     if (copy) {
@@ -3198,7 +3229,7 @@ function renderMembershipActivation(session = accountSession) {
     if (actions) {
       actions.innerHTML = `
         <button class="cta activation-unlock" type="button" data-unlock-store>${returningToCheckout ? 'Fortsätt checkout' : 'Börja handla'}</button>
-        <a class="product-btn secondary" href="konto.html">Se mitt konto</a>
+        <a class="product-btn secondary" href="/konto">Se mitt konto</a>
       `;
     }
     if (!seenReveal) {
@@ -3226,7 +3257,7 @@ function renderMembershipActivation(session = accountSession) {
   if (actions) {
     actions.innerHTML = `
       <button class="product-btn" type="button" data-refresh-membership>Kontrollera igen</button>
-      <a class="product-btn secondary" href="medlemskap.html">Till medlemskap</a>
+      <a class="product-btn secondary" href="/medlemskap">Till medlemskap</a>
     `;
   }
 }
@@ -3723,7 +3754,7 @@ if (membershipCheckoutButtons.length) {
     const fromInviteCode = Boolean(options.fromInviteCode);
 
     if (!accountSession || !accountSession.authenticated) {
-      window.location.href = pageParams.get('return') === 'checkout' ? 'konto.html?next=checkout' : 'konto.html?next=membership';
+      window.location.href = pageParams.get('return') === 'checkout' ? '/konto?next=checkout' : '/konto?next=membership';
       return;
     }
 
@@ -3878,7 +3909,7 @@ if (membershipCheckoutButtons.length) {
       const result = await membershipStripe.confirmPayment({
         elements: membershipElements,
         confirmParams: {
-          return_url: new URL(`medlemskap-aktivt.html?checkout=medlemskap&subscription=${encodeURIComponent(membershipSubscriptionId)}`, window.location.href).href,
+          return_url: new URL(`/medlemskap-aktivt?checkout=medlemskap&subscription=${encodeURIComponent(membershipSubscriptionId)}`, window.location.href).href,
           payment_method_data: {
             billing_details: {
               email: accountSession && accountSession.customer ? accountSession.customer.email : undefined,
@@ -3899,7 +3930,7 @@ if (membershipCheckoutButtons.length) {
       }
 
       if (paymentMessage) paymentMessage.textContent = 'Medlemskapet är betalt. Aktiverar kontot...';
-      window.location.href = `medlemskap-aktivt.html?checkout=medlemskap&subscription=${encodeURIComponent(membershipSubscriptionId)}`;
+      window.location.href = `/medlemskap-aktivt?checkout=medlemskap&subscription=${encodeURIComponent(membershipSubscriptionId)}`;
     });
   }
 }
@@ -3956,7 +3987,7 @@ function renderOrderPage(session = accountSession) {
         <p>${pending ? 'När betalningen är klar syns ordern här efter en kort stund. Den här rutan uppdateras automatiskt.' : 'Dina orders visas automatiskt när du är inloggad.'}</p>
         <div class="account-actions">
           <button class="product-btn" type="button" data-refresh-order>Uppdatera status</button>
-          <a class="product-btn secondary" href="konto.html">Mitt konto</a>
+          <a class="product-btn secondary" href="/konto">Mitt konto</a>
         </div>
       </div>
     `;
@@ -4013,7 +4044,7 @@ document.addEventListener('click', (event) => {
   if (unlockStore) {
     localStorage.setItem(MEMBERSHIP_REVEAL_KEY, '1');
     const target = membershipReturnTarget();
-    const returningToCheckout = target.startsWith('checkout.html');
+    const returningToCheckout = target.startsWith('/checkout');
     unlockStore.textContent = returningToCheckout ? 'Öppnar checkout...' : 'Öppnar butiken...';
     clearMembershipReturn();
     window.setTimeout(() => {
@@ -4107,7 +4138,7 @@ function updateLaunchCountdown() {
     localStorage.setItem(LAUNCH_GATE_KEY, '1');
     if (isLaunchPage) {
       window.setTimeout(() => {
-        unlockLaunchGate(pageParams.get('next') || 'index.html');
+        unlockLaunchGate(pageParams.get('next') || '/');
       }, 800);
     }
   }
@@ -4129,7 +4160,7 @@ if (launchForm) {
 
     if (value === LAUNCH_GATE_CODE) {
       if (message) message.textContent = 'Välkommen in.';
-      unlockLaunchGate(pageParams.get('next') || 'index.html');
+      unlockLaunchGate(pageParams.get('next') || '/');
       return;
     }
 
@@ -4434,7 +4465,7 @@ function renderSiteFooter() {
   footer.innerHTML = `
     <div class="site-footer-inner">
       <div class="site-footer-brand">
-        <a class="footer-logo" href="index.html">VERSEN</a>
+        <a class="footer-logo" href="/">VERSEN</a>
         <div class="footer-payment-row" aria-label="Betalning och trygghet">
           <span>Klarna</span>
           <span>Apple Pay</span>
@@ -4444,14 +4475,14 @@ function renderSiteFooter() {
       </div>
       <div class="footer-column">
         <strong>Kundservice</strong>
-        <a href="faq.html">FAQ</a>
-        <a href="kontakt.html">Kontakt</a>
+        <a href="/faq">FAQ</a>
+        <a href="/kontakt">Kontakt</a>
       </div>
       <div class="footer-column">
         <strong>Om Versen</strong>
-        <a href="konto.html">Mitt konto</a>
-        <a href="villkor.html">Terms & Conditions</a>
-        <a href="integritet.html">Integritet</a>
+        <a href="/konto">Mitt konto</a>
+        <a href="/villkor">Terms & Conditions</a>
+        <a href="/integritet">Integritet</a>
       </div>
       <div class="footer-column footer-org-number">
         <strong>Org-nummer</strong>

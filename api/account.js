@@ -185,7 +185,7 @@ async function sendVerificationEmail(req, payload) {
     };
   }
 
-  const verificationUrl = `${getBaseUrl(req)}/konto.html?verify=${encodeURIComponent(token)}&next=${encodeURIComponent(payload.next || '')}`;
+  const verificationUrl = `${getBaseUrl(req)}/konto?verify=${encodeURIComponent(token)}&next=${encodeURIComponent(payload.next || '')}`;
 
   if (!apiKey) {
     return {
@@ -266,7 +266,7 @@ async function sendPasswordResetEmail(req, payload) {
     };
   }
 
-  const resetUrl = `${getBaseUrl(req)}/konto.html?reset=${encodeURIComponent(token)}`;
+  const resetUrl = `${getBaseUrl(req)}/konto?reset=${encodeURIComponent(token)}`;
 
   if (!apiKey) {
     return {

@@ -107,7 +107,7 @@ module.exports = async function handler(req, res) {
     lines,
     attributes: [
       { key: 'Versen kanal', value: 'Versen frontend' },
-      { key: 'Versen retur', value: `${getBaseUrl(req)}/order.html` },
+      { key: 'Versen retur', value: `${getBaseUrl(req)}/order` },
     ],
   };
 
