@@ -2358,7 +2358,9 @@ function cartItemTemplate(item) {
             </span>
             <button type="button" aria-label="Öka antal" data-cart-plus="${escapeHtml(item.variantId)}">+</button>
           </div>
-          <button class="remove-btn" type="button" aria-label="Ta bort ${escapeHtml(item.title)}" data-cart-remove="${escapeHtml(item.variantId)}">Ta bort</button>
+          <button class="remove-btn" type="button" aria-label="Ta bort ${escapeHtml(item.title)}" data-cart-remove="${escapeHtml(item.variantId)}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </button>
         </div>
       </div>
     </article>
