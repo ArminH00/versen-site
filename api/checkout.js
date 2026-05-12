@@ -183,6 +183,7 @@ module.exports = async function handler(req, res) {
         discountCode: body.discountCode,
         customerAccessToken,
         session,
+        contact,
       });
       const intent = await createPaymentIntent({
         req,
@@ -223,10 +224,13 @@ module.exports = async function handler(req, res) {
           discountCode: body.discountCode,
           customerAccessToken,
           session,
+          contact,
         });
         fallbackDraft = await saveDraft({
           id: paymentIntent.metadata && paymentIntent.metadata.versen_checkout_id,
-          user_id: session.customer.id,
+          user_id: paymentIntent.metadata && paymentIntent.metadata.user_id
+            ? paymentIntent.metadata.user_id
+            : `guest:${contact.email}`,
           email: contact.email,
           phone: contact.phone,
           shipping_address: shippingAddress,
