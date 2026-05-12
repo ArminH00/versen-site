@@ -1027,6 +1027,14 @@
   padding:14px;
 }
 
+.checkout-payment-card .checkout-order-summary{
+  padding:0 0 14px;
+  border:0;
+  border-bottom:1px solid rgba(9,11,12,.1);
+  border-radius:0;
+  background:transparent;
+}
+
 .checkout-summary-items{
   display:grid;
   gap:10px;
@@ -1262,7 +1270,7 @@ body:not(.mobile-menu-open) .checkout-flow{
   }
 
   .checkout-payment-grid{
-    grid-template-columns:minmax(0,1.1fr) minmax(280px,.9fr);
+    grid-template-columns:minmax(0,1fr);
     align-items:start;
   }
 }

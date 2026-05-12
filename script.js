@@ -275,6 +275,10 @@ function formatSek(value) {
   return `${Math.round(value)} kr`;
 }
 
+function formatSavingsSek(value) {
+  return `-${formatSek(Math.abs(value))}`;
+}
+
 function productDiscountAmount(product) {
   const price = parsePrice(product && product.price);
   const compareAtPrice = parsePrice(product && product.compareAtPrice);
@@ -1043,7 +1047,7 @@ function productCard(product) {
           <span class="old">${escapeHtml(compareAtPrice)}</span>
           <span class="new">${escapeHtml(memberPrice)}</span>
         </div>
-        ${discount ? `<div class="product-saving">Du sparar ${escapeHtml(formatSek(discount))}${discountPercent ? ` (${discountPercent}%)` : ''}</div>` : ''}
+        ${discount ? `<div class="product-saving">Du sparar ${escapeHtml(formatSavingsSek(discount))}${discountPercent ? ` (${discountPercent}%)` : ''}</div>` : ''}
         <div class="product-actions">
           <a class="product-btn secondary" href="${escapeHtml(productUrl)}">Detaljer</a>
           <button class="product-btn" type="button" data-catalog-add>Lägg i kundkorg</button>
@@ -1134,7 +1138,7 @@ function homeDealTeaserCard(products) {
                   <em>${escapeHtml(product.price || 'Medlemspris')}</em>
                   ${product.compareAtPrice ? `<del>${escapeHtml(product.compareAtPrice)}</del>` : ''}
                 </span>
-                ${productDiscountAmount(product) ? `<span class="home-featured-saving">Du sparar ${escapeHtml(formatSek(productDiscountAmount(product)))}</span>` : ''}
+                ${productDiscountAmount(product) ? `<span class="home-featured-saving">Du sparar ${escapeHtml(formatSavingsSek(productDiscountAmount(product)))}</span>` : ''}
               </span>
             </a>
           `;
@@ -1168,7 +1172,7 @@ function homeTrendingCard(product) {
           <em>${escapeHtml(product.price || 'Medlemspris')}</em>
           ${compareAtPrice ? `<del>${escapeHtml(compareAtPrice)}</del>` : ''}
         </span>
-        ${saving ? `<span class="home-trending-saving">Du sparar ${escapeHtml(formatSek(saving))}</span>` : ''}
+        ${saving ? `<span class="home-trending-saving">Du sparar ${escapeHtml(formatSavingsSek(saving))}</span>` : ''}
       </a>
     </article>
   `;
@@ -1273,7 +1277,7 @@ function renderHomeTrendingFallback() {
         <strong>10 st Whey 100% Portionspåse</strong>
         <span class="member-price-label">Medlemspris</span>
         <span class="home-trending-prices"><em>119 kr</em><del>150 kr</del></span>
-        <span class="home-trending-saving">Du sparar 31 kr</span>
+        <span class="home-trending-saving">Du sparar -31 kr</span>
       </span>
       <a class="home-add-button" href="/produkter" aria-label="Visa produkter">+</a>
     </article>
@@ -1285,7 +1289,7 @@ function renderHomeTrendingFallback() {
         <strong>Purify S Keramiskt schampo</strong>
         <span class="member-price-label">Medlemspris</span>
         <span class="home-trending-prices"><em>159 kr</em><del>199 kr</del></span>
-        <span class="home-trending-saving">Du sparar 40 kr</span>
+        <span class="home-trending-saving">Du sparar -40 kr</span>
       </span>
       <a class="home-add-button" href="/produkter" aria-label="Visa produkter">+</a>
     </article>
@@ -1297,7 +1301,7 @@ function renderHomeTrendingFallback() {
         <strong>Amplify snabbförsegling</strong>
         <span class="member-price-label">Medlemspris</span>
         <span class="home-trending-prices"><em>149 kr</em><del>199 kr</del></span>
-        <span class="home-trending-saving">Du sparar 50 kr</span>
+        <span class="home-trending-saving">Du sparar -50 kr</span>
       </span>
       <a class="home-add-button" href="/produkter" aria-label="Visa produkter">+</a>
     </article>
@@ -2111,7 +2115,7 @@ function updateProductVariant(product, variant) {
       ? Math.round((savingAmount / parsePrice(compareAtPrice)) * 100)
       : 0;
     savingElement.textContent = savingAmount > 0
-      ? `Du sparar ${formatSek(savingAmount)}${savingPercent > 0 ? ` (${savingPercent}%)` : ''}`
+      ? `Du sparar ${formatSavingsSek(savingAmount)}${savingPercent > 0 ? ` (${savingPercent}%)` : ''}`
       : '';
     savingElement.hidden = savingAmount <= 0;
   }
@@ -2387,7 +2391,7 @@ function renderCart() {
   setText('[data-cart-total-items]', `${totalItems} st`);
   setText('[data-cart-heading-items]', `${totalItems} st`);
   setText('[data-cart-total]', formatSek(total));
-  setText('[data-cart-saving]', formatSek(savings));
+  setText('[data-cart-saving]', formatSavingsSek(savings));
   document.querySelectorAll('[data-cart-saving-row]').forEach((element) => {
     element.hidden = savings <= 0;
   });
@@ -2709,7 +2713,7 @@ function renderCheckoutSummary(data = {}) {
   setText('[data-checkout-shipping]', summary.shipping || '0 kr');
   setText('[data-checkout-tax]', summary.tax || '0 kr');
   setText('[data-checkout-total]', summary.total || '0 kr');
-  setText('[data-checkout-saving]', formatSek(savings));
+  setText('[data-checkout-saving]', formatSavingsSek(savings));
   document.querySelectorAll('[data-checkout-saving-row]').forEach((element) => {
     element.hidden = savings <= 0;
   });

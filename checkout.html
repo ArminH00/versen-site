@@ -143,6 +143,25 @@
       </header>
       <div class="checkout-payment-grid">
         <form class="checkout-payment-card" data-checkout-payment-form>
+          <section class="checkout-order-summary" aria-label="Din beställning">
+            <h2>Din beställning</h2>
+            <div class="checkout-summary-items" data-checkout-summary-items></div>
+            <div class="checkout-total-lines">
+              <div><span>Delsumma</span><strong data-checkout-subtotal>0 kr</strong></div>
+              <div><span>Frakt</span><strong data-checkout-shipping>0 kr</strong></div>
+              <div class="is-total">
+                <span>Totalt</span>
+                <strong>
+                  <span data-checkout-total>0 kr</span>
+                  <small>Inkl. moms: <span data-checkout-tax>0 kr</span></small>
+                </strong>
+              </div>
+              <div class="checkout-saving-line" data-checkout-saving-row hidden>
+                <span>Du sparar</span>
+                <strong data-checkout-saving>-0 kr</strong>
+              </div>
+            </div>
+          </section>
           <div class="payment-method-head">
             <strong>Betalningsmetod</strong>
             <div class="card-brands" aria-label="Kort som stöds">
@@ -164,29 +183,9 @@
           </label>
           <div class="stripe-safe">Säkert med Stripe</div>
           <p class="form-message" data-checkout-payment-message></p>
-        </form>
-
-        <aside class="checkout-order-summary" aria-label="Din beställning">
-          <h2>Din beställning</h2>
-          <div class="checkout-summary-items" data-checkout-summary-items></div>
-          <div class="checkout-total-lines">
-            <div><span>Delsumma</span><strong data-checkout-subtotal>0 kr</strong></div>
-            <div><span>Frakt</span><strong data-checkout-shipping>0 kr</strong></div>
-            <div class="is-total">
-              <span>Totalt</span>
-              <strong>
-                <span data-checkout-total>0 kr</span>
-                <small>Inkl. moms: <span data-checkout-tax>0 kr</span></small>
-              </strong>
-            </div>
-            <div class="checkout-saving-line" data-checkout-saving-row hidden>
-              <span>Du sparar</span>
-              <strong data-checkout-saving>0 kr</strong>
-            </div>
-          </div>
-          <button class="cta checkout-pay-button" type="submit" form="" data-checkout-pay-button>Betala</button>
+          <button class="cta checkout-pay-button" type="button" data-checkout-pay-button>Betala</button>
           <p class="checkout-terms">Genom att slutföra köpet godkänner du våra <a href="/villkor">köpvillkor</a> och <a href="/integritet">integritetspolicy</a>.</p>
-        </aside>
+        </form>
       </div>
     </section>
 
@@ -217,6 +216,6 @@
 </main>
 
 <script src="https://js.stripe.com/v3/"></script>
-<script src="script.js?v=20260513-cart-savings"></script>
+<script src="script.js?v=20260513-checkout-order-first"></script>
 </body>
 </html>
