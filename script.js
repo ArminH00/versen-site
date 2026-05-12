@@ -89,9 +89,10 @@ function renderLuxuryMenu() {
 
   const path = window.location.pathname.split('/').pop() || 'index.html';
   const authenticated = Boolean(accountSession && accountSession.authenticated);
+  const member = isActiveMember();
   const links = [
     { href: 'produkter.html', label: 'Handla', match: ['produkter.html', 'produkt.html'] },
-    authenticated ? null : { href: 'medlemskap.html', label: 'Medlemskap', match: ['medlemskap.html', 'medlemskap-aktivt.html'] },
+    member ? null : { href: 'medlemskap.html', label: 'Medlemskap', match: ['medlemskap.html', 'medlemskap-aktivt.html'] },
     { href: 'konto.html', label: authenticated ? 'Mitt konto' : 'Konto', match: ['konto.html', 'installningar.html', 'order.html'] },
     { href: 'kundkorg.html', label: 'Kundvagn', match: ['kundkorg.html', 'checkout.html'], cart: true },
     { href: 'forslag.html', label: 'Föreslå drop', match: ['forslag.html'], featured: true },
@@ -726,7 +727,7 @@ function applyGlobalSessionUi(session = accountSession) {
   renderSuggestionAccess(session);
 
   document.querySelectorAll('a[href="medlemskap.html"], a[href^="medlemskap.html?"]').forEach((link) => {
-    link.hidden = authenticated;
+    link.hidden = member;
   });
 
   document.querySelectorAll('[data-member-home]').forEach((element) => {
