@@ -11366,6 +11366,10 @@ body:not(.cart-has-items) .empty-cart .product-btn{
   color:#111!important;
 }
 
+.cart-item .product-prices .new{
+  color:var(--vs-gold)!important;
+}
+
 .cart-item .cart-actions{
   width:100%;
   max-width:244px;
@@ -11459,28 +11463,16 @@ body:not(.cart-has-items) .empty-cart .product-btn{
 
 .cart-item .cart-actions .remove-btn::before{
   content:"";
-  position:relative;
-  width:20px;
-  height:22px;
+  width:18px;
+  height:18px;
   display:block;
-  border:2px solid currentColor;
-  border-top:0;
-  border-radius:0 0 3px 3px;
-  box-sizing:border-box;
+  background:
+    linear-gradient(45deg,transparent calc(50% - 1px),currentColor calc(50% - 1px),currentColor calc(50% + 1px),transparent calc(50% + 1px)),
+    linear-gradient(-45deg,transparent calc(50% - 1px),currentColor calc(50% - 1px),currentColor calc(50% + 1px),transparent calc(50% + 1px));
 }
 
 .cart-item .cart-actions .remove-btn::after{
-  content:"";
-  position:absolute;
-  width:22px;
-  height:8px;
-  border-top:2px solid currentColor;
-  border-radius:2px 2px 0 0;
-  transform:translateY(-10px);
-  box-shadow:
-    0 5px 0 -3px currentColor,
-    6px 13px 0 -5px currentColor,
-    -6px 13px 0 -5px currentColor;
+  content:none;
 }
 
 .category-lock-card .badge{
