@@ -2801,6 +2801,12 @@ async function setupCheckoutPayment() {
       walletShell.hidden = true;
       walletMount.innerHTML = '';
       const expressCheckoutElement = checkoutElements.create('expressCheckout', {
+        paymentMethods: {
+          applePay: 'always',
+          googlePay: 'always',
+          link: 'never',
+        },
+        paymentMethodOrder: ['applePay', 'googlePay'],
         buttonType: {
           applePay: 'check-out',
           googlePay: 'checkout',
@@ -4036,6 +4042,12 @@ if (membershipCheckoutButtons.length) {
       });
       if (walletShell && walletMount) {
         const expressCheckoutElement = membershipElements.create('expressCheckout', {
+          paymentMethods: {
+            applePay: 'always',
+            googlePay: 'always',
+            link: 'never',
+          },
+          paymentMethodOrder: ['applePay', 'googlePay'],
           buttonType: {
             applePay: 'check-out',
             googlePay: 'checkout',
