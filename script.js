@@ -1297,9 +1297,10 @@ function showMembershipGate(options = {}) {
   const copy = options.copy || 'Din kundkorg är sparad. Fortsätt för att slutföra checkout med de här priserna.';
   const href = options.href || 'medlemskap.html';
   const cta = options.cta || 'Fortsätt';
+  const required = Boolean(options.required);
 
   const modal = document.createElement('div');
-  modal.className = 'category-lock-popover';
+  modal.className = `category-lock-popover${required ? ' is-required' : ''}`;
   modal.innerHTML = `
     <div class="category-lock-card">
       <div class="badge">${escapeHtml(badge)}</div>
@@ -1307,7 +1308,7 @@ function showMembershipGate(options = {}) {
       <p>${escapeHtml(copy)}</p>
       <div class="category-lock-actions">
         <a class="product-btn" href="${escapeHtml(href)}">${escapeHtml(cta)}</a>
-        <button class="product-btn secondary" type="button" data-close-category-lock>Inte nu</button>
+        ${required ? '' : '<button class="product-btn secondary" type="button" data-close-category-lock>Inte nu</button>'}
       </div>
     </div>
   `;
@@ -1316,6 +1317,10 @@ function showMembershipGate(options = {}) {
   window.setTimeout(() => modal.classList.add('show'), 20);
 
   modal.addEventListener('click', (event) => {
+    if (required) {
+      return;
+    }
+
     if (event.target === modal || event.target.closest('[data-close-category-lock]')) {
       modal.classList.remove('show');
       window.setTimeout(() => modal.remove(), 200);
@@ -1331,6 +1336,7 @@ function showCheckoutMembershipGate() {
     copy: 'Versen är en medlemsklubb med exklusiva priser och utvalda drops. Din kundkorg är sparad.',
     href: authenticated ? 'medlemskap.html' : 'konto.html?next=membership',
     cta: authenticated ? 'Bli medlem & fortsätt' : 'Skapa konto & fortsätt',
+    required: true,
   });
 }
 

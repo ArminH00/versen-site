@@ -9081,6 +9081,11 @@ body:not(.cart-has-items) .cart-summary{
   text-align:center;
 }
 
+.category-lock-popover.is-required .category-lock-card{
+  gap:13px;
+  padding:38px 22px 24px;
+}
+
 .category-lock-card .badge{
   width:62px;
   height:62px;
@@ -9095,21 +9100,39 @@ body:not(.cart-has-items) .cart-summary{
 
 .category-lock-card .badge::before{
   content:"";
-  width:17px;
-  height:15px;
-  border:1.6px solid var(--ink);
-  border-radius:3px;
+  width:22px;
+  height:18px;
+  position:absolute;
+  left:50%;
+  top:31px;
+  border:2px solid var(--ink);
+  border-radius:5px;
+  transform:translateX(-50%);
 }
 
 .category-lock-card .badge::after{
   content:"";
   position:absolute;
-  top:19px;
-  width:13px;
-  height:11px;
-  border:1.6px solid var(--ink);
+  left:50%;
+  top:17px;
+  width:20px;
+  height:20px;
+  border:2px solid var(--ink);
   border-bottom:0;
-  border-radius:10px 10px 0 0;
+  border-radius:14px 14px 0 0;
+  transform:translateX(-50%);
+}
+
+.category-lock-popover.is-required .category-lock-card .badge{
+  margin-bottom:4px;
+}
+
+.category-lock-popover.is-required .category-lock-card .badge::before{
+  top:31px;
+}
+
+.category-lock-popover.is-required .category-lock-card .badge::after{
+  top:16px;
 }
 
 .category-lock-card h2{
@@ -9129,7 +9152,11 @@ body:not(.cart-has-items) .cart-summary{
   width:100%;
   display:grid;
   gap:10px;
-  margin-top:8px;
+  margin-top:6px;
+}
+
+.category-lock-popover.is-required .category-lock-actions{
+  margin-top:12px;
 }
 
 .category-lock-actions .product-btn{
@@ -11226,18 +11253,27 @@ body:not(.cart-has-items) .empty-cart .product-btn{
 }
 
 .category-lock-card .badge::before{
-  width:19px!important;
-  height:17px!important;
+  width:22px!important;
+  height:18px!important;
+  left:50%!important;
+  top:31px!important;
   border-width:2px!important;
-  border-radius:4px!important;
-  transform:translateY(5px);
+  border-radius:5px!important;
+  transform:translateX(-50%)!important;
 }
 
 .category-lock-card .badge::after{
-  top:18px!important;
-  width:15px!important;
-  height:13px!important;
+  left:50%!important;
+  top:17px!important;
+  width:20px!important;
+  height:20px!important;
   border-width:2px!important;
+  border-radius:14px 14px 0 0!important;
+  transform:translateX(-50%)!important;
+}
+
+.category-lock-popover.is-required .category-lock-card .badge::after{
+  top:16px!important;
 }
 
 .contact-card,
