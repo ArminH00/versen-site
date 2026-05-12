@@ -771,7 +771,7 @@ function syncShoppingAccess() {
   if (cartHelp) {
     cartHelp.textContent = member
       ? 'Fortsätt till Versens checkout med kontakt, leverans och säker kortbetalning.'
-      : 'Fortsätt till Versens checkout med kontakt, leverans och säker kortbetalning.';
+      : 'Fortsätt till Versens checkout. Du behöver vara inloggad för att slutföra köpet.';
   }
 
   if (membershipCheckout) {
@@ -2625,6 +2625,11 @@ function initCheckoutPage(session = accountSession) {
   const page = document.querySelector('[data-checkout-page]');
 
   if (!page) {
+    return;
+  }
+
+  if (session && !session.authenticated) {
+    window.location.href = 'konto.html?next=checkout';
     return;
   }
 
