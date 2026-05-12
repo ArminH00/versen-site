@@ -22,37 +22,50 @@ function verifyShopifyWebhook(rawBody, hmacHeader) {
 }
 
 function shopifyOrderId(order) {
-  return order.id ? String(order.id) : (order.admin_graphql_api_id || '');
+  return order.order_id ? String(order.order_id) : (order.id ? String(order.id) : (order.admin_graphql_api_id || ''));
 }
 
 function firstTracking(order) {
   const fulfillment = (order.fulfillments || []).find((item) => (
     item && (item.tracking_url || item.tracking_urls || item.tracking_number)
   )) || {};
-  const trackingUrls = Array.isArray(fulfillment.tracking_urls) ? fulfillment.tracking_urls : [];
+  const trackingUrls = Array.isArray(order.tracking_urls)
+    ? order.tracking_urls
+    : (Array.isArray(fulfillment.tracking_urls) ? fulfillment.tracking_urls : []);
 
   return {
-    trackingUrl: fulfillment.tracking_url || trackingUrls[0] || '',
-    trackingNumber: fulfillment.tracking_number || '',
+    trackingUrl: order.tracking_url || fulfillment.tracking_url || trackingUrls[0] || '',
+    trackingNumber: order.tracking_number || fulfillment.tracking_number || '',
   };
 }
 
-function statusFromShopify(order) {
+function statusFromShopify(order, topic = '') {
   const tags = String(order.tags || '').toLowerCase();
   const fulfillmentStatus = String(order.fulfillment_status || '').toLowerCase();
   const { trackingUrl, trackingNumber } = firstTracking(order);
+  const normalizedTopic = String(topic || '').toLowerCase();
 
-  if (order.cancelled_at) {
+  if (normalizedTopic.includes('refund')) {
+    return {
+      order_status: 'refunded',
+      emailType: 'order_refunded',
+      message: 'Vi har registrerat en återbetalning för din order.',
+      trackingUrl,
+      trackingNumber,
+    };
+  }
+
+  if (order.cancelled_at || normalizedTopic.includes('cancel')) {
     return {
       order_status: 'cancelled',
-      emailType: null,
+      emailType: 'order_cancelled',
       message: 'Ordern har markerats som avbruten.',
       trackingUrl,
       trackingNumber,
     };
   }
 
-  if (fulfillmentStatus === 'fulfilled' || trackingUrl || trackingNumber) {
+  if (fulfillmentStatus === 'fulfilled' || trackingUrl || trackingNumber || normalizedTopic.includes('fulfillment')) {
     return {
       order_status: 'shipped',
       emailType: 'order_shipped',
@@ -67,6 +80,16 @@ function statusFromShopify(order) {
       order_status: 'packing',
       emailType: 'order_packing',
       message: 'Din order har gått vidare till packning.',
+      trackingUrl,
+      trackingNumber,
+    };
+  }
+
+  if (normalizedTopic.includes('create')) {
+    return {
+      order_status: 'paid_synced_shopify',
+      emailType: null,
+      message: '',
       trackingUrl,
       trackingNumber,
     };
@@ -89,6 +112,7 @@ module.exports = async function handler(req, res) {
 
   const rawBody = await readRawBody(req);
   const hmac = req.headers['x-shopify-hmac-sha256'];
+  const topic = req.headers['x-shopify-topic'];
 
   if (!verifyShopifyWebhook(rawBody, hmac)) {
     sendJson(res, 401, { error: 'Ogiltig webhook-signatur' });
@@ -112,7 +136,7 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const next = statusFromShopify(payload);
+  const next = statusFromShopify(payload, topic);
   const statusChanged = existing.order_status !== next.order_status;
   const updated = await updateOrderStatusByShopifyId(id, {
     order_status: next.order_status,
