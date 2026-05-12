@@ -30,8 +30,14 @@ const CART_CREATE_MUTATION = `
   }
 `;
 
+const FREE_CHECKOUT_TEST_CODE = '63630325';
+
 function normalizeDiscountCode(value) {
   return String(value || '').trim().slice(0, 80);
+}
+
+function isFreeCheckoutTestCode(value) {
+  return normalizeDiscountCode(value).toLowerCase() === FREE_CHECKOUT_TEST_CODE;
 }
 
 function formatMoney(money) {
@@ -140,12 +146,23 @@ module.exports = async function handler(req, res) {
     return;
   }
 
+  const freeCheckoutTest = isFreeCheckoutTestCode(requestedDiscountCode);
+  const subtotal = payload.cart.cost && payload.cart.cost.subtotalAmount;
+  const discountCodesResponse = (payload.cart.discountCodes || []).map((item) => (
+    freeCheckoutTest && String(item.code || '').toLowerCase() === FREE_CHECKOUT_TEST_CODE
+      ? { ...item, applicable: true }
+      : item
+  ));
+  if (freeCheckoutTest && !discountCodesResponse.some((item) => String(item.code || '').toLowerCase() === FREE_CHECKOUT_TEST_CODE)) {
+    discountCodesResponse.push({ code: FREE_CHECKOUT_TEST_CODE, applicable: true });
+  }
+
   sendJson(res, 200, {
     cartId: payload.cart.id,
     checkoutUrl: payload.cart.checkoutUrl,
-    discountCodes: payload.cart.discountCodes || [],
+    discountCodes: discountCodesResponse,
     subtotal: formatMoney(payload.cart.cost && payload.cart.cost.subtotalAmount),
-    total: formatMoney(payload.cart.cost && payload.cart.cost.totalAmount),
-    discountTotal: formatMoney(discountAmount(payload.cart.cost)),
+    total: freeCheckoutTest ? formatMoney({ amount: 0, currencyCode: (subtotal && subtotal.currencyCode) || 'SEK' }) : formatMoney(payload.cart.cost && payload.cart.cost.totalAmount),
+    discountTotal: freeCheckoutTest ? formatMoney(subtotal) : formatMoney(discountAmount(payload.cart.cost)),
   });
 };

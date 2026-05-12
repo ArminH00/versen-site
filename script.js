@@ -2458,6 +2458,7 @@ if (discountForm) {
 let checkoutStripe = null;
 let checkoutElements = null;
 let checkoutPaymentReady = false;
+let checkoutFreeCheckout = false;
 let checkoutPaymentIntentId = '';
 
 function currentCheckoutStep() {
@@ -2627,6 +2628,21 @@ async function setupCheckoutPayment() {
 
     checkoutPaymentIntentId = data.paymentIntentId;
     renderCheckoutSummary(data);
+
+    if (data.freeCheckout) {
+      checkoutStripe = null;
+      checkoutElements = null;
+      checkoutFreeCheckout = true;
+      checkoutPaymentReady = true;
+      if (payButton) {
+        payButton.disabled = false;
+        payButton.textContent = 'Slutför gratis order';
+      }
+      if (message) message.textContent = 'Testkoden är aktiv. Ingen betalning tas.';
+      return;
+    }
+
+    checkoutFreeCheckout = false;
 
     if (!data.stripeReady || !data.publishableKey || !data.clientSecret || !window.Stripe) {
       if (message) message.textContent = 'Stripe är inte färdigkonfigurerat. Lägg till Stripe-nycklar i Vercel innan köp kan tas betalt.';
@@ -2823,6 +2839,20 @@ const checkoutPayButton = document.querySelector('[data-checkout-pay-button]');
 if (checkoutPayButton) {
   checkoutPayButton.addEventListener('click', async () => {
     const message = document.querySelector('[data-checkout-payment-message]');
+
+    if (checkoutFreeCheckout) {
+      checkoutPayButton.disabled = true;
+      checkoutPayButton.textContent = 'Skapar order...';
+      const order = await completeCheckoutOrder(checkoutPaymentIntentId);
+
+      if (order) {
+        window.location.href = `/checkout?step=bekraftelse&order=${encodeURIComponent(order.id)}`;
+      } else {
+        checkoutPayButton.disabled = false;
+        checkoutPayButton.textContent = 'Slutför gratis order';
+      }
+      return;
+    }
 
     if (!checkoutStripe || !checkoutElements) {
       if (message) message.textContent = 'Betalningen är inte redo ännu.';

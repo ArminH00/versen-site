@@ -3,7 +3,9 @@ const { getCookie, readBody, readRawBody, sendJson } = require('../lib/shopify')
 const { getCustomerSession } = require('./membership');
 const {
   createPaymentIntent,
+  createFreeCheckoutDraft,
   fulfillPaidPaymentIntent,
+  fulfillFreeCheckoutDraft,
   getSession,
   handleError,
   normalizeAddress,
@@ -218,6 +220,36 @@ module.exports = async function handler(req, res) {
         discountCode: body.discountCode,
         session,
       });
+
+      if (validation.free_checkout) {
+        const freeCheckout = await createFreeCheckoutDraft({
+          req,
+          validation,
+          contact,
+          shippingAddress,
+          session,
+        });
+
+        sendJson(res, 200, {
+          freeCheckout: true,
+          checkoutId: freeCheckout.id,
+          paymentIntentId: freeCheckout.id,
+          stripeReady: true,
+          items: validation.items,
+          summary: validation.summary,
+          amounts: {
+            subtotal: validation.subtotal,
+            discount: validation.discount,
+            shipping: validation.shipping,
+            tax: validation.tax,
+            total: validation.total,
+          },
+          currency: validation.currency,
+          discountCodes: validation.discount_codes,
+        });
+        return;
+      }
+
       const intent = await createPaymentIntent({
         req,
         validation,
@@ -247,6 +279,12 @@ module.exports = async function handler(req, res) {
 
     if (body.action === 'complete') {
       requireActiveMember(session);
+
+      if (String(body.paymentIntentId || '').startsWith('free_')) {
+        const order = await fulfillFreeCheckoutDraft(body.paymentIntentId);
+        sendJson(res, 200, { order: publicOrder(order) });
+        return;
+      }
 
       const paymentIntent = await retrievePaymentIntent(body.paymentIntentId);
       let fallbackDraft = null;
