@@ -111,6 +111,59 @@ create table if not exists public.emails (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.abandoned_checkouts (
+  id text primary key,
+  user_id text,
+  email text not null,
+  name text,
+  phone text,
+  items jsonb not null default '[]'::jsonb,
+  cart_value integer not null default 0,
+  currency text not null default 'sek',
+  status text not null default 'open',
+  latest_activity text,
+  contacted_at timestamptz,
+  last_contacted_at timestamptz,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.support_tickets (
+  id text primary key,
+  user_id text,
+  order_id text,
+  email text,
+  name text,
+  subject text,
+  category text not null default 'övrigt',
+  status text not null default 'open',
+  priority text not null default 'normal',
+  unread boolean not null default true,
+  message text,
+  messages jsonb not null default '[]'::jsonb,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.admin_activity_log (
+  id bigserial primary key,
+  actor text not null default 'admin',
+  action text not null,
+  target_type text,
+  target_id text,
+  message text,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.admin_settings (
+  key text primary key,
+  value jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+
 alter table public.orders
   add column if not exists order_number text,
   add column if not exists shopify_sync_error jsonb,
@@ -158,6 +211,24 @@ create index if not exists emails_user_id_idx
 create index if not exists emails_order_id_idx
   on public.emails (order_id);
 
+create index if not exists abandoned_checkouts_email_idx
+  on public.abandoned_checkouts (lower(email));
+
+create index if not exists abandoned_checkouts_status_idx
+  on public.abandoned_checkouts (status);
+
+create index if not exists support_tickets_email_idx
+  on public.support_tickets (lower(email));
+
+create index if not exists support_tickets_status_idx
+  on public.support_tickets (status);
+
+create index if not exists support_tickets_category_idx
+  on public.support_tickets (category);
+
+create index if not exists admin_activity_target_idx
+  on public.admin_activity_log (target_type, target_id);
+
 alter table public.profiles enable row level security;
 alter table public.addresses enable row level security;
 alter table public.checkout_drafts enable row level security;
@@ -165,6 +236,10 @@ alter table public.orders enable row level security;
 alter table public.order_items enable row level security;
 alter table public.subscriptions enable row level security;
 alter table public.emails enable row level security;
+alter table public.abandoned_checkouts enable row level security;
+alter table public.support_tickets enable row level security;
+alter table public.admin_activity_log enable row level security;
+alter table public.admin_settings enable row level security;
 
 -- No public policies are added. Versen writes/reads records only through serverless
 -- backend endpoints using SUPABASE_SECRET_KEY. Do not expose the secret key in frontend.

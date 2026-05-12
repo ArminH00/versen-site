@@ -253,6 +253,10 @@
       "destination": "/admin.html"
     },
     {
+      "source": "/A.admin63630325",
+      "destination": "/admin.html"
+    },
+    {
       "source": "/gross-kontrollrum",
       "destination": "/gross-kontrollrum.html"
     },

@@ -1,4 +1,18 @@
 const { adminFetch, readBody, sendJson, shopifyFetch } = require('../lib/shopify');
+const {
+  adminCookie,
+  clearAdminCookie,
+  createAdminSession,
+  getAdminSession,
+  isAdminRequest,
+  verifyAdminPassword,
+} = require('../lib/admin-auth');
+const adminDashboard = require('../lib/admin-dashboard');
+const adminActions = require('../lib/admin-actions');
+
+const attempts = new Map();
+const WINDOW_MS = 10 * 60 * 1000;
+const MAX_ATTEMPTS = 8;
 
 const MEMBERS_QUERY = `
   query VersenMembers($query: String!) {
@@ -130,6 +144,37 @@ const PRODUCT_FLAGS = {
   greatPrice: 'versen_great_price',
 };
 
+function clientKey(req) {
+  return String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'local').split(',')[0].trim();
+}
+
+function isRateLimited(req) {
+  const key = clientKey(req);
+  const now = Date.now();
+  const state = attempts.get(key) || { count: 0, resetAt: now + WINDOW_MS };
+
+  if (state.resetAt < now) {
+    attempts.set(key, { count: 0, resetAt: now + WINDOW_MS });
+    return false;
+  }
+
+  return state.count >= MAX_ATTEMPTS;
+}
+
+function recordFailedAttempt(req) {
+  const key = clientKey(req);
+  const now = Date.now();
+  const state = attempts.get(key) || { count: 0, resetAt: now + WINDOW_MS };
+
+  if (state.resetAt < now) {
+    attempts.set(key, { count: 1, resetAt: now + WINDOW_MS });
+    return;
+  }
+
+  state.count += 1;
+  attempts.set(key, state);
+}
+
 function formatPrice(price) {
   if (!price) return '0 kr';
 
@@ -236,11 +281,18 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const secret = process.env.VERSEN_ADMIN_SECRET || process.env.VERSEN_SETUP_SECRET;
-  const header = req.headers.authorization || '';
+  const url = new URL(req.url || '/', 'https://versen.local');
+  const mode = String(url.searchParams.get('mode') || '');
 
-  if (!secret || header !== `Bearer ${secret}`) {
-    sendJson(res, 401, { error: 'Adminnyckel krävs' });
+  if (req.method === 'GET' && mode === 'session') {
+    sendJson(res, 200, {
+      authenticated: Boolean(getAdminSession(req)),
+    });
+    return;
+  }
+
+  if (req.method === 'GET' && mode === 'dashboard') {
+    await adminDashboard(req, res);
     return;
   }
 
@@ -254,8 +306,52 @@ module.exports = async function handler(req, res) {
       return;
     }
 
+    if (body.action === 'logout') {
+      res.setHeader('Set-Cookie', clearAdminCookie());
+      sendJson(res, 200, { authenticated: false });
+      return;
+    }
+
+    if (body.action === 'login') {
+      if (isRateLimited(req)) {
+        sendJson(res, 429, { error: 'För många försök. Vänta en stund och försök igen.' });
+        return;
+      }
+
+      if (!verifyAdminPassword(body.code)) {
+        recordFailedAttempt(req);
+        sendJson(res, 401, { error: 'Fel adminkod' });
+        return;
+      }
+
+      const token = createAdminSession();
+
+      if (!token) {
+        sendJson(res, 500, { error: 'Admin-session saknar serverhemlighet' });
+        return;
+      }
+
+      res.setHeader('Set-Cookie', adminCookie(token));
+      sendJson(res, 200, { authenticated: true });
+      return;
+    }
+
+    const secret = process.env.VERSEN_ADMIN_SECRET || process.env.VERSEN_SETUP_SECRET;
+    const header = req.headers.authorization || '';
+
+    if ((!secret || header !== `Bearer ${secret}`) && !isAdminRequest(req)) {
+      sendJson(res, 401, { error: 'Adminnyckel krävs' });
+      return;
+    }
+
     if (body.action === 'update_product_flag') {
       await updateProductFlag(res, body);
+      return;
+    }
+
+    if (['send_checkout_reminder', 'send_support_reply', 'update_order_status', 'update_support_status', 'mark_checkout_contacted'].includes(body.action)) {
+      const result = await adminActions.runAdminAction(body);
+      sendJson(res, result.status, result.body);
       return;
     }
 
@@ -263,7 +359,13 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const url = new URL(req.url || '/', 'https://versen.local');
+  const secret = process.env.VERSEN_ADMIN_SECRET || process.env.VERSEN_SETUP_SECRET;
+  const header = req.headers.authorization || '';
+
+  if ((!secret || header !== `Bearer ${secret}`) && !isAdminRequest(req)) {
+    sendJson(res, 401, { error: 'Adminnyckel krävs' });
+    return;
+  }
   const email = String(url.searchParams.get('email') || '').trim().toLowerCase();
   const tag = (process.env.VERSEN_MEMBER_TAG || 'versen_member').split(',')[0].trim();
   const result = await adminFetch(MEMBERS_QUERY, { query: `tag:${tag}` });

@@ -4,7 +4,6 @@ const CHECKOUT_KEY = 'versenCheckoutPending';
 const CHECKOUT_DRAFT_KEY = 'versenCheckoutDraft';
 const LAST_ORDER_KEY = 'versenLastOrder';
 const MEMBERSHIP_RETURN_KEY = 'versenMembershipReturn';
-const ADMIN_SECRET_KEY = 'versenAdminSecret';
 const MEMBERSHIP_REVEAL_KEY = 'versenMembershipRevealSeen';
 const LAUNCH_GATE_KEY = 'versenLaunchAccess';
 const POINTS_INTRO_KEY = 'versenPointsIntroSeen';
@@ -4449,7 +4448,7 @@ if (adminForm) {
   const message = document.querySelector('[data-admin-message]');
   const dashboard = document.querySelector('[data-admin-dashboard]');
   const searchForm = document.querySelector('[data-admin-search-form]');
-  const savedSecret = localStorage.getItem(ADMIN_SECRET_KEY) || '';
+  const savedSecret = '';
   const secretInput = adminForm.querySelector('input[name="adminSecret"]');
 
   if (secretInput && savedSecret) {
@@ -4457,11 +4456,7 @@ if (adminForm) {
   }
 
   function adminHeaders() {
-    const secret = secretInput ? secretInput.value : '';
-
-    return {
-      Authorization: `Bearer ${secret}`,
-    };
+    return {};
   }
 
   function statusText(value) {
@@ -4571,8 +4566,23 @@ if (adminForm) {
 
   async function loadAdminDashboard(email = '') {
     if (message) message.textContent = 'Hämtar kontrollrummet...';
+    if (secretInput && secretInput.value) {
+      const loginResponse = await fetch('/api/admin-members', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'login', code: secretInput.value }),
+      });
+      const loginData = await loginResponse.json().catch(() => ({}));
+
+      if (!loginResponse.ok) {
+        if (message) message.textContent = loginData.error || 'Kunde inte skapa admin-session.';
+        return;
+      }
+      secretInput.value = '';
+    }
     const query = email ? `?email=${encodeURIComponent(email)}` : '';
-    const response = await fetch(`/api/admin-members${query}`, { headers: adminHeaders() });
+    const response = await fetch(`/api/admin-members${query}`, { credentials: 'same-origin', headers: adminHeaders() });
     const data = await response.json();
 
     if (!response.ok) {
@@ -4580,9 +4590,6 @@ if (adminForm) {
       return;
     }
 
-    if (secretInput) {
-      localStorage.setItem(ADMIN_SECRET_KEY, secretInput.value);
-    }
     if (message) message.textContent = 'Kontrollrummet är uppdaterat.';
     renderAdminDashboard(data);
   }

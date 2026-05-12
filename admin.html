@@ -3,87 +3,100 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#f7f7f4">
-<meta name="color-scheme" content="light">
-<meta name="description" content="Versen administrativ vy.">
+<meta name="theme-color" content="#050506">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="Versen intern admin dashboard.">
 <meta name="robots" content="noindex,nofollow">
-<link rel="canonical" href="https://versen.se/admin">
+<link rel="canonical" href="https://versen.se/A.admin63630325">
 <meta property="og:locale" content="sv_SE">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Versen">
-<meta property="og:title" content="Versen - Admin">
-<meta property="og:description" content="Versen administrativ vy.">
-<meta property="og:url" content="https://versen.se/admin">
-<meta property="og:image" content="https://versen.se/assets/community-drop-hero.jpg">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Versen - Admin">
-<meta name="twitter:description" content="Versen administrativ vy.">
-<meta name="twitter:image" content="https://versen.se/assets/community-drop-hero.jpg">
-<script>try{const p=localStorage.getItem("versenThemePreference")||"light";const d=p==="dark"||(p==="auto"&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.dataset.theme=d?"dark":"light";document.documentElement.dataset.themePreference=p;}catch(e){document.documentElement.dataset.theme="light";}</script>
-<script>try{const p=location.pathname.replace(/\/+$/,'')||'/';if(Date.now()<1777500000000&&!localStorage.getItem('versenLaunchAccess')&&p!=='/snart')location.replace('/snart?next='+encodeURIComponent(location.pathname+location.search+location.hash));}catch(e){}</script>
-<title>Versen - Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260513-cart-compact-x">
+<meta property="og:title" content="Versen Admin">
+<meta property="og:description" content="Versen intern admin dashboard.">
+<meta property="og:url" content="https://versen.se/A.admin63630325">
+<title>Versen Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css?v=20260513-admin-dashboard">
 </head>
 
-<body class="auth-loading">
+<body class="admin-body">
+<div class="admin-shell" data-admin-app>
+  <section class="admin-login" data-admin-login>
+    <div class="admin-login-panel">
+      <span class="admin-kicker">Versen internal</span>
+      <h1>Admin kontrollrum</h1>
+      <p>Säker intern dashboard för orders, checkouts, medlemmar, support och aktivitet.</p>
+      <form data-admin-login-form>
+        <label for="adminCode">Adminkod</label>
+        <input id="adminCode" name="code" type="password" inputmode="numeric" autocomplete="current-password" required>
+        <button type="submit">Öppna dashboard</button>
+      </form>
+      <p class="admin-message" data-admin-login-message></p>
+    </div>
+  </section>
 
-<div class="top-strip" aria-label="Versen fördelar">
-  <span>1-3 dagars leverans</span>
-  <span>Medlemspriser varje vecka</span>
-  <span>Nya drops varje torsdag</span>
-  <a href="/kontakt">Kontakt</a>
+  <aside class="admin-sidebar" data-admin-sidebar hidden>
+    <div class="admin-brand">
+      <strong>VERSEN</strong>
+      <span>God mode</span>
+    </div>
+    <nav class="admin-nav" aria-label="Admin navigation">
+      <button class="active" type="button" data-admin-view="dashboard">Dashboard</button>
+      <button type="button" data-admin-view="orders">Ordrar</button>
+      <button type="button" data-admin-view="checkouts">Lämnade Checkouts</button>
+      <button type="button" data-admin-view="memberships">Medlemskap</button>
+      <button type="button" data-admin-view="users">Användare</button>
+      <button type="button" data-admin-view="support">Support</button>
+      <button type="button" data-admin-view="returns">Returer</button>
+      <button type="button" data-admin-view="settings">Inställningar</button>
+      <button type="button" data-admin-view="activity">Loggar</button>
+      <button type="button" data-admin-view="emails">Email / Notiser</button>
+    </nav>
+    <button class="admin-logout" type="button" data-admin-logout>Logga ut</button>
+  </aside>
+
+  <main class="admin-main" data-admin-main hidden>
+    <header class="admin-topbar">
+      <button class="admin-menu-button" type="button" data-admin-menu aria-label="Öppna meny">Menu</button>
+      <div>
+        <span data-admin-section-label>Dashboard</span>
+        <strong>Versen Admin</strong>
+      </div>
+      <form class="admin-search" data-admin-search>
+        <input type="search" name="q" placeholder="Sök order, email, kund">
+      </form>
+      <button class="admin-refresh" type="button" data-admin-refresh>Uppdatera</button>
+    </header>
+
+    <section class="admin-status-row" data-admin-status></section>
+    <section class="admin-content" data-admin-content>
+      <div class="admin-loading">Laddar kontrollrummet...</div>
+    </section>
+  </main>
 </div>
 
-<nav class="nav">
-  <a class="logo" href="/">VERSEN</a>
+<div class="admin-drawer" data-admin-drawer hidden>
+  <button class="admin-drawer-backdrop" type="button" data-admin-drawer-close aria-label="Stäng"></button>
+  <article class="admin-drawer-panel">
+    <button class="admin-drawer-close" type="button" data-admin-drawer-close>Stäng</button>
+    <div data-admin-drawer-content></div>
+  </article>
+</div>
 
-  <div class="menu" aria-label="Huvudmeny">
-    <a href="/">Hem</a>
-    <a href="/produkter">Produkter</a>
-    <a href="/konto">Konto</a>
-    <a href="/kundvagn">Kundkorg <span data-cart-count></span></a>
-  </div>
-</nav>
-
-<main>
-  <header class="page-hero fade">
-    <div class="glow"></div>
-    <div class="page-hero-content">
-      <div class="badge">Admin</div>
-      <h1>Kontrollrum</h1>
-      <p>Visa medlemmar, orders, produkter och ReCharge-status. Sidan kräver adminnyckel från Vercel.</p>
+<div class="admin-modal" data-admin-confirm hidden>
+  <button class="admin-modal-backdrop" type="button" data-admin-confirm-cancel aria-label="Avbryt"></button>
+  <article class="admin-modal-panel">
+    <span>Bekräfta</span>
+    <h2 data-admin-confirm-title>Är du säker?</h2>
+    <p data-admin-confirm-copy>Den här åtgärden påverkar live-data.</p>
+    <div class="admin-modal-actions">
+      <button type="button" data-admin-confirm-cancel>Avbryt</button>
+      <button class="danger" type="button" data-admin-confirm-ok>Bekräfta</button>
     </div>
-  </header>
+  </article>
+</div>
 
-  <section class="account-grid fade" aria-label="Adminyta">
-    <article class="account-card login-card">
-      <h2>Adminnyckel</h2>
-      <form class="member-form" data-admin-form>
-        <input type="password" name="adminSecret" placeholder="Adminnyckel" autocomplete="current-password" required>
-        <button class="product-btn" type="submit">Öppna kontrollrum</button>
-      </form>
-      <p class="form-message" data-admin-message></p>
-    </article>
-
-    <article class="account-card login-card">
-      <h2>Kontrollera kund</h2>
-      <p>Sök på email för att se Shopify-orders och ReCharge-medlemskap.</p>
-      <form class="member-form" data-admin-search-form>
-        <input type="email" name="email" placeholder="kund@email.se" autocomplete="off">
-        <button class="product-btn secondary" type="submit">Sök kund</button>
-      </form>
-    </article>
-  </section>
-
-  <section class="admin-dashboard fade" data-admin-dashboard aria-label="Adminpanel">
-    <div class="empty-state">
-      <span>Kontrollrummet är låst</span>
-      <p>Ange adminnyckeln för att hämta live-data från Shopify och ReCharge.</p>
-    </div>
-  </section>
-</main>
-
-<script src="script.js?v=20260513-cart-compact-x"></script>
+<div class="admin-toast" data-admin-toast hidden></div>
+<script src="admin.js?v=20260513-admin-dashboard"></script>
 </body>
 </html>
