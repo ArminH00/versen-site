@@ -293,6 +293,20 @@ function productDiscountPercent(product) {
   return Math.round(((compareAtPrice - price) / compareAtPrice) * 100);
 }
 
+function cartSavingsAmount(items = readCart()) {
+  return (Array.isArray(items) ? items : []).reduce((sum, item) => {
+    const quantity = Math.max(1, Number(item && item.quantity) || 1);
+    const price = Number(item && item.unit_price) > 0
+      ? Number(item.unit_price) / 100
+      : parsePrice(item && item.price);
+    const compareAtPrice = Number(item && item.compare_at_price) > 0
+      ? Number(item.compare_at_price) / 100
+      : parsePrice(item && item.compareAtPrice);
+
+    return compareAtPrice > price ? sum + ((compareAtPrice - price) * quantity) : sum;
+  }, 0);
+}
+
 function stableNumber(value, min, max) {
   const text = String(value || 'versen');
   let hash = 0;
@@ -2355,6 +2369,7 @@ function renderCart() {
   const cart = readCart();
   const totalItems = cartQuantity(cart);
   const total = cart.reduce((sum, item) => sum + (parsePrice(item.price) * (Number(item.quantity) || 1)), 0);
+  const savings = cartSavingsAmount(cart);
   document.body.classList.toggle('cart-has-items', Boolean(cart.length));
 
   if (!cart.length) {
@@ -2372,6 +2387,10 @@ function renderCart() {
   setText('[data-cart-total-items]', `${totalItems} st`);
   setText('[data-cart-heading-items]', `${totalItems} st`);
   setText('[data-cart-total]', formatSek(total));
+  setText('[data-cart-saving]', formatSek(savings));
+  document.querySelectorAll('[data-cart-saving-row]').forEach((element) => {
+    element.hidden = savings <= 0;
+  });
   setText('[data-cart-heading-title]', cart.length ? `Kundkorg ${totalItems} st` : 'Här var det ensamt.. handla mer');
   setText('[data-cart-heading-copy]', 'Kika igenom vad du lagt till och glöm inte skriva in rabattkod om du har det.');
 
@@ -2659,6 +2678,7 @@ function renderCheckoutSummary(data = {}) {
     total_price: parsePrice(item.price) * (Number(item.quantity) || 1) * 100,
   }));
   const fallbackSubtotal = readCart().reduce((sum, item) => sum + (parsePrice(item.price) * (Number(item.quantity) || 1)), 0);
+  const savings = cartSavingsAmount(items);
   const summary = data.summary || {
     subtotal: formatSek(fallbackSubtotal),
     shipping: `${CHECKOUT_STANDARD_SHIPPING} kr`,
@@ -2689,6 +2709,10 @@ function renderCheckoutSummary(data = {}) {
   setText('[data-checkout-shipping]', summary.shipping || '0 kr');
   setText('[data-checkout-tax]', summary.tax || '0 kr');
   setText('[data-checkout-total]', summary.total || '0 kr');
+  setText('[data-checkout-saving]', formatSek(savings));
+  document.querySelectorAll('[data-checkout-saving-row]').forEach((element) => {
+    element.hidden = savings <= 0;
+  });
 
   const payButton = document.querySelector('[data-checkout-pay-button]');
   if (payButton) {
