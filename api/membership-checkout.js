@@ -1,72 +1,7 @@
-const { getCookie, readBody, sendJson, shopifyFetch } = require('../lib/shopify');
+const { getCookie, readBody, sendJson } = require('../lib/shopify');
+const { stripePublishableKey } = require('../lib/stripe');
+const { createMembershipSubscription } = require('../lib/membership-service');
 const { getCustomerSession } = require('./membership');
-
-const MEMBERSHIP_PRODUCT_QUERY_WITH_PLAN = `
-  query VersenMembershipProduct($handle: String!) {
-    product(handle: $handle) {
-      id
-      title
-      handle
-      variants(first: 1) {
-        nodes {
-          id
-          sellingPlanAllocations(first: 1) {
-            nodes {
-              sellingPlan {
-                id
-                name
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-
-const MEMBERSHIP_PRODUCT_QUERY = `
-  query VersenMembershipProduct($handle: String!) {
-    product(handle: $handle) {
-      id
-      title
-      handle
-      variants(first: 1) {
-        nodes {
-          id
-        }
-      }
-    }
-  }
-`;
-
-const CART_CREATE_MUTATION = `
-  mutation VersenMembershipCartCreate($input: CartInput!) {
-    cartCreate(input: $input) {
-      cart {
-        id
-        checkoutUrl
-      }
-      userErrors {
-        field
-        message
-      }
-    }
-  }
-`;
-
-async function fetchMembershipProduct(handle) {
-  const withPlan = await shopifyFetch(MEMBERSHIP_PRODUCT_QUERY_WITH_PLAN, { handle });
-
-  if (withPlan.ok) {
-    return withPlan;
-  }
-
-  return shopifyFetch(MEMBERSHIP_PRODUCT_QUERY, { handle });
-}
-
-function getBaseUrl(req) {
-  return process.env.VERSEN_SITE_URL || `https://${req.headers.host}`;
-}
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -74,8 +9,10 @@ module.exports = async function handler(req, res) {
     return;
   }
 
+  let body;
+
   try {
-    await readBody(req);
+    body = await readBody(req);
   } catch (error) {
     sendJson(res, 400, { error: 'Ogiltig JSON' });
     return;
@@ -84,7 +21,7 @@ module.exports = async function handler(req, res) {
   const customerAccessToken = getCookie(req, 'versen_customer_token');
   const session = await getCustomerSession(customerAccessToken);
 
-  if (!session.authenticated) {
+  if (!session.authenticated || !session.customer) {
     sendJson(res, 401, {
       error: 'Logga in eller skapa konto innan du startar medlemskap',
       loginRequired: true,
@@ -92,73 +29,32 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const handle = process.env.VERSEN_MEMBERSHIP_PRODUCT_HANDLE || 'medlemskap';
-  const productResult = await fetchMembershipProduct(handle);
-
-  if (!productResult.ok) {
-    sendJson(res, productResult.status, productResult.body);
+  if (session.customer.member) {
+    sendJson(res, 409, { error: 'Du har redan ett aktivt medlemskap.' });
     return;
   }
 
-  const product = productResult.body.data.product;
-  const variant = product && product.variants.nodes[0];
-
-  if (!product || !variant) {
-    sendJson(res, 404, { error: 'Medlemskapsprodukten hittades inte.' });
-    return;
-  }
-
-  const sellingPlanId = process.env.SHOPIFY_MEMBERSHIP_SELLING_PLAN_ID
-    || (variant.sellingPlanAllocations && variant.sellingPlanAllocations.nodes[0] && variant.sellingPlanAllocations.nodes[0].sellingPlan.id);
-
-  if (!sellingPlanId) {
-    sendJson(res, 409, {
-      error: 'Medlemskapsplan saknas. Kontrollera prenumerationsinställningarna innan medlemskap kan säljas.',
+  try {
+    const { subscription, clientSecret } = await createMembershipSubscription({
+      customer: session.customer,
+      plan: body.plan,
     });
-    return;
+
+    if (!clientSecret) {
+      sendJson(res, 409, { error: 'Stripe skapade ingen betalning for medlemskapet.' });
+      return;
+    }
+
+    sendJson(res, 200, {
+      publishableKey: stripePublishableKey(),
+      clientSecret,
+      subscriptionId: subscription.id,
+      status: subscription.status,
+    });
+  } catch (error) {
+    sendJson(res, error.status || 500, {
+      error: error.message || 'Kunde inte starta medlemskap.',
+      details: error.details,
+    });
   }
-
-  const line = {
-    merchandiseId: variant.id,
-    quantity: 1,
-    attributes: [
-      { key: 'Versen', value: 'Medlemskap' },
-    ],
-  };
-
-  if (sellingPlanId) {
-    line.sellingPlanId = sellingPlanId;
-  }
-
-  const input = {
-    lines: [line],
-    buyerIdentity: {
-      customerAccessToken,
-      email: session.customer.email,
-    },
-    attributes: [
-      { key: 'Versen medlemskap', value: 'true' },
-      { key: 'Versen kanal', value: 'Versen frontend' },
-      { key: 'Versen retur', value: `${getBaseUrl(req)}/medlemskap-aktivt.html?checkout=medlemskap` },
-    ],
-  };
-
-  const cartResult = await shopifyFetch(CART_CREATE_MUTATION, { input });
-
-  if (!cartResult.ok) {
-    sendJson(res, cartResult.status, cartResult.body);
-    return;
-  }
-
-  const payload = cartResult.body.data.cartCreate;
-
-  if (payload.userErrors.length) {
-    sendJson(res, 400, { error: 'Kunde inte skapa medlemscheckout', details: payload.userErrors });
-    return;
-  }
-
-  sendJson(res, 200, {
-    checkoutUrl: payload.cart.checkoutUrl,
-    sellingPlan: Boolean(sellingPlanId),
-  });
 };

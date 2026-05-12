@@ -16,6 +16,7 @@ const {
   validateCheckout,
 } = require('../lib/checkout-service');
 const { getOrder, getOrderByPaymentIntent, listOrdersForCustomer } = require('../lib/order-store');
+const { syncStripeInvoice, syncStripeSubscription } = require('../lib/membership-service');
 
 function verifyStripeSignature(rawBody, signatureHeader, secret) {
   if (!secret || !signatureHeader) return false;
@@ -64,11 +65,30 @@ async function handleStripeWebhook(req, res) {
 
   if (event.type === 'payment_intent.succeeded') {
     try {
-      await fulfillPaidPaymentIntent(event.data && event.data.object);
+      const intent = event.data && event.data.object;
+      if (intent && intent.metadata && intent.metadata.versen_checkout_id) {
+        await fulfillPaidPaymentIntent(intent);
+      }
     } catch (error) {
       sendJson(res, error.status || 500, { error: error.message || 'Kunde inte skapa order' });
       return;
     }
+  }
+
+  if (event.type === 'customer.subscription.created' || event.type === 'customer.subscription.updated') {
+    await syncStripeSubscription(event.data && event.data.object).catch(() => {});
+  }
+
+  if (event.type === 'customer.subscription.deleted') {
+    await syncStripeSubscription(event.data && event.data.object, { emailType: 'membership_cancelled' }).catch(() => {});
+  }
+
+  if (event.type === 'invoice.payment_succeeded') {
+    await syncStripeInvoice(event.data && event.data.object, 'membership_activated').catch(() => {});
+  }
+
+  if (event.type === 'invoice.payment_failed') {
+    await syncStripeInvoice(event.data && event.data.object, 'payment_failed').catch(() => {});
   }
 
   sendJson(res, 200, { received: true });

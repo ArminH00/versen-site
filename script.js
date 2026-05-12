@@ -3,6 +3,7 @@ const DISCOUNT_KEY = 'versenDiscountCode';
 const CHECKOUT_KEY = 'versenCheckoutPending';
 const CHECKOUT_DRAFT_KEY = 'versenCheckoutDraft';
 const LAST_ORDER_KEY = 'versenLastOrder';
+const MEMBERSHIP_RETURN_KEY = 'versenMembershipReturn';
 const ADMIN_SECRET_KEY = 'versenAdminSecret';
 const MEMBERSHIP_REVEAL_KEY = 'versenMembershipRevealSeen';
 const LAUNCH_GATE_KEY = 'versenLaunchAccess';
@@ -89,7 +90,7 @@ function renderLuxuryMenu() {
   const links = [
     { href: 'produkter.html', label: 'Handla', match: ['produkter.html', 'produkt.html'] },
     authenticated ? null : { href: 'medlemskap.html', label: 'Medlemskap', match: ['medlemskap.html', 'medlemskap-aktivt.html'] },
-    { href: 'konto.html', label: 'Konto', match: ['konto.html', 'installningar.html', 'order.html'] },
+    { href: 'konto.html', label: authenticated ? 'Mitt konto' : 'Konto', match: ['konto.html', 'installningar.html', 'order.html'] },
     { href: 'kundkorg.html', label: 'Kundvagn', match: ['kundkorg.html', 'checkout.html'], cart: true },
     { href: 'forslag.html', label: 'Föreslå drop', match: ['forslag.html'], featured: true },
   ].filter(Boolean);
@@ -118,7 +119,7 @@ function renderLuxuryMenu() {
         }).join('')}
       </div>
       <div class="luxury-menu-footer" aria-label="Snabbval">
-        <a class="luxury-menu-utility luxury-menu-login" href="konto.html"><svg class="luxury-menu-utility-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 19.2c1.2-3.1 3.4-4.7 6.5-4.7s5.3 1.6 6.5 4.7"/></svg>Logga in</a>
+        <a class="luxury-menu-utility luxury-menu-login" href="konto.html"><svg class="luxury-menu-utility-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 19.2c1.2-3.1 3.4-4.7 6.5-4.7s5.3 1.6 6.5 4.7"/></svg>${authenticated ? 'Mitt konto' : 'Logga in'}</a>
         <a class="luxury-menu-utility luxury-menu-support" href="kontakt.html">Kundtjänst</a>
       </div>
     </div>
@@ -592,6 +593,41 @@ function clearPendingCheckout() {
   localStorage.removeItem(CHECKOUT_KEY);
 }
 
+function rememberMembershipReturn(value) {
+  if (value) {
+    localStorage.setItem(MEMBERSHIP_RETURN_KEY, JSON.stringify(value));
+  }
+}
+
+function readMembershipReturn() {
+  try {
+    return JSON.parse(localStorage.getItem(MEMBERSHIP_RETURN_KEY) || 'null');
+  } catch (error) {
+    return null;
+  }
+}
+
+function clearMembershipReturn() {
+  localStorage.removeItem(MEMBERSHIP_RETURN_KEY);
+}
+
+function membershipReturnTarget() {
+  const target = readMembershipReturn();
+  if (target && target.type === 'checkout' && readCart().length) {
+    const step = target.step || 'betalning';
+    return `checkout.html?step=${encodeURIComponent(step)}`;
+  }
+  return 'produkter.html?unlocked=1';
+}
+
+if (pageParams.get('return') === 'checkout') {
+  rememberMembershipReturn({
+    type: 'checkout',
+    step: pageParams.get('step') || 'betalning',
+    startedAt: new Date().toISOString(),
+  });
+}
+
 function readCheckoutDraft() {
   try {
     return JSON.parse(localStorage.getItem(CHECKOUT_DRAFT_KEY) || '{}') || {};
@@ -711,7 +747,7 @@ function applyGlobalSessionUi(session = accountSession) {
   }
 
   document.querySelectorAll('.menu a[href="konto.html"]').forEach((link) => {
-    link.textContent = authenticated && firstName ? firstName : 'Konto';
+    link.textContent = authenticated ? 'Mitt konto' : 'Konto';
   });
 }
 
@@ -1334,7 +1370,7 @@ function showCheckoutMembershipGate() {
     badge: 'Checkout',
     title: 'Bli medlem för att slutföra ditt köp.',
     copy: 'Versen är en medlemsklubb med exklusiva priser och utvalda drops. Din kundkorg är sparad.',
-    href: authenticated ? 'medlemskap.html' : 'konto.html?next=membership',
+    href: authenticated ? 'medlemskap.html?return=checkout&step=betalning' : 'konto.html?next=checkout',
     cta: authenticated ? 'Bli medlem & fortsätt' : 'Skapa konto & fortsätt',
     required: true,
   });
@@ -3107,12 +3143,16 @@ function renderMembershipActivation(session = accountSession) {
 
   if (member) {
     clearPendingCheckout();
+    const returnTarget = membershipReturnTarget();
+    const returningToCheckout = returnTarget.startsWith('checkout.html');
     if (badge) badge.textContent = seenReveal ? 'Medlemskap aktivt' : 'Välkommen in';
     if (title) title.textContent = seenReveal ? 'Du är medlem' : `Medlemskap aktiverat${firstName ? `, ${firstName}` : ''}`;
     if (copy) {
-      copy.textContent = seenReveal
-        ? 'Butiken är upplåst. Dina medlemspriser är redo när du vill handla.'
-        : 'Dina medlemspriser är upplåsta. Tryck på knappen och öppna butiken med full access.';
+      copy.textContent = returningToCheckout
+        ? 'Ditt medlemskap är aktivt. Fortsätt där du var och slutför produktköpet.'
+        : (seenReveal
+          ? 'Butiken är upplåst. Dina medlemspriser är redo när du vill handla.'
+          : 'Dina medlemspriser är upplåsta. Tryck på knappen och öppna butiken med full access.');
     }
     if (status) {
       status.innerHTML = `
@@ -3123,7 +3163,7 @@ function renderMembershipActivation(session = accountSession) {
     }
     if (actions) {
       actions.innerHTML = `
-        <button class="cta activation-unlock" type="button" data-unlock-store>${seenReveal ? 'Gå till produkter' : 'Lås upp butik'}</button>
+        <button class="cta activation-unlock" type="button" data-unlock-store>${returningToCheckout ? 'Fortsätt checkout' : 'Börja handla'}</button>
         <a class="product-btn secondary" href="konto.html">Se mitt konto</a>
       `;
     }
@@ -3603,9 +3643,17 @@ if (cancelMembershipButton) {
 }
 
 const membershipCheckoutButtons = document.querySelectorAll('[data-membership-checkout]');
+let membershipStripe = null;
+let membershipElements = null;
+let membershipSubscriptionId = '';
 
 if (membershipCheckoutButtons.length) {
   const message = document.querySelector('[data-membership-message]');
+  const paymentPanel = document.querySelector('[data-membership-payment-panel]');
+  const paymentForm = document.querySelector('[data-membership-payment-form]');
+  const paymentMessage = document.querySelector('[data-membership-payment-message]');
+  const paymentTitle = document.querySelector('[data-membership-payment-title]');
+  const payButton = document.querySelector('[data-membership-pay-button]');
 
   refreshAccount().then(() => {
     if (pageParams.get('ready') === '1' && message) {
@@ -3615,18 +3663,26 @@ if (membershipCheckoutButtons.length) {
 
   membershipCheckoutButtons.forEach((membershipCheckoutButton) => membershipCheckoutButton.addEventListener('click', async () => {
     if (!accountSession || !accountSession.authenticated) {
-      window.location.href = 'konto.html?next=membership';
+      window.location.href = pageParams.get('return') === 'checkout' ? 'konto.html?next=checkout' : 'konto.html?next=membership';
       return;
     }
 
+    const plan = membershipCheckoutButton.dataset.membershipPlan || 'monthly';
     membershipCheckoutButton.dataset.originalText = membershipCheckoutButton.textContent;
     membershipCheckoutButton.disabled = true;
-    membershipCheckoutButton.textContent = 'Öppnar checkout...';
+    membershipCheckoutButton.textContent = 'Förbereder...';
     if (message) message.textContent = '';
-    const checkoutWindow = prepareCheckoutWindow();
+    if (paymentMessage) paymentMessage.textContent = 'Startar säker medlemsbetalning...';
+    if (paymentPanel) {
+      paymentPanel.hidden = false;
+      paymentPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    if (paymentTitle) {
+      paymentTitle.textContent = plan === 'yearly' ? 'Versen årsmedlemskap' : 'Versen månadsmedlemskap';
+    }
 
     try {
-      const { response, data } = await postJson('/api/membership-checkout', {});
+      const { response, data } = await postJson('/api/membership-checkout', { plan });
 
       if (!response.ok) {
         if (message) {
@@ -3634,19 +3690,94 @@ if (membershipCheckoutButtons.length) {
             ? 'Skapa konto eller logga in på kontosidan först.'
             : (data.error || 'Kunde inte starta medlemskap.');
         }
-        if (checkoutWindow) checkoutWindow.close();
+        if (paymentMessage) paymentMessage.textContent = data.error || '';
         return;
       }
 
-      openCheckout(data.checkoutUrl, 'medlemskap', checkoutWindow);
+      if (!data.publishableKey || !data.clientSecret || !window.Stripe) {
+        if (paymentMessage) paymentMessage.textContent = 'Stripe är inte färdigkonfigurerat ännu.';
+        return;
+      }
+
+      const currentElement = document.querySelector('#membership-payment-element');
+      if (currentElement) currentElement.innerHTML = '';
+      membershipSubscriptionId = data.subscriptionId;
+      membershipStripe = window.Stripe(data.publishableKey);
+      membershipElements = membershipStripe.elements({
+        clientSecret: data.clientSecret,
+        appearance: {
+          theme: 'stripe',
+          variables: {
+            colorPrimary: '#0b0c0c',
+            colorText: '#0b0c0c',
+            colorBackground: '#fffdfa',
+            borderRadius: '8px',
+            fontFamily: 'Inter, system-ui, sans-serif',
+          },
+        },
+      });
+      const paymentElement = membershipElements.create('payment', {
+        fields: {
+          billingDetails: {
+            email: 'never',
+          },
+        },
+      });
+      paymentElement.mount('#membership-payment-element');
+      rememberCheckout('medlemskap', `stripe-subscription:${data.subscriptionId}`);
+      if (payButton) payButton.disabled = false;
+      if (paymentMessage) paymentMessage.textContent = '';
     } catch (error) {
-      if (checkoutWindow) checkoutWindow.close();
-      if (message) message.textContent = 'Kunde inte kontakta checkout.';
+      if (message) message.textContent = 'Kunde inte kontakta Stripe.';
+      if (paymentMessage) paymentMessage.textContent = 'Kunde inte kontakta Stripe.';
     } finally {
       membershipCheckoutButton.disabled = false;
       membershipCheckoutButton.textContent = membershipCheckoutButton.dataset.originalText || 'Bli medlem nu';
     }
   }));
+
+  if (paymentForm) {
+    paymentForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      if (!membershipStripe || !membershipElements) {
+        if (paymentMessage) paymentMessage.textContent = 'Betalningen är inte redo ännu.';
+        return;
+      }
+
+      if (payButton) {
+        payButton.disabled = true;
+        payButton.textContent = 'Bekräftar...';
+      }
+      if (paymentMessage) paymentMessage.textContent = '';
+
+      const result = await membershipStripe.confirmPayment({
+        elements: membershipElements,
+        confirmParams: {
+          return_url: new URL(`medlemskap-aktivt.html?checkout=medlemskap&subscription=${encodeURIComponent(membershipSubscriptionId)}`, window.location.href).href,
+          payment_method_data: {
+            billing_details: {
+              email: accountSession && accountSession.customer ? accountSession.customer.email : undefined,
+              name: accountSession && accountSession.customer ? accountSession.customer.displayName : undefined,
+            },
+          },
+        },
+        redirect: 'if_required',
+      });
+
+      if (result.error) {
+        if (paymentMessage) paymentMessage.textContent = result.error.message || 'Betalningen kunde inte genomföras.';
+        if (payButton) {
+          payButton.disabled = false;
+          payButton.textContent = 'Betala medlemskap';
+        }
+        return;
+      }
+
+      if (paymentMessage) paymentMessage.textContent = 'Medlemskapet är betalt. Aktiverar kontot...';
+      window.location.href = `medlemskap-aktivt.html?checkout=medlemskap&subscription=${encodeURIComponent(membershipSubscriptionId)}`;
+    });
+  }
 }
 
 function renderOrderPage(session = accountSession) {
@@ -3757,9 +3888,12 @@ document.addEventListener('click', (event) => {
 
   if (unlockStore) {
     localStorage.setItem(MEMBERSHIP_REVEAL_KEY, '1');
-    unlockStore.textContent = 'Öppnar butiken...';
+    const target = membershipReturnTarget();
+    const returningToCheckout = target.startsWith('checkout.html');
+    unlockStore.textContent = returningToCheckout ? 'Öppnar checkout...' : 'Öppnar butiken...';
+    clearMembershipReturn();
     window.setTimeout(() => {
-      window.location.href = 'produkter.html?unlocked=1';
+      window.location.href = target;
     }, 520);
   }
 });

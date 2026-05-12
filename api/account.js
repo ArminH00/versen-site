@@ -11,6 +11,8 @@ const {
   shopifyFetch,
 } = require('../lib/shopify');
 const { getCustomerSession, getRechargeMembershipByEmail } = require('./membership');
+const { cancelStripeMembership } = require('../lib/membership-service');
+const { isSupabaseConfigured, upsertProfile } = require('../lib/supabase');
 
 const CUSTOMER_CREATE_MUTATION = `
   mutation VersenCustomerCreate($input: CustomerCreateInput!) {
@@ -758,6 +760,23 @@ async function cancelMembership(req, res) {
     return;
   }
 
+  const membership = session.customer.membership || {};
+  if (session.customer.membershipSource === 'Stripe' && membership.subscriptionId) {
+    try {
+      const subscription = await cancelStripeMembership(membership.subscriptionId);
+      const updatedSession = await getCustomerSession(getCookie(req, 'versen_customer_token'));
+
+      sendJson(res, 200, {
+        status: 'Prenumerationen är avslutad. Medlemskapet är aktivt till sista datumet.',
+        activeUntil: subscription.current_period_end ? new Date(subscription.current_period_end * 1000).toISOString() : null,
+        session: updatedSession,
+      });
+    } catch (error) {
+      sendJson(res, error.status || 500, { error: error.message || 'Kunde inte avsluta prenumerationen just nu.' });
+    }
+    return;
+  }
+
   const recharge = await getRechargeMembershipByEmail(session.customer.email);
   const subscription = recharge && recharge.subscription;
 
@@ -1101,6 +1120,21 @@ module.exports = async function handler(req, res) {
       return;
     }
 
+    const existing = await customerExists(email);
+
+    if (existing === true) {
+      sendJson(res, 409, {
+        error: 'Det finns redan ett konto med denna email adress. Logga in istället.',
+        reason: 'account_exists',
+      });
+      return;
+    }
+
+    if (existing === null) {
+      sendJson(res, 500, { error: 'Kunde inte kontrollera kontot just nu.' });
+      return;
+    }
+
     const payload = {
       email,
       firstName: String(body.firstName || '').trim(),
@@ -1149,6 +1183,17 @@ module.exports = async function handler(req, res) {
     if (payload.customerUserErrors.length) {
       sendJson(res, 400, { error: payload.customerUserErrors[0].message });
       return;
+    }
+
+    if (isSupabaseConfigured()) {
+      await upsertProfile({
+        id: payload.customer.id,
+        email: verified.email,
+        first_name: verified.firstName,
+        last_name: verified.lastName,
+        shopify_customer_id: payload.customer.id,
+        membership_status: 'inactive',
+      }).catch(() => {});
     }
 
     await loginCustomer(res, verified.email, password);

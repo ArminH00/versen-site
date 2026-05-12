@@ -1,4 +1,5 @@
 const { adminFetch, getCookie, sendJson, shopifyFetch } = require('../lib/shopify');
+const { getMembershipForCustomer } = require('../lib/membership-service');
 
 const CUSTOMER_QUERY = `
   query VersenCustomer($customerAccessToken: String!) {
@@ -224,7 +225,7 @@ async function getCustomerMeta(customerId) {
   };
 }
 
-function normalizeCustomer(customer, rechargeInfo = {}, adminOrders = null, meta = {}) {
+function normalizeCustomer(customer, rechargeInfo = {}, adminOrders = null, meta = {}, stripeMembership = null) {
   const cancellation = meta.cancellation || null;
   const tags = customer.tags || [];
   const tagMatch = tags.some((tag) => membershipTags().includes(String(tag).toLowerCase()));
@@ -236,15 +237,18 @@ function normalizeCustomer(customer, rechargeInfo = {}, adminOrders = null, meta
   const cancelledButActive = cancellation
     && cancellation.status === 'cancelled'
     && isFutureOrToday(cancellation.activeUntil);
+  const stripeActive = Boolean(stripeMembership && stripeMembership.active);
   const rechargeActive = Boolean(rechargeInfo && rechargeInfo.active);
-  const member = Boolean(cancelledButActive || rechargeActive || (!forcedNonMember && (tagMatch || forcedMember)));
+  const member = Boolean(cancelledButActive || stripeActive || rechargeActive || (!forcedNonMember && (tagMatch || forcedMember)));
   const membershipSource = cancelledButActive
     ? 'Avslutas'
-    : (rechargeActive ? 'Recharge' : (forcedMember ? 'Test' : (tagMatch ? 'Shopify' : null)));
+    : (stripeActive ? 'Stripe' : (rechargeActive ? 'Recharge' : (forcedMember ? 'Test' : (tagMatch ? 'Shopify' : null))));
   const orderSpend = adminOrders ? adminOrders.reduce((sum, order) => sum + orderAmount(order), 0) : 0;
   const points = Math.floor(orderSpend * 2);
   const subscription = rechargeInfo && rechargeInfo.subscription ? normalizeRechargeSubscription(rechargeInfo.subscription) : null;
-  const nextDate = inferMembershipDate(adminOrders, subscription, member);
+  const nextDate = stripeMembership && stripeMembership.currentPeriodEnd
+    ? stripeMembership.currentPeriodEnd
+    : inferMembershipDate(adminOrders, subscription, member);
   const activeUntil = cancelledButActive ? cancellation.activeUntil : nextDate;
 
   return {
@@ -259,10 +263,12 @@ function normalizeCustomer(customer, rechargeInfo = {}, adminOrders = null, meta
     membershipStatus: cancelledButActive ? 'Aktiv till uppsägning' : (member ? 'Aktiv medlem' : 'Inget aktivt medlemskap'),
     membership: {
       source: membershipSource,
-      subscriptionId: subscription && subscription.id ? subscription.id : (cancellation && cancellation.subscriptionId ? cancellation.subscriptionId : null),
+      subscriptionId: stripeMembership && stripeMembership.subscriptionId
+        ? stripeMembership.subscriptionId
+        : (subscription && subscription.id ? subscription.id : (cancellation && cancellation.subscriptionId ? cancellation.subscriptionId : null)),
       nextChargeScheduledAt: cancelledButActive ? null : nextDate,
       activeUntil,
-      cancellationRequested: Boolean(cancelledButActive),
+      cancellationRequested: Boolean(cancelledButActive || (stripeMembership && stripeMembership.cancelAtPeriodEnd)),
       cancelledAt: cancellation && cancellation.cancelledAt ? cancellation.cancelledAt : null,
     },
     preferences: meta.preferences || {},
@@ -375,15 +381,16 @@ async function getCustomerSession(customerAccessToken) {
     };
   }
 
-  const [rechargeInfo, adminOrders, meta] = await Promise.all([
+  const [rechargeInfo, adminOrders, meta, stripeMembership] = await Promise.all([
     getRechargeMembershipByEmail(result.body.data.customer.email),
     getRecentOrdersByEmail(result.body.data.customer.email),
     getCustomerMeta(result.body.data.customer.id),
+    getMembershipForCustomer(result.body.data.customer),
   ]);
 
   return {
     authenticated: true,
-    customer: normalizeCustomer(result.body.data.customer, rechargeInfo, adminOrders, meta),
+    customer: normalizeCustomer(result.body.data.customer, rechargeInfo, adminOrders, meta, stripeMembership),
   };
 }
 

@@ -52,14 +52,14 @@
             <span>Månad</span>
             <strong>99 kr/mån</strong>
             <p>Flexibel access till aktiva deals och checkout.</p>
-            <button class="product-btn secondary" type="button" data-membership-checkout>Välj månad</button>
+            <button class="product-btn secondary" type="button" data-membership-checkout data-membership-plan="monthly">Välj månad</button>
           </article>
           <article class="featured">
             <em>Rekommenderad</em>
             <span>År</span>
             <strong>899 kr/år</strong>
             <p>Spara 3 månader och få högsta prioritet på kommande medlemsfunktioner.</p>
-            <button class="product-btn" type="button" data-membership-checkout>Välj år</button>
+            <button class="product-btn" type="button" data-membership-checkout data-membership-plan="yearly">Välj år</button>
           </article>
         </div>
         <p class="form-message" data-membership-message></p>
@@ -72,6 +72,20 @@
       </div>
     </div>
   </header>
+
+  <section class="membership-payment-panel fade" data-membership-payment-panel hidden>
+    <div class="membership-payment-copy">
+      <span class="eyebrow">Säkert med Stripe</span>
+      <h2>Slutför medlemskapet separat.</h2>
+      <p>Medlemskapet är en återkommande prenumeration och kopplas direkt till ditt Versen-konto.</p>
+    </div>
+    <form class="membership-payment-card" data-membership-payment-form>
+      <strong data-membership-payment-title>Medlemskap</strong>
+      <div class="stripe-element-shell" id="membership-payment-element"></div>
+      <button class="cta checkout-primary" type="submit" data-membership-pay-button disabled>Betala medlemskap</button>
+      <p class="form-message" data-membership-payment-message></p>
+    </form>
+  </section>
 
   <section class="membership-value-proof fade" aria-label="Exempel på medlemsvärde">
     <div>
@@ -147,6 +161,7 @@
   </section>
 </main>
 
-<script src="script.js?v=20260511-scroll-owner"></script>
+<script src="https://js.stripe.com/v3/"></script>
+<script src="script.js?v=20260512-stripe-membership"></script>
 </body>
 </html>

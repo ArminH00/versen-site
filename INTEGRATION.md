@@ -1,32 +1,47 @@
 # Versen integration
 
-## Shopify
+## Rekommenderad arkitektur
+
+Versen ska agera egen butik mot kund: egna konton, intern checkout, Stripe-betalningar, Stripe-medlemskap och egna emails via Resend. Shopify ska vara intern motor för produkter, lager, orderhantering och fulfillment. Recharge ska inte användas för nya medlemskap.
+
+## Environment variables
 
 Vercel behöver dessa environment variables:
 
+- `SUPABASE_URL` eller `NEXT_PUBLIC_SUPABASE_URL`: Supabase project URL
+- `SUPABASE_SERVICE_ROLE_KEY`: server-side key för profiles, orders och subscriptions
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`: Stripe publishable key for Payment Element
+- `STRIPE_SECRET_KEY`: Stripe secret key, endast server-side
+- `STRIPE_WEBHOOK_SECRET`: verifierar Stripe webhooks mot `/api/checkout?webhook=stripe`
+- `STRIPE_MEMBERSHIP_PRICE_ID`: fallback price id för medlemskap
+- `STRIPE_MEMBERSHIP_MONTHLY_PRICE_ID`: Stripe price id för månadsmedlemskap
+- `STRIPE_MEMBERSHIP_YEARLY_PRICE_ID`: Stripe price id för årsmedlemskap
+- `RESEND_API_KEY`: egna emails via Resend
+- `RESEND_FROM_EMAIL` eller `VERSEN_EMAIL_FROM`: avsändare, till exempel `Versen <konto@dindomän.se>`
 - `SHOPIFY_STORE_DOMAIN`: butikens myshopify-domän, till exempel `versen.myshopify.com`
 - `SHOPIFY_API_VERSION`: Shopify API-version, standard är `2026-04`
+- `SHOPIFY_ADMIN_ACCESS_TOKEN`: Admin API-token för order sync
 - `SHOPIFY_APP_CLIENT_ID`: Client ID från Shopify Dev Dashboard
 - `SHOPIFY_APP_CLIENT_SECRET`: Client secret från Shopify Dev Dashboard
 - `SHOPIFY_STOREFRONT_ACCESS_TOKEN`: Storefront API-token. Skapas via setup-endpointen nedan.
 - `VERSEN_SETUP_SECRET`: valfri stark engångshemlighet för setup-endpointen
 - `VERSEN_SITE_URL`: publik URL, till exempel `https://project-f8ph5.vercel.app`
 - `VERSEN_EMAIL_VERIFICATION_SECRET`: stark hemlighet för signerade verifieringslänkar
-- `RESEND_API_KEY`: används för verifieringsmail
-- `VERSEN_EMAIL_FROM`: avsändare, till exempel `Versen <konto@dindomän.se>`
 
 Rotera `SHOPIFY_APP_CLIENT_SECRET` om den har visats i chat, skärmdump eller annan osäker plats.
 
 Endpoints:
 
 - `GET /api/products`: hämtar produkter från Shopify Storefront API
-- `POST /api/cart`: skapar en Shopify cart från en eller flera varukorgsrader och returnerar `checkoutUrl`
+- `POST /api/cart`: legacy Shopify cart-endpoint. Nya produktköp ska gå via intern checkout.
 - `GET/POST /api/account`: verifierar email, skapar konto, loggar in, loggar ut, skickar lösenordsåterställning och hämtar medlemsstatus
-- `POST /api/membership-checkout`: skapar Shopify checkout för medlemskapsprodukten
+- `POST /api/checkout`: validerar cart, skapar Stripe PaymentIntent och sparar order i Supabase
+- `POST /api/checkout?webhook=stripe`: Stripe webhook för produktbetalningar och medlemsstatus
+- `POST /api/membership-checkout`: skapar Stripe Subscription för medlemskap och returnerar Payment Element client secret
 - `GET /api/admin-members`: hämtar medlemmar för intern vy. Kräver `Authorization: Bearer <VERSEN_ADMIN_SECRET>`.
 - `GET /api/shopify-status`: kontrollerar om Admin API och Storefront API fungerar
 - `POST /api/create-storefront-token`: skapar en Storefront-token via Admin API. Kräver `Authorization: Bearer <VERSEN_SETUP_SECRET>`.
-- `POST /api/shopify-order-webhook`: Shopify webhook som taggar kunder som medlemmar efter betalt medlemskap.
+- `POST /api/shopify-order-webhook`: legacy Shopify webhook för gamla medlemsorders.
 
 Frontend har statiska produkter som fallback. När Shopify-env vars finns byter `produkter.html` automatiskt till produkter från `/api/products`.
 
@@ -49,16 +64,7 @@ Kundkorgen sparas i webbläsaren tills kunden går vidare. Checkout skapas förs
 
 Medlemskap ska inte bara låsas i frontend. Servern avgör om en användare är medlem innan medlemspris eller checkout-rabatt används.
 
-Launch-MVP:
-
-1. Skapa medlemskapsprodukten i Shopify med handle `medlemskap`.
-2. Koppla produkten till Recharge om den ska vara en månadsprenumeration.
-3. Sätt `SHOPIFY_MEMBER_DISCOUNT_CODE` i Vercel.
-4. Sätt `VERSEN_MEMBER_TAG` i Vercel, standard är `versen_member`.
-5. Sätt `VERSEN_MEMBERSHIP_PRODUCT_HANDLE` i Vercel om handle inte är `medlemskap`.
-6. Sätt `SHOPIFY_MEMBERSHIP_SELLING_PLAN_ID` om Storefront-token inte har scope för selling plans.
-7. Sätt `SHOPIFY_WEBHOOK_SECRET` och skapa Shopify webhook för `orders/paid` mot `/api/shopify-order-webhook`.
-8. Sätt `VERSEN_ADMIN_SECRET` för intern adminvy på `admin.html`.
+Nya medlemskap ägs av Stripe subscriptions. Supabase speglar status i `profiles` och `subscriptions`. Recharge får bara vara kvar temporärt för legacy-subscriptions som måste läsas eller migreras.
 
 Kundflöde:
 
@@ -67,23 +73,17 @@ Kundflöde:
 3. Kunden anger email och får verifieringslänk.
 4. Efter verifierad email väljer kunden lösenord och Shopify-kontot skapas.
 5. Kunden skickas tillbaka till `medlemskap.html`.
-6. Versen skapar Shopify cart med medlemskapsprodukten och kundens access token.
-7. Shopify/ReCharge tar betalt och hanterar prenumerationen.
-8. Shopify webhook taggar kunden med `VERSEN_MEMBER_TAG`.
-9. `/api/cart` tillåter produktcheckout och applicerar medlemsrabatt bara när kunden är inloggad och aktiv medlem.
+6. Versen skapar en Stripe Subscription och visar Stripe Payment Element på medlemskapssidan.
+7. Stripe tar betalt.
+8. Stripe webhook uppdaterar Supabase `profiles.membership_status` och `subscriptions`.
+9. Resend skickar medlemsmail.
+10. Intern checkout tillåter produktbetalning när kunden är inloggad och aktiv medlem.
 
 Recharge:
 
-- För lansering är Shopify + Recharge smartast om produkterna och checkout redan ligger i Shopify. Då slipper vi bygga separat subscription billing, kundportal och orderkoppling.
-- Byt till Stripe/egen billing först om medlemskapet ska leva helt utanför Shopify eller om Recharge skapar för mycket begränsning i kundportalen.
+- Skapa inte nya medlemskap i Recharge.
 - Om `RECHARGE_API_TOKEN` finns kontrollerar Versen även aktiv Recharge-prenumeration via kundens email.
 - Lägg till `RECHARGE_MEMBERSHIP_PRODUCT_ID` eller `RECHARGE_MEMBERSHIP_VARIANT_ID` om bara en viss subscription-produkt ska räknas.
-- Annars används Shopify-kundtaggen som medlemsstatus.
+- Detta är endast legacy-stöd tills gamla subscriptions är migrerade.
 
-Efter launch:
-
-1. Lägg till Recharge cancellation-webhook eller schemalagd synk så taggen tas bort när medlemskap avslutas.
-2. Bygg en mer komplett intern adminpanel om man vill hantera återbetalningar, manuella godkännanden och support.
-3. Byt till separat auth-provider först om Shopify-konton inte räcker för produktvisionen.
-
-Viktigt: rabatter och medlemspriser behöver även skyddas i Shopify/checkout, inte bara döljas visuellt på sidan.
+Viktigt: bygg inte dubbla subscription-system. Stripe äger nya medlemskap; Supabase speglar; Shopify hanterar produkter, lager, order och fulfillment bakom kulisserna.
