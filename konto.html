@@ -9,7 +9,7 @@
 <script>try{if(Date.now()<1777500000000&&!localStorage.getItem('versenLaunchAccess')&&!location.pathname.endsWith('/snart.html'))location.replace('snart.html?next='+encodeURIComponent((location.pathname.split('/').pop()||'index.html')+location.search+location.hash));}catch(e){}</script>
 <title>Versen - Konto</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260512-express-membership-heading">
+<link rel="stylesheet" href="styles.css?v=20260512-membership-invite-code">
 </head>
 
 <body class="auth-loading page-account">
@@ -140,6 +140,11 @@
           <button class="product-btn" type="button" data-membership-checkout data-membership-plan="yearly">Välj år</button>
         </article>
       </div>
+      <label class="membership-invite-code">
+        <span>Inbjudningskod</span>
+        <input type="text" name="inviteCode" placeholder="Har du en kod?" autocomplete="off" data-membership-invite-code>
+        <small>Gäller månadsmedlemskap enligt kodens villkor.</small>
+      </label>
       <p class="form-message" data-membership-message></p>
     </article>
 
@@ -191,6 +196,6 @@
 </main>
 
 <script src="https://js.stripe.com/v3/"></script>
-<script src="script.js?v=20260512-express-membership-heading"></script>
+<script src="script.js?v=20260512-membership-invite-code"></script>
 </body>
 </html>

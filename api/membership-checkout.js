@@ -34,9 +34,10 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const { subscription, clientSecret } = await createMembershipSubscription({
+    const { subscription, clientSecret, inviteDiscount } = await createMembershipSubscription({
       customer: session.customer,
       plan: body.plan,
+      inviteCode: body.inviteCode,
     });
 
     if (!clientSecret) {
@@ -49,6 +50,7 @@ module.exports = async function handler(req, res) {
       clientSecret,
       subscriptionId: subscription.id,
       status: subscription.status,
+      inviteDiscount,
     });
   } catch (error) {
     sendJson(res, error.status || 500, {

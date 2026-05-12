@@ -3688,10 +3688,17 @@ if (membershipCheckoutButtons.length) {
   const paymentMessage = document.querySelector('[data-membership-payment-message]');
   const paymentTitle = document.querySelector('[data-membership-payment-title]');
   const payButton = document.querySelector('[data-membership-pay-button]');
+  const inviteCodeInput = document.querySelector('[data-membership-invite-code]');
 
   refreshAccount().then(() => {
     if (pageParams.get('ready') === '1' && message) message.textContent = '';
   });
+
+  if (inviteCodeInput) {
+    inviteCodeInput.addEventListener('input', () => {
+      inviteCodeInput.value = inviteCodeInput.value.replace(/\s+/g, '').toUpperCase();
+    });
+  }
 
   membershipCheckoutButtons.forEach((membershipCheckoutButton) => membershipCheckoutButton.addEventListener('click', async () => {
     if (!accountSession || !accountSession.authenticated) {
@@ -3700,6 +3707,12 @@ if (membershipCheckoutButtons.length) {
     }
 
     const plan = membershipCheckoutButton.dataset.membershipPlan || 'monthly';
+    const inviteCode = inviteCodeInput ? inviteCodeInput.value.trim().replace(/\s+/g, '').toUpperCase() : '';
+    if (inviteCode && plan !== 'monthly') {
+      if (message) message.textContent = 'Inbjudningskod gäller månadsmedlemskap och kan inte användas på årsplanen.';
+      if (paymentMessage) paymentMessage.textContent = '';
+      return;
+    }
     membershipCheckoutButton.dataset.originalText = membershipCheckoutButton.textContent;
     membershipCheckoutButton.disabled = true;
     membershipCheckoutButton.textContent = 'Förbereder...';
@@ -3714,7 +3727,7 @@ if (membershipCheckoutButtons.length) {
     }
 
     try {
-      const { response, data } = await postJson('/api/membership-checkout', { plan });
+      const { response, data } = await postJson('/api/membership-checkout', { plan, inviteCode });
 
       if (!response.ok) {
         if (message) {
@@ -3758,7 +3771,11 @@ if (membershipCheckoutButtons.length) {
       paymentElement.mount('#membership-payment-element');
       rememberCheckout('medlemskap', `stripe-subscription:${data.subscriptionId}`);
       if (payButton) payButton.disabled = false;
-      if (paymentMessage) paymentMessage.textContent = '';
+      if (paymentMessage) {
+        paymentMessage.textContent = data.inviteDiscount
+          ? `Inbjudningskoden ${data.inviteDiscount.code} är tillagd: ${data.inviteDiscount.label}.`
+          : '';
+      }
     } catch (error) {
       if (message) message.textContent = 'Kunde inte kontakta Stripe.';
       if (paymentMessage) paymentMessage.textContent = 'Kunde inte kontakta Stripe.';

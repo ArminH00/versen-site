@@ -10413,6 +10413,34 @@ body.mobile-menu-open{
   font-size:31px!important;
 }
 
+.membership-invite-code{
+  display:grid;
+  gap:8px;
+  max-width:430px;
+  margin-top:14px;
+}
+
+.membership-invite-code span{
+  font-size:.72rem;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+
+.membership-invite-code input{
+  min-height:46px;
+  border-radius:8px;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+.membership-invite-code small{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.4;
+}
+
 .membership-benefit-band{
   display:none!important;
 }

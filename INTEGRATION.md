@@ -79,4 +79,6 @@ Kundflöde:
 9. Resend skickar medlemsmail.
 10. Intern checkout tillåter produktbetalning när kunden är inloggad och aktiv medlem.
 
+Inbjudningskoder för medlemskap ska skapas som Stripe promotion codes. Kupongen bakom koden kan ha `duration=once` för första betalningen eller `duration=repeating` med valfritt antal månader, till exempel 3 eller 8. Koder gäller månadsmedlemskap så årsbetalningar inte råkar få rabatt på ett helt år.
+
 Viktigt: bygg inte dubbla subscription-system. Stripe äger medlemskap; Supabase speglar; Shopify hanterar produkter, lager, order och fulfillment bakom kulisserna. Shopify ska inte skicka kundmail.
