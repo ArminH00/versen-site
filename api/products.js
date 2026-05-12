@@ -214,6 +214,10 @@ function normalizeProduct(product) {
   };
 }
 
+function isSellableVersenProduct(product) {
+  return product && product.handle !== 'medlemskap';
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') {
     sendJson(res, 405, { error: 'Metoden stöds inte' });
@@ -236,6 +240,11 @@ module.exports = async function handler(req, res) {
       return;
     }
 
+    if (!isSellableVersenProduct(result.body.data.product)) {
+      sendJson(res, 404, { error: 'Produkten hittades inte' });
+      return;
+    }
+
     sendJson(res, 200, { product: normalizeProduct(result.body.data.product) });
     return;
   }
@@ -247,6 +256,8 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const products = result.body.data.products.nodes.map(normalizeProduct);
+  const products = result.body.data.products.nodes
+    .filter(isSellableVersenProduct)
+    .map(normalizeProduct);
   sendJson(res, 200, { products });
 };
