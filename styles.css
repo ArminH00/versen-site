@@ -11368,10 +11368,10 @@ body:not(.cart-has-items) .empty-cart .product-btn{
 
 .cart-item .cart-actions{
   width:100%;
-  max-width:190px;
+  max-width:198px;
   align-items:center!important;
-  justify-content:space-between;
-  gap:10px;
+  justify-content:flex-start;
+  gap:0;
 }
 
 .cart-item .quantity-control.small{
@@ -11380,8 +11380,8 @@ body:not(.cart-has-items) .empty-cart .product-btn{
   grid-template-columns:42px 52px 42px;
   overflow:hidden;
   border:1px solid rgba(9,11,12,.12);
-  border-radius:999px;
-  background:#fffdfa;
+  border-radius:8px;
+  background:transparent;
 }
 
 .cart-item .quantity-control.small button,
@@ -11424,11 +11424,13 @@ body:not(.cart-has-items) .empty-cart .product-btn{
   min-width:42px;
   height:42px;
   min-height:42px;
+  margin-left:10px;
   display:grid;
   place-items:center;
-  border:1px solid rgba(9,11,12,.1);
-  border-radius:999px;
-  background:#fffdfa;
+  border:0;
+  border-left:1px solid rgba(9,11,12,.12);
+  border-radius:0;
+  background:transparent;
   color:#7b756d;
 }
 
