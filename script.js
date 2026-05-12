@@ -2532,6 +2532,59 @@ let checkoutPaymentReady = false;
 let checkoutFreeCheckout = false;
 let checkoutPaymentIntentId = '';
 
+function checkoutBillingDetails() {
+  const draft = readCheckoutDraft();
+  return {
+    email: draft.contact && draft.contact.email,
+    phone: draft.contact && draft.contact.phone,
+    name: draft.shippingAddress ? `${draft.shippingAddress.firstName || ''} ${draft.shippingAddress.lastName || ''}`.trim() : undefined,
+    address: draft.shippingAddress ? {
+      line1: draft.shippingAddress.address1,
+      line2: draft.shippingAddress.address2,
+      city: draft.shippingAddress.city,
+      postal_code: draft.shippingAddress.postalCode,
+      country: 'SE',
+    } : undefined,
+  };
+}
+
+async function confirmCheckoutStripePayment() {
+  return checkoutStripe.confirmPayment({
+    elements: checkoutElements,
+    confirmParams: {
+      return_url: new URL('/checkout?step=bekraftelse', window.location.href).href,
+      payment_method_data: {
+        billing_details: checkoutBillingDetails(),
+      },
+    },
+    redirect: 'if_required',
+  });
+}
+
+async function finishCheckoutStripePayment(result) {
+  const message = document.querySelector('[data-checkout-payment-message]');
+  const payButton = document.querySelector('[data-checkout-pay-button]');
+
+  if (result.error) {
+    if (message) message.textContent = result.error.message || 'Betalningen kunde inte genomföras.';
+    if (payButton) payButton.disabled = false;
+    renderCheckoutSummary();
+    return;
+  }
+
+  const paymentIntentId = result.paymentIntent && result.paymentIntent.id
+    ? result.paymentIntent.id
+    : checkoutPaymentIntentId;
+  const order = await completeCheckoutOrder(paymentIntentId);
+
+  if (order) {
+    window.location.href = `/checkout?step=bekraftelse&order=${encodeURIComponent(order.id)}`;
+  } else if (payButton) {
+    payButton.disabled = false;
+    renderCheckoutSummary();
+  }
+}
+
 function currentCheckoutStep() {
   const requested = pageParams.get('step') || 'kontakt';
   return ['kontakt', 'leverans', 'betalning', 'bekraftelse'].includes(requested) ? requested : 'kontakt';
@@ -2742,6 +2795,40 @@ async function setupCheckoutPayment() {
         },
       },
     });
+    const walletShell = document.querySelector('[data-checkout-wallets]');
+    const walletMount = document.querySelector('#express-checkout-element');
+    if (walletShell && walletMount) {
+      walletShell.hidden = true;
+      walletMount.innerHTML = '';
+      const expressCheckoutElement = checkoutElements.create('expressCheckout', {
+        buttonType: {
+          applePay: 'check-out',
+          googlePay: 'checkout',
+        },
+        buttonTheme: {
+          applePay: 'white-outline',
+        },
+        buttonHeight: 50,
+        layout: {
+          maxColumns: 1,
+          maxRows: 2,
+        },
+      });
+      expressCheckoutElement.on('ready', (event) => {
+        const methods = event && event.availablePaymentMethods ? event.availablePaymentMethods : {};
+        walletShell.hidden = !Object.keys(methods).some((key) => Boolean(methods[key]));
+      });
+      expressCheckoutElement.on('confirm', async () => {
+        if (payButton) {
+          payButton.disabled = true;
+          payButton.textContent = 'Bekräftar...';
+        }
+        if (message) message.textContent = '';
+        const result = await confirmCheckoutStripePayment();
+        await finishCheckoutStripePayment(result);
+      });
+      expressCheckoutElement.mount('#express-checkout-element');
+    }
     paymentElement.mount('#payment-element');
     checkoutPaymentReady = true;
     if (payButton) payButton.disabled = false;
@@ -2934,47 +3021,8 @@ if (checkoutPayButton) {
     checkoutPayButton.textContent = 'Bekräftar...';
     if (message) message.textContent = '';
 
-    const draft = readCheckoutDraft();
-    const result = await checkoutStripe.confirmPayment({
-      elements: checkoutElements,
-      confirmParams: {
-        return_url: new URL('/checkout?step=bekraftelse', window.location.href).href,
-        payment_method_data: {
-          billing_details: {
-            email: draft.contact && draft.contact.email,
-            phone: draft.contact && draft.contact.phone,
-            name: draft.shippingAddress ? `${draft.shippingAddress.firstName || ''} ${draft.shippingAddress.lastName || ''}`.trim() : undefined,
-            address: draft.shippingAddress ? {
-              line1: draft.shippingAddress.address1,
-              line2: draft.shippingAddress.address2,
-              city: draft.shippingAddress.city,
-              postal_code: draft.shippingAddress.postalCode,
-              country: 'SE',
-            } : undefined,
-          },
-        },
-      },
-      redirect: 'if_required',
-    });
-
-    if (result.error) {
-      if (message) message.textContent = result.error.message || 'Betalningen kunde inte genomföras.';
-      checkoutPayButton.disabled = false;
-      renderCheckoutSummary();
-      return;
-    }
-
-    const paymentIntentId = result.paymentIntent && result.paymentIntent.id
-      ? result.paymentIntent.id
-      : checkoutPaymentIntentId;
-    const order = await completeCheckoutOrder(paymentIntentId);
-
-    if (order) {
-      window.location.href = `/checkout?step=bekraftelse&order=${encodeURIComponent(order.id)}`;
-    } else {
-      checkoutPayButton.disabled = false;
-      renderCheckoutSummary();
-    }
+    const result = await confirmCheckoutStripePayment();
+    await finishCheckoutStripePayment(result);
   });
 }
 
@@ -3840,6 +3888,43 @@ if (membershipCheckoutButtons.length) {
     if (pageParams.get('ready') === '1' && message) message.textContent = '';
   });
 
+  function membershipBillingDetails() {
+    return {
+      email: accountSession && accountSession.customer ? accountSession.customer.email : undefined,
+      name: accountSession && accountSession.customer ? accountSession.customer.displayName : undefined,
+    };
+  }
+
+  async function confirmMembershipStripePayment() {
+    return membershipStripe.confirmPayment({
+      elements: membershipElements,
+      confirmParams: {
+        return_url: new URL(`/medlemskap-aktivt?checkout=medlemskap&subscription=${encodeURIComponent(membershipSubscriptionId)}`, window.location.href).href,
+        payment_method_data: {
+          billing_details: membershipBillingDetails(),
+        },
+      },
+      redirect: 'if_required',
+    });
+  }
+
+  function setMembershipPayLoading(loading) {
+    if (!payButton) return;
+    payButton.disabled = Boolean(loading);
+    payButton.textContent = loading ? 'Bekräftar...' : 'Betala medlemskap';
+  }
+
+  async function finishMembershipStripePayment(result) {
+    if (result.error) {
+      if (paymentMessage) paymentMessage.textContent = result.error.message || 'Betalningen kunde inte genomföras.';
+      setMembershipPayLoading(false);
+      return;
+    }
+
+    if (paymentMessage) paymentMessage.textContent = 'Medlemskapet är betalt. Aktiverar kontot...';
+    window.location.href = `/medlemskap-aktivt?checkout=medlemskap&subscription=${encodeURIComponent(membershipSubscriptionId)}`;
+  }
+
   function normalizedInviteCode() {
     return inviteCodeInput ? inviteCodeInput.value.trim().replace(/\s+/g, '').toUpperCase() : '';
   }
@@ -3925,6 +4010,10 @@ if (membershipCheckoutButtons.length) {
 
       const currentElement = document.querySelector('#membership-payment-element');
       if (currentElement) currentElement.innerHTML = '';
+      const walletShell = document.querySelector('[data-membership-wallets]');
+      const walletMount = document.querySelector('#membership-express-checkout-element');
+      if (walletShell) walletShell.hidden = true;
+      if (walletMount) walletMount.innerHTML = '';
       if (paymentPanel) {
         const shouldRevealAndScroll = paymentPanel.hidden;
         paymentPanel.hidden = false;
@@ -3945,6 +4034,33 @@ if (membershipCheckoutButtons.length) {
           },
         },
       });
+      if (walletShell && walletMount) {
+        const expressCheckoutElement = membershipElements.create('expressCheckout', {
+          buttonType: {
+            applePay: 'check-out',
+            googlePay: 'checkout',
+          },
+          buttonTheme: {
+            applePay: 'white-outline',
+          },
+          buttonHeight: 50,
+          layout: {
+            maxColumns: 1,
+            maxRows: 2,
+          },
+        });
+        expressCheckoutElement.on('ready', (event) => {
+          const methods = event && event.availablePaymentMethods ? event.availablePaymentMethods : {};
+          walletShell.hidden = !Object.keys(methods).some((key) => Boolean(methods[key]));
+        });
+        expressCheckoutElement.on('confirm', async () => {
+          setMembershipPayLoading(true);
+          if (paymentMessage) paymentMessage.textContent = '';
+          const result = await confirmMembershipStripePayment();
+          await finishMembershipStripePayment(result);
+        });
+        expressCheckoutElement.mount('#membership-express-checkout-element');
+      }
       const paymentElement = membershipElements.create('payment', {
         fields: {
           billingDetails: {
@@ -4011,37 +4127,11 @@ if (membershipCheckoutButtons.length) {
         return;
       }
 
-      if (payButton) {
-        payButton.disabled = true;
-        payButton.textContent = 'Bekräftar...';
-      }
+      setMembershipPayLoading(true);
       if (paymentMessage) paymentMessage.textContent = '';
 
-      const result = await membershipStripe.confirmPayment({
-        elements: membershipElements,
-        confirmParams: {
-          return_url: new URL(`/medlemskap-aktivt?checkout=medlemskap&subscription=${encodeURIComponent(membershipSubscriptionId)}`, window.location.href).href,
-          payment_method_data: {
-            billing_details: {
-              email: accountSession && accountSession.customer ? accountSession.customer.email : undefined,
-              name: accountSession && accountSession.customer ? accountSession.customer.displayName : undefined,
-            },
-          },
-        },
-        redirect: 'if_required',
-      });
-
-      if (result.error) {
-        if (paymentMessage) paymentMessage.textContent = result.error.message || 'Betalningen kunde inte genomföras.';
-        if (payButton) {
-          payButton.disabled = false;
-          payButton.textContent = 'Betala medlemskap';
-        }
-        return;
-      }
-
-      if (paymentMessage) paymentMessage.textContent = 'Medlemskapet är betalt. Aktiverar kontot...';
-      window.location.href = `/medlemskap-aktivt?checkout=medlemskap&subscription=${encodeURIComponent(membershipSubscriptionId)}`;
+      const result = await confirmMembershipStripePayment();
+      await finishMembershipStripePayment(result);
     });
   }
 }

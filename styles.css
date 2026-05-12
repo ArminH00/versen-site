@@ -960,6 +960,31 @@
   font-size:12px;
 }
 
+.stripe-wallet-shell{
+  display:grid;
+  gap:10px;
+}
+
+.stripe-wallet-shell[hidden]{
+  display:none!important;
+}
+
+.stripe-wallet-shell span{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:#77736b;
+  font-size:11px;
+}
+
+.stripe-wallet-shell span::before,
+.stripe-wallet-shell span::after{
+  content:'';
+  height:1px;
+  flex:1;
+  background:rgba(9,11,12,.1);
+}
+
 .checkout-save-card{
   margin:0;
 }

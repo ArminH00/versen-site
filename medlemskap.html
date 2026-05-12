@@ -99,6 +99,10 @@
     </div>
     <form class="membership-payment-card" data-membership-payment-form>
       <strong data-membership-payment-title>Medlemskap</strong>
+      <div class="stripe-wallet-shell" data-membership-wallets hidden>
+        <div id="membership-express-checkout-element"></div>
+        <span>eller betala med kort</span>
+      </div>
       <div class="stripe-element-shell" id="membership-payment-element"></div>
       <button class="cta checkout-primary" type="submit" data-membership-pay-button disabled>Betala medlemskap</button>
       <p class="form-message" data-membership-payment-message></p>
