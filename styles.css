@@ -11695,11 +11695,11 @@ main img,
 }
 
 .page-membership .premium-membership-hero{
-  padding-bottom:clamp(26px,4vw,46px)!important;
+  padding-bottom:clamp(13px,2vw,23px)!important;
 }
 
 .page-membership .membership-value-proof{
-  padding-top:clamp(30px,5vw,58px)!important;
+  padding-top:clamp(15px,2.5vw,29px)!important;
 }
 
 @media (max-width:760px){
@@ -11750,11 +11750,11 @@ main img,
   }
 
   .page-membership .premium-membership-hero{
-    padding-bottom:24px!important;
+    padding-bottom:12px!important;
   }
 
   .page-membership .membership-value-proof{
-    padding-top:32px!important;
+    padding-top:16px!important;
   }
 }
 
