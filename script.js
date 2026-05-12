@@ -3751,7 +3751,7 @@ if (membershipCheckoutButtons.length) {
     if (message) message.textContent = '';
     if (inviteCode) setInviteCodeState('checking', 'Kontrollerar inbjudningskod...');
     if (paymentMessage) paymentMessage.textContent = inviteCode ? 'Kontrollerar inbjudningskod...' : 'Startar säker medlemsbetalning...';
-    if (paymentPanel) {
+    if (paymentPanel && !fromInviteCode) {
       paymentPanel.hidden = false;
       if (shouldScroll) paymentPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -3783,6 +3783,11 @@ if (membershipCheckoutButtons.length) {
 
       const currentElement = document.querySelector('#membership-payment-element');
       if (currentElement) currentElement.innerHTML = '';
+      if (paymentPanel) {
+        const shouldRevealAndScroll = paymentPanel.hidden;
+        paymentPanel.hidden = false;
+        if (shouldScroll && shouldRevealAndScroll) requestAnimationFrame(() => paymentPanel.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+      }
       membershipSubscriptionId = data.subscriptionId;
       membershipStripe = window.Stripe(data.publishableKey);
       membershipElements = membershipStripe.elements({
@@ -3852,7 +3857,7 @@ if (membershipCheckoutButtons.length) {
   membershipCheckoutButtons.forEach((membershipCheckoutButton) => membershipCheckoutButton.addEventListener('click', async () => {
     const plan = membershipCheckoutButton.dataset.membershipPlan || 'monthly';
     if (plan === 'yearly') setInviteCodeState('');
-    startMembershipCheckout(plan, { button: membershipCheckoutButton, scroll: plan !== 'monthly' });
+    startMembershipCheckout(plan, { button: membershipCheckoutButton, scroll: true });
   }));
 
   if (paymentForm) {
