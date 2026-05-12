@@ -23,6 +23,9 @@ function normalizeOrder(order) {
     processedAt: order.created_at,
     createdAt: order.created_at,
     statusUrl: '',
+    orderStatus: order.order_status || 'pending',
+    trackingUrl: order.tracking_url || '',
+    trackingNumber: order.tracking_number || '',
     total: order.summary && order.summary.total ? order.summary.total : formatSekOre(order.total),
     items: (order.items || []).map((item) => `${item.quantity} x ${item.title}`),
   };

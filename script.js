@@ -695,6 +695,77 @@ function readLastOrder() {
   }
 }
 
+const ORDER_STATUS_STEPS = [
+  { key: 'received', label: 'Beställning mottagen' },
+  { key: 'packing', label: 'Packas' },
+  { key: 'shipped', label: 'Skickad' },
+  { key: 'delivered', label: 'Levererad' },
+];
+
+function normalizedOrderStatus(order) {
+  const status = String(
+    (order && (order.orderStatus || order.order_status || order.status || order.fulfillmentStatus))
+    || ''
+  ).toLowerCase();
+
+  if (status.includes('deliver')) return 'delivered';
+  if (status.includes('ship') || status.includes('fulfill')) return 'shipped';
+  if (status.includes('pack')) return 'packing';
+  return 'received';
+}
+
+function orderStatusLabel(order) {
+  const current = normalizedOrderStatus(order);
+  const step = ORDER_STATUS_STEPS.find((item) => item.key === current);
+
+  return step ? step.label : ORDER_STATUS_STEPS[0].label;
+}
+
+function renderOrderStatusTrail(order) {
+  const current = normalizedOrderStatus(order);
+  const activeIndex = Math.max(0, ORDER_STATUS_STEPS.findIndex((step) => step.key === current));
+
+  return `
+    <ol class="order-status-trail" aria-label="Orderstatus">
+      ${ORDER_STATUS_STEPS.map((step, index) => `
+        <li class="${index <= activeIndex ? 'is-complete' : ''} ${index === activeIndex ? 'is-current' : ''}">
+          <span aria-hidden="true"></span>
+          <strong>${escapeHtml(step.label)}</strong>
+        </li>
+      `).join('')}
+    </ol>
+  `;
+}
+
+function renderOrderSummaryCard(order, index = 0) {
+  const orderDate = formatDate((order && (order.processedAt || order.createdAt || order.created_at)) || '') || '';
+  const items = (order && Array.isArray(order.items) ? order.items : [])
+    .map((item) => (typeof item === 'string' ? item : `${item.quantity || 1} x ${item.title || item.name || 'Produkt'}`))
+    .filter(Boolean);
+  const statusUrl = order && (order.statusUrl || order.trackingUrl || order.tracking_url);
+  const trackingNumber = order && (order.trackingNumber || order.tracking_number);
+
+  return `
+    <article class="order-detail-card">
+      <div class="order-detail-topline">
+        <span>${index === 0 ? 'Senaste order' : 'Order'}</span>
+        <strong>${escapeHtml(orderStatusLabel(order))}</strong>
+      </div>
+      <div class="order-detail-heading">
+        <h2>${escapeHtml((order && (order.name || order.order_number || order.id)) || 'Order')}</h2>
+        <p>${escapeHtml(orderDate)}</p>
+      </div>
+      <div class="order-detail-meta">
+        <span>${escapeHtml((order && order.total) || '')}</span>
+        ${trackingNumber ? `<span>Spårning ${escapeHtml(trackingNumber)}</span>` : ''}
+      </div>
+      ${renderOrderStatusTrail(order)}
+      ${items.length ? `<p class="order-detail-items">${escapeHtml(items.join(', '))}</p>` : '<p class="order-detail-items">Produkter synkas.</p>'}
+      ${statusUrl ? `<a class="order-detail-link" href="${escapeHtml(statusUrl)}" target="_blank" rel="noreferrer">Se orderstatus</a>` : ''}
+    </article>
+  `;
+}
+
 function unlockLaunchGate(destination = '') {
   localStorage.setItem(LAUNCH_GATE_KEY, '1');
   window.location.href = destination || pageParams.get('next') || '/';
@@ -2954,6 +3025,9 @@ async function renderStoredOrders(existingOrders = []) {
       name: order.order_number || order.id,
       processedAt: order.created_at,
       statusUrl: '',
+      orderStatus: order.order_status || 'pending',
+      trackingUrl: order.tracking_url || '',
+      trackingNumber: order.tracking_number || '',
       total: order.summary && order.summary.total ? order.summary.total : formatSek((Number(order.total) || 0) / 100),
       items: (order.items || []).map((item) => `${item.quantity} x ${item.title}`),
     }));
@@ -3980,14 +4054,18 @@ function renderOrderPage(session = accountSession) {
   }
 
   const pending = readPendingCheckout();
-  const latestOrder = session && session.authenticated && session.customer && session.customer.orders
-    ? session.customer.orders[0]
-    : null;
+  const customerOrders = session && session.authenticated && session.customer && Array.isArray(session.customer.orders)
+    ? [...session.customer.orders].sort((a, b) => orderTime(b) - orderTime(a))
+    : [];
+  const latestOrder = customerOrders[0] || null;
   const pendingStartedAt = pendingCheckoutTime(pending);
   const latestIsFresh = latestOrder && (!pendingStartedAt || orderTime(latestOrder) >= pendingStartedAt - 30000);
   const title = document.querySelector('[data-order-title]');
   const copy = document.querySelector('[data-order-copy]');
   const details = document.querySelector('[data-order-details]');
+
+  if (title) title.textContent = 'Se orderstatus';
+  if (copy) copy.textContent = 'Följ status på dina ordrar';
 
   if (latestIsFresh) {
     if (pending && pending.type === 'produkt') {
@@ -3995,37 +4073,39 @@ function renderOrderPage(session = accountSession) {
     }
 
     clearPendingCheckout();
-    if (title) title.textContent = 'Ordern är mottagen';
-    if (copy) copy.textContent = 'Vi hittade din senaste order på kontot. Du kan fortsätta handla eller öppna orderstatus vid behov.';
     if (details) {
       details.innerHTML = `
-        <div class="order-success-card">
-          <span>Senaste order</span>
-          <strong>${escapeHtml(latestOrder.name || 'Order')}</strong>
-          <p>${escapeHtml(latestOrder.total || '')} · ${escapeHtml((latestOrder.items || []).join(', ') || 'Produkter synkas')}</p>
-          ${latestOrder.statusUrl ? `<a class="product-btn secondary" href="${escapeHtml(latestOrder.statusUrl)}" target="_blank" rel="noreferrer">Visa orderstatus</a>` : ''}
+        <div class="order-detail-list">
+          ${customerOrders.map((order, index) => renderOrderSummaryCard(order, index)).join('')}
         </div>
       `;
     }
     return;
   }
 
-  if (title) title.textContent = pending ? 'Checkout är öppnad' : 'Orderstatus';
-  if (copy) {
-    copy.textContent = pending
-      ? 'Slutför betalningen i checkoutfliken. Vi väntar på bekräftelsen, så vi visar inte en äldre order av misstag.'
-      : 'Logga in eller gå till konto för att se senaste ordern.';
+  if (!pending && customerOrders.length) {
+    if (details) {
+      details.innerHTML = `
+        <div class="order-detail-list">
+          ${customerOrders.map((order, index) => renderOrderSummaryCard(order, index)).join('')}
+        </div>
+      `;
+    }
+    return;
   }
+
   if (details) {
     details.innerHTML = `
-      <div class="order-success-card">
+      <div class="order-empty-card">
         <span>${pending ? 'Väntar på bekräftelse' : 'Ingen aktiv checkout'}</span>
         <strong>${pending && pending.type === 'medlemskap' ? 'Medlemskap' : 'Produktorder'}</strong>
         <p>${pending ? 'När betalningen är klar syns ordern här efter en kort stund. Den här rutan uppdateras automatiskt.' : 'Dina orders visas automatiskt när du är inloggad.'}</p>
-        <div class="account-actions">
-          <button class="product-btn" type="button" data-refresh-order>Uppdatera status</button>
-          <a class="product-btn secondary" href="/konto">Mitt konto</a>
-        </div>
+        ${pending ? `
+          <div class="account-actions">
+            <button class="product-btn" type="button" data-refresh-order>Uppdatera status</button>
+            <a class="product-btn secondary" href="/konto">Mitt konto</a>
+          </div>
+        ` : '<a class="order-detail-link" href="/konto">Mitt konto</a>'}
       </div>
     `;
   }

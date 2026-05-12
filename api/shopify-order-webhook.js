@@ -42,6 +42,9 @@ function firstTracking(order) {
 function statusFromShopify(order, topic = '') {
   const tags = String(order.tags || '').toLowerCase();
   const fulfillmentStatus = String(order.fulfillment_status || '').toLowerCase();
+  const shipmentStatuses = (order.fulfillments || [])
+    .map((fulfillment) => String((fulfillment && fulfillment.shipment_status) || '').toLowerCase())
+    .filter(Boolean);
   const { trackingUrl, trackingNumber } = firstTracking(order);
   const normalizedTopic = String(topic || '').toLowerCase();
 
@@ -60,6 +63,16 @@ function statusFromShopify(order, topic = '') {
       order_status: 'cancelled',
       emailType: 'order_cancelled',
       message: 'Ordern har markerats som avbruten.',
+      trackingUrl,
+      trackingNumber,
+    };
+  }
+
+  if (tags.includes('levererad') || tags.includes('delivered') || shipmentStatuses.includes('delivered')) {
+    return {
+      order_status: 'delivered',
+      emailType: 'order_delivered',
+      message: 'Din order är levererad.',
       trackingUrl,
       trackingNumber,
     };
