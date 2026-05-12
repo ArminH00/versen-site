@@ -1,4 +1,4 @@
-const { createStorefrontAccessToken, sendJson } = require('./shopify');
+const { createStorefrontAccessToken, sendJson } = require('../lib/shopify');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {

@@ -1,4 +1,4 @@
-const { adminFetch, getCookie, sendJson, shopifyFetch } = require('./shopify');
+const { adminFetch, getCookie, sendJson, shopifyFetch } = require('../lib/shopify');
 
 const CUSTOMER_QUERY = `
   query VersenCustomer($customerAccessToken: String!) {

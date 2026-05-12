@@ -1,4 +1,4 @@
-const { adminFetch, readBody, sendJson, shopifyFetch } = require('./shopify');
+const { adminFetch, readBody, sendJson, shopifyFetch } = require('../lib/shopify');
 
 const MEMBERS_QUERY = `
   query VersenMembers($query: String!) {

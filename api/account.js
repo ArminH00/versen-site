@@ -9,7 +9,7 @@ const {
   sendJson,
   setCustomerCookie,
   shopifyFetch,
-} = require('./shopify');
+} = require('../lib/shopify');
 const { getCustomerSession, getRechargeMembershipByEmail } = require('./membership');
 
 const CUSTOMER_CREATE_MUTATION = `

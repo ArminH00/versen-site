@@ -1,4 +1,4 @@
-const { getCookie, readBody, sendJson, shopifyFetch } = require('./shopify');
+const { getCookie, readBody, sendJson, shopifyFetch } = require('../lib/shopify');
 const { getCustomerSession } = require('./membership');
 
 const CART_CREATE_MUTATION = `

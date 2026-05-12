@@ -1,4 +1,4 @@
-const { adminFetch, getAdminAccessToken, getShopDomain, readBody, sendJson, shopifyFetch } = require('./shopify');
+const { adminFetch, getAdminAccessToken, getShopDomain, readBody, sendJson, shopifyFetch } = require('../lib/shopify');
 
 const API_VERSION = process.env.SHOPIFY_API_VERSION || '2026-04';
 const THEME_REDIRECT_MARKER = 'VERSEN_STOREFRONT_REDIRECT';

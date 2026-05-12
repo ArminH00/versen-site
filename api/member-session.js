@@ -1,4 +1,4 @@
-const { sendJson } = require('./shopify');
+const { sendJson } = require('../lib/shopify');
 
 function readBody(req) {
   return new Promise((resolve, reject) => {

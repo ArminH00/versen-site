@@ -4,7 +4,7 @@ const {
   getShopDomain,
   readBody,
   sendJson,
-} = require('./shopify');
+} = require('../lib/shopify');
 
 const API_VERSION = process.env.SHOPIFY_API_VERSION || '2026-04';
 const MEMBERSHIP_TAGS = ['versen_member', 'member', 'medlem'];

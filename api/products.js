@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { sendJson, shopifyFetch } = require('./shopify');
+const { sendJson, shopifyFetch } = require('../lib/shopify');
 
 let cleanImageManifest;
 const CLEAN_IMAGE_VERSION = '20260510-cardbg';

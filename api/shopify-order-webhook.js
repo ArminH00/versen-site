@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const { adminFetch, readRawBody, sendJson } = require('./shopify');
+const { adminFetch, readRawBody, sendJson } = require('../lib/shopify');
 
 const TAGS_ADD_MUTATION = `
   mutation VersenTagsAdd($id: ID!, $tags: [String!]!) {

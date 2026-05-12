@@ -1,4 +1,6 @@
-const { readBody, sendJson } = require('./shopify');
+const crypto = require('crypto');
+const { getCookie, readBody, readRawBody, sendJson } = require('../lib/shopify');
+const { getCustomerSession } = require('./membership');
 const {
   createPaymentIntent,
   fulfillPaidPaymentIntent,
@@ -12,10 +14,108 @@ const {
   saveDraft,
   stripePublishableKey,
   validateCheckout,
-} = require('./checkout-service');
+} = require('../lib/checkout-service');
+const { getOrder, getOrderByPaymentIntent, listOrdersForCustomer } = require('../lib/order-store');
+
+function verifyStripeSignature(rawBody, signatureHeader, secret) {
+  if (!secret || !signatureHeader) return false;
+
+  const parts = String(signatureHeader).split(',').reduce((acc, part) => {
+    const [key, value] = part.split('=');
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(value);
+    return acc;
+  }, {});
+  const timestamp = parts.t && parts.t[0];
+  const signatures = parts.v1 || [];
+
+  if (!timestamp || !signatures.length) return false;
+
+  const expected = crypto
+    .createHmac('sha256', secret)
+    .update(`${timestamp}.${rawBody}`)
+    .digest('hex');
+
+  return signatures.some((signature) => {
+    try {
+      return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
+    } catch (error) {
+      return false;
+    }
+  });
+}
+
+async function handleStripeWebhook(req, res) {
+  const rawBody = await readRawBody(req);
+
+  if (!verifyStripeSignature(rawBody, req.headers['stripe-signature'], process.env.STRIPE_WEBHOOK_SECRET)) {
+    sendJson(res, 400, { error: 'Ogiltig Stripe-signatur' });
+    return;
+  }
+
+  let event;
+
+  try {
+    event = JSON.parse(rawBody);
+  } catch (error) {
+    sendJson(res, 400, { error: 'Ogiltigt webhook-payload' });
+    return;
+  }
+
+  if (event.type === 'payment_intent.succeeded') {
+    try {
+      await fulfillPaidPaymentIntent(event.data && event.data.object);
+    } catch (error) {
+      sendJson(res, error.status || 500, { error: error.message || 'Kunde inte skapa order' });
+      return;
+    }
+  }
+
+  sendJson(res, 200, { received: true });
+}
+
+async function handleOrders(req, res) {
+  const session = await getCustomerSession(getCookie(req, 'versen_customer_token'));
+
+  if (!session.authenticated || !session.customer) {
+    sendJson(res, 401, { error: 'Du behöver vara inloggad för att se ordrar.' });
+    return;
+  }
+
+  const paymentIntentId = req.query && req.query.payment_intent;
+  const orderId = req.query && req.query.id;
+  const order = paymentIntentId
+    ? await getOrderByPaymentIntent(paymentIntentId)
+    : await getOrder(orderId);
+
+  if (order) {
+    const ownerMatches = order.user_id === session.customer.id || String(order.email || '').toLowerCase() === String(session.customer.email || '').toLowerCase();
+    if (!ownerMatches) {
+      sendJson(res, 404, { error: 'Ordern hittades inte.' });
+      return;
+    }
+
+    sendJson(res, 200, { order: publicOrder(order) });
+    return;
+  }
+
+  sendJson(res, 200, {
+    orders: (await listOrdersForCustomer(session.customer.id, session.customer.email)).map(publicOrder),
+  });
+}
 
 module.exports = async function handler(req, res) {
+  if (req.method === 'POST' && req.query && req.query.webhook === 'stripe') {
+    await handleStripeWebhook(req, res);
+    return;
+  }
+
   if (req.method === 'GET') {
+    if (req.query && req.query.action === 'orders') {
+      await handleOrders(req, res);
+      return;
+    }
+
     sendJson(res, 200, {
       publishableKey: stripePublishableKey(),
       stripeReady: Boolean(stripePublishableKey()),

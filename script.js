@@ -2592,7 +2592,7 @@ function renderCheckoutConfirmation(order = readLastOrder()) {
   const paymentIntentFromUrl = pageParams.get('payment_intent');
 
   if (!order && paymentIntentFromUrl) {
-    fetch(`/api/orders?payment_intent=${encodeURIComponent(paymentIntentFromUrl)}`, { credentials: 'same-origin' })
+    fetch(`/api/checkout?action=orders&payment_intent=${encodeURIComponent(paymentIntentFromUrl)}`, { credentials: 'same-origin' })
       .then((response) => response.json().then((data) => ({ response, data })))
       .then(({ response, data }) => {
         if (response.ok && data.order) {
@@ -2797,7 +2797,7 @@ async function renderStoredOrders(existingOrders = []) {
   }
 
   try {
-    const response = await fetch('/api/orders', { credentials: 'same-origin' });
+    const response = await fetch('/api/checkout?action=orders', { credentials: 'same-origin' });
     const data = await response.json();
 
     if (!response.ok || !Array.isArray(data.orders) || !data.orders.length) {
