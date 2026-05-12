@@ -4,7 +4,7 @@ const { getOrderByShopifyOrderId, updateOrderStatusByShopifyId } = require('../l
 const { sendOrderStatusEmail } = require('../lib/email');
 
 function verifyShopifyWebhook(rawBody, hmacHeader) {
-  const secret = process.env.SHOPIFY_WEBHOOK_SECRET;
+  const secret = process.env.SHOPIFY_WEBHOOK_SECRET || process.env.SHOPIFY_APP_CLIENT_SECRET;
 
   if (!secret || !hmacHeader) {
     return false;
