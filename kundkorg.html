@@ -22,7 +22,7 @@
 <script>try{const p=location.pathname.replace(/\/+$/,'')||'/';if(Date.now()<1777500000000&&!localStorage.getItem('versenLaunchAccess')&&p!=='/snart')location.replace('/snart?next='+encodeURIComponent(location.pathname+location.search+location.hash));}catch(e){}</script>
 <title>Versen - Kundkorg</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260513-cart-controls-no-frame">
+<link rel="stylesheet" href="styles.css?v=20260513-cart-stepper-trash-pay">
 </head>
 
 <body class="auth-loading page-cart">
@@ -74,10 +74,6 @@
         <span>Betalning</span>
       </div>
       <div class="summary-row">
-        <span>Produkter</span>
-        <strong data-cart-total-items>0 st</strong>
-      </div>
-      <div class="summary-row">
         <span>Total</span>
         <strong data-cart-total>0 kr</strong>
       </div>
@@ -107,13 +103,13 @@
         </div>
         <p class="form-message" data-discount-message></p>
       </form>
-      <p data-cart-help>Om du har en rabattkod kan du ange den i kassan.</p>
       <button class="cta cart-checkout" type="button" data-cart-checkout>Gå till betalning</button>
+      <p data-cart-help>Om du har en rabattkod kan du ange den i kassan.</p>
       <p class="form-message" data-cart-message></p>
     </aside>
   </section>
 </main>
 
-<script src="script.js?v=20260513-cart-controls"></script>
+<script src="script.js?v=20260513-cart-stepper-trash-pay"></script>
 </body>
 </html>

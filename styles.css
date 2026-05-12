@@ -9116,7 +9116,7 @@ body:not(.cart-has-items) .cart-summary{
 .cart-checkout{
   width:100%;
   min-height:48px;
-  margin-top:14px;
+  margin-top:8px;
   border-radius:8px;
 }
 
@@ -11368,29 +11368,30 @@ body:not(.cart-has-items) .empty-cart .product-btn{
 
 .cart-item .cart-actions{
   width:100%;
-  max-width:198px;
+  max-width:244px;
   align-items:center!important;
   justify-content:flex-start;
   gap:0;
 }
 
 .cart-item .quantity-control.small{
-  width:136px;
-  min-width:136px;
-  grid-template-columns:42px 52px 42px;
+  width:176px;
+  min-width:176px;
+  grid-template-columns:48px minmax(72px,1fr) 48px;
   overflow:hidden;
-  border:0;
-  border-radius:0;
+  border:1px solid rgba(9,11,12,.14);
+  border-radius:999px;
   background:transparent;
 }
 
 .cart-item .quantity-control.small button,
+.cart-item .quantity-value,
 .cart-item .quantity-control.small input{
-  min-height:42px;
+  min-height:48px;
   border:0;
   background:transparent;
   color:#111!important;
-  font-size:15px;
+  font-size:16px;
   line-height:1;
 }
 
@@ -11402,11 +11403,30 @@ body:not(.cart-has-items) .empty-cart .product-btn{
   font-weight:400;
 }
 
+.cart-item .quantity-value{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-inline:0;
+}
+
+.cart-item .quantity-value::after{
+  content:"st";
+  margin-left:4px;
+  color:#111;
+  font-size:16px;
+  font-weight:700;
+  line-height:1;
+}
+
 .cart-item .quantity-control.small input{
   appearance:textfield;
   -moz-appearance:textfield;
+  width:2.2ch;
+  min-width:2.2ch;
+  min-height:48px;
   padding:0;
-  border-inline:1px solid rgba(9,11,12,.08);
+  border:0;
   font-weight:700;
   opacity:1!important;
   text-align:center!important;
@@ -11422,12 +11442,13 @@ body:not(.cart-has-items) .empty-cart .product-btn{
 .cart-item .cart-actions .remove-btn{
   width:42px;
   min-width:42px;
-  height:42px;
-  min-height:42px;
-  margin-left:10px;
+  height:48px;
+  min-height:48px;
+  margin-left:14px;
   display:grid;
   place-items:center;
   align-self:center;
+  position:relative;
   border:0;
   border-left:1px solid rgba(9,11,12,.12);
   border-radius:0;
@@ -11437,9 +11458,29 @@ body:not(.cart-has-items) .empty-cart .product-btn{
 }
 
 .cart-item .cart-actions .remove-btn::before{
+  content:"";
+  position:relative;
+  width:20px;
+  height:22px;
   display:block;
-  font-size:21px;
-  line-height:1;
+  border:2px solid currentColor;
+  border-top:0;
+  border-radius:0 0 3px 3px;
+  box-sizing:border-box;
+}
+
+.cart-item .cart-actions .remove-btn::after{
+  content:"";
+  position:absolute;
+  width:22px;
+  height:8px;
+  border-top:2px solid currentColor;
+  border-radius:2px 2px 0 0;
+  transform:translateY(-10px);
+  box-shadow:
+    0 5px 0 -3px currentColor,
+    6px 13px 0 -5px currentColor,
+    -6px 13px 0 -5px currentColor;
 }
 
 .category-lock-card .badge{

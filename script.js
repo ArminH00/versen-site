@@ -2353,7 +2353,9 @@ function cartItemTemplate(item) {
         <div class="cart-actions">
           <div class="quantity-control small" aria-label="Ändra antal">
             <button type="button" aria-label="Minska antal" data-cart-minus="${escapeHtml(item.variantId)}">-</button>
-            <input type="number" min="1" value="${Number(item.quantity) || 1}" inputmode="numeric" aria-label="Antal" data-cart-quantity="${escapeHtml(item.variantId)}">
+            <span class="quantity-value">
+              <input type="number" min="1" value="${Number(item.quantity) || 1}" inputmode="numeric" aria-label="Antal" data-cart-quantity="${escapeHtml(item.variantId)}">
+            </span>
             <button type="button" aria-label="Öka antal" data-cart-plus="${escapeHtml(item.variantId)}">+</button>
           </div>
           <button class="remove-btn" type="button" aria-label="Ta bort ${escapeHtml(item.title)}" data-cart-remove="${escapeHtml(item.variantId)}">Ta bort</button>
