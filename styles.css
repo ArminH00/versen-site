@@ -10441,6 +10441,28 @@ body.mobile-menu-open{
   line-height:1.4;
 }
 
+.membership-invite-code.is-checking input{
+  border-color:rgba(15,15,15,.32);
+}
+
+.membership-invite-code.is-valid input{
+  border-color:rgba(42,115,72,.55);
+  background:#fbfffc;
+}
+
+.membership-invite-code.is-valid small{
+  color:#2a7348;
+}
+
+.membership-invite-code.is-invalid input{
+  border-color:rgba(166,54,54,.7);
+  background:#fff8f7;
+}
+
+.membership-invite-code.is-invalid small{
+  color:#a63636;
+}
+
 .membership-benefit-band{
   display:none!important;
 }

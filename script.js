@@ -3689,53 +3689,90 @@ if (membershipCheckoutButtons.length) {
   const paymentTitle = document.querySelector('[data-membership-payment-title]');
   const payButton = document.querySelector('[data-membership-pay-button]');
   const inviteCodeInput = document.querySelector('[data-membership-invite-code]');
+  const inviteCodeShell = inviteCodeInput ? inviteCodeInput.closest('.membership-invite-code') : null;
+  let selectedMembershipPlan = '';
+  let appliedInviteCode = '';
+  let membershipCheckoutRequestId = 0;
 
   refreshAccount().then(() => {
     if (pageParams.get('ready') === '1' && message) message.textContent = '';
   });
 
-  if (inviteCodeInput) {
-    inviteCodeInput.addEventListener('input', () => {
-      inviteCodeInput.value = inviteCodeInput.value.replace(/\s+/g, '').toUpperCase();
-    });
+  function normalizedInviteCode() {
+    return inviteCodeInput ? inviteCodeInput.value.trim().replace(/\s+/g, '').toUpperCase() : '';
   }
 
-  membershipCheckoutButtons.forEach((membershipCheckoutButton) => membershipCheckoutButton.addEventListener('click', async () => {
+  function setInviteCodeState(state, text = '') {
+    if (!inviteCodeShell) return;
+    inviteCodeShell.classList.toggle('is-valid', state === 'valid');
+    inviteCodeShell.classList.toggle('is-invalid', state === 'invalid');
+    inviteCodeShell.classList.toggle('is-checking', state === 'checking');
+    const note = inviteCodeShell.querySelector('small');
+    if (note) {
+      note.textContent = text || 'Gäller månadsmedlemskap enligt kodens villkor.';
+    }
+  }
+
+  function setInviteCodeVisible(visible) {
+    if (inviteCodeShell) inviteCodeShell.hidden = !visible;
+  }
+
+  async function startMembershipCheckout(plan, options = {}) {
+    const triggerButton = options.button || null;
+    const shouldScroll = options.scroll !== false;
+    const fromInviteCode = Boolean(options.fromInviteCode);
+
     if (!accountSession || !accountSession.authenticated) {
       window.location.href = pageParams.get('return') === 'checkout' ? 'konto.html?next=checkout' : 'konto.html?next=membership';
       return;
     }
 
-    const plan = membershipCheckoutButton.dataset.membershipPlan || 'monthly';
-    const inviteCode = inviteCodeInput ? inviteCodeInput.value.trim().replace(/\s+/g, '').toUpperCase() : '';
-    if (inviteCode && plan !== 'monthly') {
-      if (message) message.textContent = 'Inbjudningskod gäller månadsmedlemskap och kan inte användas på årsplanen.';
-      if (paymentMessage) paymentMessage.textContent = '';
+    selectedMembershipPlan = plan || 'monthly';
+    setInviteCodeVisible(selectedMembershipPlan === 'monthly');
+    const inviteCode = selectedMembershipPlan === 'monthly' ? normalizedInviteCode() : '';
+
+    if (fromInviteCode && !inviteCode) {
+      setInviteCodeState('');
       return;
     }
-    membershipCheckoutButton.dataset.originalText = membershipCheckoutButton.textContent;
-    membershipCheckoutButton.disabled = true;
-    membershipCheckoutButton.textContent = 'Förbereder...';
+
+    if (fromInviteCode && selectedMembershipPlan === 'monthly' && inviteCode === appliedInviteCode && membershipElements) {
+      return;
+    }
+
+    const requestId = ++membershipCheckoutRequestId;
+
+    if (triggerButton) {
+      triggerButton.dataset.originalText = triggerButton.textContent;
+      triggerButton.disabled = true;
+      triggerButton.textContent = 'Förbereder...';
+    }
+    if (payButton) payButton.disabled = true;
     if (message) message.textContent = '';
-    if (paymentMessage) paymentMessage.textContent = 'Startar säker medlemsbetalning...';
+    if (inviteCode) setInviteCodeState('checking', 'Kontrollerar inbjudningskod...');
+    if (paymentMessage) paymentMessage.textContent = inviteCode ? 'Kontrollerar inbjudningskod...' : 'Startar säker medlemsbetalning...';
     if (paymentPanel) {
       paymentPanel.hidden = false;
-      paymentPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (shouldScroll) paymentPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     if (paymentTitle) {
-      paymentTitle.textContent = plan === 'yearly' ? 'Versen årsmedlemskap' : 'Versen månadsmedlemskap';
+      paymentTitle.textContent = selectedMembershipPlan === 'yearly' ? 'Versen årsmedlemskap' : 'Versen månadsmedlemskap';
     }
 
     try {
-      const { response, data } = await postJson('/api/membership-checkout', { plan, inviteCode });
+      const { response, data } = await postJson('/api/membership-checkout', { plan: selectedMembershipPlan, inviteCode });
+
+      if (requestId !== membershipCheckoutRequestId) return;
 
       if (!response.ok) {
+        appliedInviteCode = '';
+        if (inviteCode) setInviteCodeState('invalid', data.error || 'Ogiltig inbjudningskod.');
         if (message) {
           message.textContent = data.loginRequired
             ? 'Skapa konto eller logga in på kontosidan först.'
             : (data.error || 'Kunde inte starta medlemskap.');
         }
-        if (paymentMessage) paymentMessage.textContent = data.error || '';
+        if (paymentMessage) paymentMessage.textContent = data.error || 'Ogiltig inbjudningskod.';
         return;
       }
 
@@ -3770,19 +3807,52 @@ if (membershipCheckoutButtons.length) {
       });
       paymentElement.mount('#membership-payment-element');
       rememberCheckout('medlemskap', `stripe-subscription:${data.subscriptionId}`);
+      appliedInviteCode = data.inviteDiscount ? inviteCode : '';
       if (payButton) payButton.disabled = false;
+      if (data.inviteDiscount) setInviteCodeState('valid', `${data.inviteDiscount.label}.`);
+      else setInviteCodeState('');
       if (paymentMessage) {
         paymentMessage.textContent = data.inviteDiscount
           ? `Inbjudningskoden ${data.inviteDiscount.code} är tillagd: ${data.inviteDiscount.label}.`
           : '';
       }
     } catch (error) {
-      if (message) message.textContent = 'Kunde inte kontakta Stripe.';
-      if (paymentMessage) paymentMessage.textContent = 'Kunde inte kontakta Stripe.';
+      if (requestId !== membershipCheckoutRequestId) return;
+      appliedInviteCode = '';
+      if (inviteCode) setInviteCodeState('invalid', 'Kunde inte kontrollera koden.');
+      if (message) message.textContent = inviteCode ? 'Kunde inte kontrollera inbjudningskoden.' : 'Kunde inte kontakta Stripe.';
+      if (paymentMessage) paymentMessage.textContent = inviteCode ? 'Kunde inte kontrollera inbjudningskoden.' : 'Kunde inte kontakta Stripe.';
     } finally {
-      membershipCheckoutButton.disabled = false;
-      membershipCheckoutButton.textContent = membershipCheckoutButton.dataset.originalText || 'Bli medlem nu';
+      if (triggerButton) {
+        triggerButton.disabled = false;
+        triggerButton.textContent = triggerButton.dataset.originalText || 'Bli medlem nu';
+      }
     }
+  }
+
+  if (inviteCodeInput) {
+    inviteCodeInput.addEventListener('input', () => {
+      inviteCodeInput.value = inviteCodeInput.value.replace(/\s+/g, '').toUpperCase();
+      appliedInviteCode = '';
+      setInviteCodeState('');
+    });
+
+    inviteCodeInput.addEventListener('blur', () => {
+      if (normalizedInviteCode()) startMembershipCheckout('monthly', { fromInviteCode: true, scroll: true });
+    });
+
+    inviteCodeInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        inviteCodeInput.blur();
+      }
+    });
+  }
+
+  membershipCheckoutButtons.forEach((membershipCheckoutButton) => membershipCheckoutButton.addEventListener('click', async () => {
+    const plan = membershipCheckoutButton.dataset.membershipPlan || 'monthly';
+    if (plan === 'yearly') setInviteCodeState('');
+    startMembershipCheckout(plan, { button: membershipCheckoutButton, scroll: plan !== 'monthly' });
   }));
 
   if (paymentForm) {
