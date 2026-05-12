@@ -1,19 +1,7 @@
 const crypto = require('crypto');
-const { adminFetch, readRawBody, sendJson } = require('../lib/shopify');
-
-const TAGS_ADD_MUTATION = `
-  mutation VersenTagsAdd($id: ID!, $tags: [String!]!) {
-    tagsAdd(id: $id, tags: $tags) {
-      node {
-        id
-      }
-      userErrors {
-        field
-        message
-      }
-    }
-  }
-`;
+const { readRawBody, sendJson } = require('../lib/shopify');
+const { getOrderByShopifyOrderId, updateOrderStatusByShopifyId } = require('../lib/order-store');
+const { sendOrderStatusEmail } = require('../lib/email');
 
 function verifyShopifyWebhook(rawBody, hmacHeader) {
   const secret = process.env.SHOPIFY_WEBHOOK_SECRET;
@@ -33,16 +21,64 @@ function verifyShopifyWebhook(rawBody, hmacHeader) {
   return digestBuffer.length === headerBuffer.length && crypto.timingSafeEqual(digestBuffer, headerBuffer);
 }
 
-function isMembershipLine(lineItem) {
-  const productId = process.env.SHOPIFY_MEMBERSHIP_PRODUCT_ID;
-  const variantId = process.env.SHOPIFY_MEMBERSHIP_VARIANT_ID;
-  const title = String(lineItem.title || lineItem.name || '').toLowerCase();
+function shopifyOrderId(order) {
+  return order.id ? String(order.id) : (order.admin_graphql_api_id || '');
+}
 
-  return (
-    (productId && String(lineItem.product_id) === String(productId))
-    || (variantId && String(lineItem.variant_id) === String(variantId))
-    || title.includes('medlemskap')
-  );
+function firstTracking(order) {
+  const fulfillment = (order.fulfillments || []).find((item) => (
+    item && (item.tracking_url || item.tracking_urls || item.tracking_number)
+  )) || {};
+  const trackingUrls = Array.isArray(fulfillment.tracking_urls) ? fulfillment.tracking_urls : [];
+
+  return {
+    trackingUrl: fulfillment.tracking_url || trackingUrls[0] || '',
+    trackingNumber: fulfillment.tracking_number || '',
+  };
+}
+
+function statusFromShopify(order) {
+  const tags = String(order.tags || '').toLowerCase();
+  const fulfillmentStatus = String(order.fulfillment_status || '').toLowerCase();
+  const { trackingUrl, trackingNumber } = firstTracking(order);
+
+  if (order.cancelled_at) {
+    return {
+      order_status: 'cancelled',
+      emailType: null,
+      message: 'Ordern har markerats som avbruten.',
+      trackingUrl,
+      trackingNumber,
+    };
+  }
+
+  if (fulfillmentStatus === 'fulfilled' || trackingUrl || trackingNumber) {
+    return {
+      order_status: 'shipped',
+      emailType: 'order_shipped',
+      message: 'Din order är skickad. Följ leveransen via spårningslänken om den finns med.',
+      trackingUrl,
+      trackingNumber,
+    };
+  }
+
+  if (tags.includes('packas') || tags.includes('packing')) {
+    return {
+      order_status: 'packing',
+      emailType: 'order_packing',
+      message: 'Din order har gått vidare till packning.',
+      trackingUrl,
+      trackingNumber,
+    };
+  }
+
+  return {
+    order_status: 'paid_synced_shopify',
+    emailType: null,
+    message: '',
+    trackingUrl,
+    trackingNumber,
+  };
 }
 
 module.exports = async function handler(req, res) {
@@ -59,40 +95,38 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  let order;
+  let payload;
 
   try {
-    order = JSON.parse(rawBody);
+    payload = JSON.parse(rawBody);
   } catch (error) {
     sendJson(res, 400, { error: 'Ogiltig JSON' });
     return;
   }
 
-  const hasMembership = (order.line_items || []).some(isMembershipLine);
-  const customerId = order.customer && (order.customer.admin_graphql_api_id || (order.customer.id ? `gid://shopify/Customer/${order.customer.id}` : null));
+  const id = shopifyOrderId(payload);
+  const existing = await getOrderByShopifyOrderId(id);
 
-  if (!hasMembership || !customerId) {
-    sendJson(res, 200, { tagged: false });
+  if (!existing) {
+    sendJson(res, 200, { synced: false, reason: 'order_not_found' });
     return;
   }
 
-  const tag = (process.env.VERSEN_MEMBER_TAG || 'versen_member').split(',')[0].trim();
-  const result = await adminFetch(TAGS_ADD_MUTATION, {
-    id: customerId,
-    tags: [tag],
+  const next = statusFromShopify(payload);
+  const statusChanged = existing.order_status !== next.order_status;
+  const updated = await updateOrderStatusByShopifyId(id, {
+    order_status: next.order_status,
+    tracking_url: next.trackingUrl,
+    tracking_number: next.trackingNumber,
   });
 
-  if (!result.ok) {
-    sendJson(res, result.status, result.body);
-    return;
+  if (statusChanged && next.emailType && updated) {
+    await sendOrderStatusEmail(updated, {
+      type: next.emailType,
+      message: next.message,
+      trackingUrl: next.trackingUrl,
+    }).catch(() => {});
   }
 
-  const errors = result.body.data.tagsAdd.userErrors;
-
-  if (errors.length) {
-    sendJson(res, 400, { error: 'Kunde inte tagga medlem', details: errors });
-    return;
-  }
-
-  sendJson(res, 200, { tagged: true });
+  sendJson(res, 200, { synced: Boolean(updated), orderStatus: next.order_status });
 };

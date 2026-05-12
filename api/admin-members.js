@@ -125,29 +125,6 @@ const TAGS_REMOVE_MUTATION = `
   }
 `;
 
-const MEMBERSHIP_PRODUCT_QUERY = `
-  query VersenMembershipProduct($handle: String!) {
-    product(handle: $handle) {
-      title
-      handle
-      variants(first: 5) {
-        nodes {
-          id
-          title
-          sellingPlanAllocations(first: 5) {
-            nodes {
-              sellingPlan {
-                id
-                name
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-
 const PRODUCT_FLAGS = {
   fewLeft: 'versen_few_left',
   greatPrice: 'versen_great_price',
@@ -164,86 +141,6 @@ function formatPrice(price) {
 
 function formatMoneySet(total) {
   return formatPrice(total && total.shopMoney);
-}
-
-async function rechargeFetch(path) {
-  const token = process.env.RECHARGE_API_TOKEN;
-
-  if (!token) {
-    return { ok: false, status: 503, body: { error: 'RECHARGE_API_TOKEN saknas' } };
-  }
-
-  const response = await fetch(`https://api.rechargeapps.com${path}`, {
-    headers: {
-      Accept: 'application/json',
-      'X-Recharge-Access-Token': token,
-      'X-Recharge-Version': process.env.RECHARGE_API_VERSION || '2021-11',
-    },
-  });
-
-  let body = null;
-
-  try {
-    body = await response.json();
-  } catch (error) {
-    body = { error: 'Recharge svarade inte med JSON' };
-  }
-
-  return { ok: response.ok, status: response.status, body };
-}
-
-async function getRechargeCustomer(email) {
-  if (!email) {
-    return {
-      email,
-      customerFound: false,
-      activeSubscriptionFound: false,
-    };
-  }
-
-  const customerResult = await rechargeFetch(`/customers?email=${encodeURIComponent(email)}`);
-  const customer = customerResult.ok ? (customerResult.body.customers || [])[0] : null;
-  let subscriptionResult = null;
-  let subscriptions = [];
-
-  if (customer && customer.id) {
-    subscriptionResult = await rechargeFetch(`/subscriptions?customer_id=${customer.id}&status=ACTIVE`);
-    subscriptions = subscriptionResult.ok ? (subscriptionResult.body.subscriptions || []) : [];
-  }
-
-  return {
-    email,
-    customerLookupWorking: customerResult.ok,
-    customerLookupStatus: customerResult.status,
-    customerFound: Boolean(customer),
-    rechargeCustomerId: customer ? customer.id : null,
-    subscriptionLookupWorking: subscriptionResult ? subscriptionResult.ok : false,
-    activeSubscriptionFound: subscriptions.length > 0,
-    subscriptions: subscriptions.slice(0, 5).map((subscription) => ({
-      id: subscription.id,
-      status: subscription.status,
-      productTitle: subscription.product_title || subscription.product_name || 'Medlemskap',
-      nextChargeScheduledAt: subscription.next_charge_scheduled_at || null,
-    })),
-  };
-}
-
-async function getActiveRechargeSubscriptions() {
-  const result = await rechargeFetch('/subscriptions?status=ACTIVE&limit=50');
-  const subscriptions = result.ok ? (result.body.subscriptions || []) : [];
-
-  return {
-    lookupWorking: result.ok,
-    status: result.status,
-    activeCount: subscriptions.length,
-    subscriptions: subscriptions.slice(0, 8).map((subscription) => ({
-      id: subscription.id,
-      status: subscription.status,
-      productTitle: subscription.product_title || subscription.product_name || 'Medlemskap',
-      nextChargeScheduledAt: subscription.next_charge_scheduled_at || null,
-      customerId: subscription.customer_id || null,
-    })),
-  };
 }
 
 function normalizeOrder(order) {
@@ -418,45 +315,19 @@ module.exports = async function handler(req, res) {
       parseSuggestions(customer.metafield && customer.metafield.value, customer)
     )).sort((a, b) => new Date(b.submittedAt || 0).getTime() - new Date(a.submittedAt || 0).getTime())
     : [];
-  const membershipHandle = process.env.VERSEN_MEMBERSHIP_PRODUCT_HANDLE || 'medlemskap';
-  const membershipResult = await shopifyFetch(MEMBERSHIP_PRODUCT_QUERY, { handle: membershipHandle });
-  const membershipProduct = membershipResult.ok && membershipResult.body.data.product
-    ? {
-      title: membershipResult.body.data.product.title,
-      handle: membershipResult.body.data.product.handle,
-      sellingPlanFound: membershipResult.body.data.product.variants.nodes.some((variant) => variant.sellingPlanAllocations.nodes.length > 0),
-      sellingPlans: membershipResult.body.data.product.variants.nodes.flatMap((variant) => (
-        variant.sellingPlanAllocations.nodes.map((allocation) => allocation.sellingPlan.name)
-      )),
-    }
-    : {
-      title: null,
-      handle: membershipHandle,
-      sellingPlanFound: false,
-      sellingPlans: [],
-    };
-  const recharge = await getActiveRechargeSubscriptions();
-  const customerCheck = email ? await getRechargeCustomer(email) : null;
-
   sendJson(res, 200, {
     tag,
     members,
     orders,
     products,
     suggestions,
-    membershipProduct,
-    recharge,
-    customerCheck,
     diagnostics: {
       ordersWorking: orderResult.ok,
       productsWorking: productResult.ok,
       suggestionsWorking: suggestionsResult.ok,
-      membershipProductWorking: membershipResult.ok,
-      rechargeWorking: recharge.lookupWorking,
       orderError: orderResult.ok ? null : orderResult.body,
       productError: productResult.ok ? null : productResult.body,
       suggestionError: suggestionsResult.ok ? null : suggestionsResult.body,
-      membershipProductError: membershipResult.ok ? null : membershipResult.body,
     },
   });
 };

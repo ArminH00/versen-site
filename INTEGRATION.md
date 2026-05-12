@@ -2,7 +2,7 @@
 
 ## Rekommenderad arkitektur
 
-Versen ska agera egen butik mot kund: egna konton, intern checkout, Stripe-betalningar, Stripe-medlemskap och egna emails via Resend. Shopify ska vara intern motor för produkter, lager, orderhantering och fulfillment. Recharge ska inte användas för nya medlemskap.
+Versen ska agera egen butik mot kund: Supabase Auth, intern checkout, Stripe-betalningar, Stripe-medlemskap och egna emails via Resend. Shopify ska bara vara intern motor för produkter, lager, orderhantering och fulfillment. Recharge används inte i nya kundflödet.
 
 ## Environment variables
 
@@ -33,7 +33,7 @@ Rotera `SHOPIFY_APP_CLIENT_SECRET` om den har visats i chat, skärmdump eller an
 Endpoints:
 
 - `GET /api/products`: hämtar produkter från Shopify Storefront API
-- `POST /api/cart`: legacy Shopify cart-endpoint. Nya produktköp ska gå via intern checkout.
+- `POST /api/cart`: legacy cart-endpoint. Nya produktköp ska gå via intern checkout.
 - `GET/POST /api/account`: verifierar email, skapar konto, loggar in, loggar ut, skickar lösenordsåterställning och hämtar medlemsstatus
 - `POST /api/checkout`: validerar cart, skapar Stripe PaymentIntent och sparar order i Supabase
 - `POST /api/checkout?webhook=stripe`: Stripe webhook för produktbetalningar och medlemsstatus
@@ -41,7 +41,7 @@ Endpoints:
 - `GET /api/admin-members`: hämtar medlemmar för intern vy. Kräver `Authorization: Bearer <VERSEN_ADMIN_SECRET>`.
 - `GET /api/shopify-status`: kontrollerar om Admin API och Storefront API fungerar
 - `POST /api/create-storefront-token`: skapar en Storefront-token via Admin API. Kräver `Authorization: Bearer <VERSEN_SETUP_SECRET>`.
-- `POST /api/shopify-order-webhook`: legacy Shopify webhook för gamla medlemsorders.
+- `POST /api/shopify-order-webhook`: Shopify order/fulfillment webhook som uppdaterar Supabase orderstatus och triggar egna Resend-mail.
 
 Frontend har statiska produkter som fallback. När Shopify-env vars finns byter `produkter.html` automatiskt till produkter från `/api/products`.
 
@@ -64,14 +64,14 @@ Kundkorgen sparas i webbläsaren tills kunden går vidare. Checkout skapas förs
 
 Medlemskap ska inte bara låsas i frontend. Servern avgör om en användare är medlem innan medlemspris eller checkout-rabatt används.
 
-Nya medlemskap ägs av Stripe subscriptions. Supabase speglar status i `profiles` och `subscriptions`. Recharge får bara vara kvar temporärt för legacy-subscriptions som måste läsas eller migreras.
+Nya medlemskap ägs av Stripe subscriptions. Supabase speglar status i `profiles` och `subscriptions`. Shopify/ReCharge ska inte skapa eller tolka medlemskap.
 
 Kundflöde:
 
 1. Kunden trycker på medlemskap.
 2. Om kunden inte är inloggad skickas kunden till `konto.html?next=membership`.
 3. Kunden anger email och får verifieringslänk.
-4. Efter verifierad email väljer kunden lösenord och Shopify-kontot skapas.
+4. Efter verifierad email väljer kunden lösenord och Supabase-kontot skapas.
 5. Kunden skickas tillbaka till `medlemskap.html`.
 6. Versen skapar en Stripe Subscription och visar Stripe Payment Element på medlemskapssidan.
 7. Stripe tar betalt.
@@ -79,11 +79,4 @@ Kundflöde:
 9. Resend skickar medlemsmail.
 10. Intern checkout tillåter produktbetalning när kunden är inloggad och aktiv medlem.
 
-Recharge:
-
-- Skapa inte nya medlemskap i Recharge.
-- Om `RECHARGE_API_TOKEN` finns kontrollerar Versen även aktiv Recharge-prenumeration via kundens email.
-- Lägg till `RECHARGE_MEMBERSHIP_PRODUCT_ID` eller `RECHARGE_MEMBERSHIP_VARIANT_ID` om bara en viss subscription-produkt ska räknas.
-- Detta är endast legacy-stöd tills gamla subscriptions är migrerade.
-
-Viktigt: bygg inte dubbla subscription-system. Stripe äger nya medlemskap; Supabase speglar; Shopify hanterar produkter, lager, order och fulfillment bakom kulisserna.
+Viktigt: bygg inte dubbla subscription-system. Stripe äger medlemskap; Supabase speglar; Shopify hanterar produkter, lager, order och fulfillment bakom kulisserna. Shopify ska inte skicka kundmail.

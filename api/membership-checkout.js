@@ -18,8 +18,7 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const customerAccessToken = getCookie(req, 'versen_customer_token');
-  const session = await getCustomerSession(customerAccessToken);
+  const session = await getCustomerSession(getCookie(req, 'versen_customer_token'));
 
   if (!session.authenticated || !session.customer) {
     sendJson(res, 401, {

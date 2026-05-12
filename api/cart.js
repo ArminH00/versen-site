@@ -102,8 +102,7 @@ module.exports = async function handler(req, res) {
 
   const discountCode = process.env.SHOPIFY_MEMBER_DISCOUNT_CODE;
   const requestedDiscountCode = normalizeDiscountCode(body.discountCode);
-  const customerAccessToken = getCookie(req, 'versen_customer_token');
-  const session = await getCustomerSession(customerAccessToken);
+  const session = await getCustomerSession(getCookie(req, 'versen_customer_token'));
   const input = {
     lines,
     attributes: [
@@ -123,7 +122,6 @@ module.exports = async function handler(req, res) {
 
   if (session.authenticated) {
     input.buyerIdentity = {
-      customerAccessToken,
       email: session.customer.email,
     };
   }

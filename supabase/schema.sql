@@ -11,6 +11,8 @@ create table if not exists public.profiles (
   shopify_customer_id text,
   membership_status text not null default 'inactive',
   membership_subscription_id text,
+  preferences jsonb not null default '{}'::jsonb,
+  product_suggestions jsonb not null default '[]'::jsonb,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -112,7 +114,13 @@ create table if not exists public.emails (
 alter table public.orders
   add column if not exists order_number text,
   add column if not exists shopify_sync_error jsonb,
+  add column if not exists tracking_url text,
+  add column if not exists tracking_number text,
   add column if not exists updated_at timestamptz not null default now();
+
+alter table public.profiles
+  add column if not exists preferences jsonb not null default '{}'::jsonb,
+  add column if not exists product_suggestions jsonb not null default '[]'::jsonb;
 
 create index if not exists checkout_drafts_payment_intent_idx
   on public.checkout_drafts (stripe_payment_intent_id);

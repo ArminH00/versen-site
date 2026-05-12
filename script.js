@@ -4065,18 +4065,16 @@ if (adminForm) {
       return;
     }
 
-    const activeRecharge = data.recharge && data.recharge.activeCount ? data.recharge.activeCount : 0;
     const recentOrders = data.orders || [];
     const products = data.products || [];
     const suggestions = data.suggestions || [];
-    const check = data.customerCheck;
 
     dashboard.innerHTML = `
       <div class="admin-kpis">
         <article class="account-card">
-          <span>ReCharge</span>
-          <strong>${escapeHtml(activeRecharge)} aktiva</strong>
-          <p>${escapeHtml(statusText(data.diagnostics && data.diagnostics.rechargeWorking))}</p>
+          <span>Medlemskap</span>
+          <strong>Stripe</strong>
+          <p>Nya medlemskap hanteras utanför Shopify</p>
         </article>
         <article class="account-card">
           <span>Shopify orders</span>
@@ -4084,22 +4082,11 @@ if (adminForm) {
           <p>${escapeHtml(statusText(data.diagnostics && data.diagnostics.ordersWorking))}</p>
         </article>
         <article class="account-card">
-          <span>Medlemsplan</span>
-          <strong>${data.membershipProduct && data.membershipProduct.sellingPlanFound ? 'Aktiv' : 'Saknas'}</strong>
-          <p>${escapeHtml((data.membershipProduct && data.membershipProduct.sellingPlans || []).join(', ') || 'Ingen plan hittad')}</p>
+          <span>Kundsystem</span>
+          <strong>Supabase</strong>
+          <p>Konton och medlemsstatus ligger i Versens system</p>
         </article>
       </div>
-
-      ${check ? `
-        <article class="account-card admin-card-wide">
-          <h2>Kundkontroll</h2>
-          <div class="admin-status-grid">
-            <div><span>Email</span><strong>${escapeHtml(check.email)}</strong></div>
-            <div><span>ReCharge-kund</span><strong>${check.customerFound ? 'Ja' : 'Nej'}</strong></div>
-            <div><span>Aktiv subscription</span><strong>${check.activeSubscriptionFound ? 'Ja' : 'Nej'}</strong></div>
-          </div>
-        </article>
-      ` : ''}
 
       <article class="account-card admin-card-wide">
         <h2>Produktförslag</h2>

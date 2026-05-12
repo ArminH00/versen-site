@@ -1,96 +1,20 @@
 const crypto = require('crypto');
 const {
-  adminFetch,
-  clearCustomerCookie,
-  getAdminAccessToken,
   getCookie,
-  getShopDomain,
   readBody,
   sendJson,
-  setCustomerCookie,
-  shopifyFetch,
 } = require('../lib/shopify');
-const { getCustomerSession, getRechargeMembershipByEmail } = require('./membership');
+const { getCustomerSession } = require('./membership');
 const { cancelStripeMembership } = require('../lib/membership-service');
-const { isSupabaseConfigured, upsertProfile } = require('../lib/supabase');
-
-const CUSTOMER_CREATE_MUTATION = `
-  mutation VersenCustomerCreate($input: CustomerCreateInput!) {
-    customerCreate(input: $input) {
-      customer {
-        id
-        email
-      }
-      customerUserErrors {
-        field
-        message
-      }
-    }
-  }
-`;
-
-const CUSTOMER_LOGIN_MUTATION = `
-  mutation VersenCustomerLogin($input: CustomerAccessTokenCreateInput!) {
-    customerAccessTokenCreate(input: $input) {
-      customerAccessToken {
-        accessToken
-        expiresAt
-      }
-      customerUserErrors {
-        field
-        message
-      }
-    }
-  }
-`;
-
-const CUSTOMER_RECOVER_MUTATION = `
-  mutation VersenCustomerRecover($email: String!) {
-    customerRecover(email: $email) {
-      customerUserErrors {
-        field
-        message
-      }
-    }
-  }
-`;
-
-const CUSTOMER_EXISTS_QUERY = `
-  query VersenCustomerExists($query: String!) {
-    customers(first: 1, query: $query) {
-      nodes {
-        id
-        email
-        firstName
-      }
-    }
-  }
-`;
-
-const CUSTOMER_SUGGESTIONS_QUERY = `
-  query VersenCustomerSuggestions($id: ID!) {
-    customer(id: $id) {
-      metafield(namespace: "versen", key: "product_suggestions") {
-        value
-      }
-    }
-  }
-`;
-
-const METAFIELDS_SET_MUTATION = `
-  mutation VersenMetafieldsSet($metafields: [MetafieldsSetInput!]!) {
-    metafieldsSet(metafields: $metafields) {
-      metafields {
-        id
-        key
-      }
-      userErrors {
-        field
-        message
-      }
-    }
-  }
-`;
+const { appendProductSuggestion, updateProfilePreferences } = require('../lib/supabase');
+const {
+  createSupabaseUser,
+  findSupabaseAccountByEmail,
+  refreshSupabaseSession,
+  signInWithPassword,
+  updateSupabasePassword,
+} = require('../lib/supabase-auth');
+const { sendWelcomeEmail } = require('../lib/email');
 
 function normalizeEmail(email) {
   return String(email || '').trim().toLowerCase();
@@ -171,6 +95,24 @@ function logDeviceVisit(req, body) {
     device: normalizeVisitDevice(body.device),
     customer: normalizeVisitCustomer(body.customer),
   }));
+}
+
+function setAuthCookies(res, session) {
+  const expires = session.expires_at
+    ? new Date(Number(session.expires_at) * 1000).toUTCString()
+    : new Date(Date.now() + (Number(session.expires_in || 3600) * 1000)).toUTCString();
+  const refreshExpires = new Date(Date.now() + (1000 * 60 * 60 * 24 * 60)).toUTCString();
+  res.setHeader('Set-Cookie', [
+    `versen_customer_token=${encodeURIComponent(session.access_token)}; Path=/; Expires=${expires}; HttpOnly; Secure; SameSite=Lax`,
+    `versen_refresh_token=${encodeURIComponent(session.refresh_token || '')}; Path=/; Expires=${refreshExpires}; HttpOnly; Secure; SameSite=Lax`,
+  ]);
+}
+
+function clearAuthCookies(res) {
+  res.setHeader('Set-Cookie', [
+    'versen_customer_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax',
+    'versen_refresh_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax',
+  ]);
 }
 
 function getBaseUrl(req) {
@@ -593,104 +535,6 @@ async function sendProductSuggestionEmail(req, res, body) {
   sendJson(res, 200, { status: suggestionThanks });
 }
 
-function fallbackActiveUntil() {
-  const date = new Date();
-  date.setDate(date.getDate() + 30);
-  return date.toISOString().slice(0, 10);
-}
-
-async function cancelRechargeSubscription(subscriptionId) {
-  const token = process.env.RECHARGE_API_TOKEN;
-
-  if (!token) {
-    return {
-      ok: false,
-      status: 503,
-      body: { error: 'RECHARGE_API_TOKEN saknas' },
-    };
-  }
-
-  if (!subscriptionId) {
-    return {
-      ok: false,
-      status: 404,
-      body: { error: 'Ingen aktiv prenumeration hittades.' },
-    };
-  }
-
-  const response = await fetch(`https://api.rechargeapps.com/subscriptions/${encodeURIComponent(subscriptionId)}/cancel`, {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-      'X-Recharge-Access-Token': token,
-      'X-Recharge-Version': process.env.RECHARGE_API_VERSION || '2021-11',
-    },
-    body: JSON.stringify({
-      cancellation_reason: 'Kunden avslutade via Versen',
-      cancellation_reason_comments: 'Avslutat från kundens kontoinställningar.',
-      send_email: true,
-    }),
-  });
-
-  let body = null;
-
-  try {
-    body = await response.json();
-  } catch (error) {
-    body = { error: 'Prenumerationstjänsten svarade inte korrekt' };
-  }
-
-  if (!response.ok) {
-    return {
-      ok: false,
-      status: response.status,
-      body: {
-        error: body.error || body.message || 'Kunde inte avsluta prenumerationen just nu.',
-        details: body,
-      },
-    };
-  }
-
-  return { ok: true, status: 200, body };
-}
-
-async function saveMembershipCancellation(customerId, cancellation) {
-  if (!customerId) {
-    return {
-      ok: false,
-      status: 401,
-      body: { error: 'Kund saknas' },
-    };
-  }
-
-  const result = await adminFetch(METAFIELDS_SET_MUTATION, {
-    metafields: [{
-      ownerId: customerId,
-      namespace: 'versen',
-      key: 'membership_cancellation',
-      type: 'json',
-      value: JSON.stringify(cancellation),
-    }],
-  });
-
-  if (!result.ok) {
-    return result;
-  }
-
-  const errors = result.body.data.metafieldsSet.userErrors || [];
-
-  if (errors.length) {
-    return {
-      ok: false,
-      status: 400,
-      body: { error: errors.map((item) => item.message).join(', ') },
-    };
-  }
-
-  return { ok: true, status: 200, body: { status: 'Uppsägningen är sparad.' } };
-}
-
 async function saveCustomerPreferences(req, res, body) {
   const session = await getCustomerSession(getCookie(req, 'versen_customer_token'));
 
@@ -727,24 +571,9 @@ async function saveCustomerPreferences(req, res, body) {
       }));
   }
 
-  const result = await adminFetch(METAFIELDS_SET_MUTATION, {
-    metafields: [{
-      ownerId: session.customer.id,
-      namespace: 'versen',
-      key: 'preferences',
-      type: 'json',
-      value: JSON.stringify(nextPreferences),
-    }],
-  });
-
-  if (!result.ok) {
-    sendJson(res, 200, { status: 'Inställningen sparas på den här enheten.' });
-    return;
-  }
-
-  const errors = result.body.data.metafieldsSet.userErrors || [];
-
-  if (errors.length) {
+  try {
+    await updateProfilePreferences(session.customer.id, nextPreferences);
+  } catch (error) {
     sendJson(res, 200, { status: 'Inställningen sparas på den här enheten.' });
     return;
   }
@@ -761,7 +590,7 @@ async function cancelMembership(req, res) {
   }
 
   const membership = session.customer.membership || {};
-  if (session.customer.membershipSource === 'Stripe' && membership.subscriptionId) {
+  if (membership.subscriptionId) {
     try {
       const subscription = await cancelStripeMembership(membership.subscriptionId);
       const updatedSession = await getCustomerSession(getCookie(req, 'versen_customer_token'));
@@ -776,75 +605,7 @@ async function cancelMembership(req, res) {
     }
     return;
   }
-
-  const recharge = await getRechargeMembershipByEmail(session.customer.email);
-  const subscription = recharge && recharge.subscription;
-
-  if (!subscription || !subscription.id) {
-    if (session.customer.membership && session.customer.membership.cancellationRequested) {
-      sendJson(res, 200, {
-        status: 'Prenumerationen är redan avslutad för kommande period.',
-        session,
-      });
-      return;
-    }
-
-    const fallbackUntil = session.customer.membership && (session.customer.membership.activeUntil || session.customer.membership.nextChargeScheduledAt)
-      ? session.customer.membership.activeUntil || session.customer.membership.nextChargeScheduledAt
-      : fallbackActiveUntil();
-    const fallbackCancellation = {
-      status: 'cancelled',
-      provider: session.customer.membershipSource || 'Versen',
-      subscriptionId: null,
-      activeUntil: fallbackUntil,
-      cancelledAt: new Date().toISOString(),
-    };
-    const fallbackSaved = await saveMembershipCancellation(session.customer.id, fallbackCancellation);
-
-    if (!fallbackSaved.ok) {
-      sendJson(res, fallbackSaved.status || 500, fallbackSaved.body || { error: 'Kunde inte spara uppsägningen.' });
-      return;
-    }
-
-    const updatedSession = await getCustomerSession(getCookie(req, 'versen_customer_token'));
-
-    sendJson(res, 200, {
-      status: 'Medlemskapet avslutas till nästa period. Access ligger kvar till sista datumet.',
-      activeUntil: fallbackUntil,
-      session: updatedSession,
-    });
-    return;
-  }
-
-  const activeUntil = subscription.next_charge_scheduled_at || fallbackActiveUntil();
-  const cancelResult = await cancelRechargeSubscription(subscription.id);
-
-  if (!cancelResult.ok) {
-    sendJson(res, cancelResult.status, cancelResult.body);
-    return;
-  }
-
-  const cancellation = {
-    status: 'cancelled',
-    provider: 'Recharge',
-    subscriptionId: subscription.id,
-    activeUntil,
-    cancelledAt: new Date().toISOString(),
-  };
-  const saved = await saveMembershipCancellation(session.customer.id, cancellation);
-
-  if (!saved.ok) {
-    sendJson(res, saved.status || 500, saved.body || { error: 'Kunde inte spara uppsägningen på kontot.' });
-    return;
-  }
-
-  const updatedSession = await getCustomerSession(getCookie(req, 'versen_customer_token'));
-
-  sendJson(res, 200, {
-    status: 'Prenumerationen är avslutad. Medlemskapet är aktivt till sista datumet.',
-    activeUntil,
-    session: updatedSession,
-  });
+  sendJson(res, 404, { error: 'Ingen aktiv Stripe-prenumeration hittades.' });
 }
 
 function parseSuggestionList(value) {
@@ -861,61 +622,28 @@ async function saveProductSuggestion(customerId, suggestion) {
     return { ok: false };
   }
 
-  const current = await adminFetch(CUSTOMER_SUGGESTIONS_QUERY, { id: customerId });
-  const existing = current.ok
-    ? parseSuggestionList(current.body.data.customer && current.body.data.customer.metafield && current.body.data.customer.metafield.value)
-    : [];
-  const next = [suggestion, ...existing].slice(0, 50);
-  const result = await adminFetch(METAFIELDS_SET_MUTATION, {
-    metafields: [{
-      ownerId: customerId,
-      namespace: 'versen',
-      key: 'product_suggestions',
-      type: 'json',
-      value: JSON.stringify(next),
-    }],
-  });
-
-  if (!result.ok) {
-    return { ok: false, error: result.body };
+  try {
+    await appendProductSuggestion(customerId, suggestion);
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error };
   }
-
-  const errors = result.body.data.metafieldsSet.userErrors || [];
-  return {
-    ok: !errors.length,
-    errors,
-  };
 }
 
 async function loginCustomer(res, email, password) {
   const normalizedEmail = normalizeEmail(email);
-  const result = await shopifyFetch(CUSTOMER_LOGIN_MUTATION, {
-    input: {
-      email: normalizedEmail,
-      password: String(password || ''),
-    },
-  });
-
-  if (!result.ok) {
-    sendJson(res, result.status, result.body);
-    return;
-  }
-
-  const payload = result.body.data.customerAccessTokenCreate;
-
-  if (payload.customerUserErrors.length || !payload.customerAccessToken) {
+  try {
+    const authSession = await signInWithPassword(normalizedEmail, String(password || ''));
+    setAuthCookies(res, authSession);
+    const session = await getCustomerSession(authSession.access_token);
+    sendJson(res, 200, session);
+  } catch (error) {
     const accountExists = await customerExists(normalizedEmail);
-
     sendJson(res, 401, {
       error: accountExists === false ? 'Kontot finns inte.' : 'Fel lösenord.',
       reason: accountExists === false ? 'account_not_found' : 'invalid_password',
     });
-    return;
   }
-
-  setCustomerCookie(res, payload.customerAccessToken.accessToken, payload.customerAccessToken.expiresAt);
-  const session = await getCustomerSession(payload.customerAccessToken.accessToken);
-  sendJson(res, 200, session);
 }
 
 async function customerExists(email) {
@@ -928,79 +656,41 @@ async function findCustomerByEmail(email) {
     return false;
   }
 
-  const result = await adminFetch(CUSTOMER_EXISTS_QUERY, { query: `email:${email}` });
-
-  if (!result.ok) {
+  try {
+    return await findSupabaseAccountByEmail(email) || false;
+  } catch (error) {
     return null;
   }
-
-  const customers = result.body.data.customers.nodes || [];
-  return customers.find((customer) => normalizeEmail(customer.email) === email) || false;
-}
-
-function numericCustomerId(id) {
-  const match = String(id || '').match(/Customer\/(\d+)$/);
-  return match ? match[1] : null;
 }
 
 async function updateCustomerPassword(customerId, password) {
-  const domain = getShopDomain();
-  const token = await getAdminAccessToken();
-  const apiVersion = process.env.SHOPIFY_API_VERSION || '2026-04';
-  const numericId = numericCustomerId(customerId);
-
-  if (!domain || !token || !numericId) {
-    return {
-      ok: false,
-      status: 500,
-      body: { error: 'Kontotjänsten saknar konfiguration för lösenordsbyte' },
-    };
-  }
-
-  const response = await fetch(`https://${domain}/admin/api/${apiVersion}/customers/${numericId}.json`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Shopify-Access-Token': token,
-    },
-    body: JSON.stringify({
-      customer: {
-        id: Number(numericId),
-        password,
-        password_confirmation: password,
-      },
-    }),
-  });
-
-  let body = null;
-
   try {
-    body = await response.json();
+    const body = await updateSupabasePassword(customerId, password);
+    return { ok: true, status: 200, body };
   } catch (error) {
-    body = { error: 'Kontotjänsten svarade inte korrekt' };
-  }
-
-  if (!response.ok || body.errors) {
     return {
-      ok: false,
-      status: response.status || 500,
-      body: {
-        error: 'Kunde inte uppdatera lösenordet',
-        details: body,
-      },
+      ok: false, status: error.status || 500, body: { error: error.message || 'Kunde inte uppdatera lösenordet' },
     };
   }
-
-  return { ok: true, status: 200, body };
 }
 
 module.exports = async function handler(req, res) {
   if (req.method === 'GET') {
     const token = getCookie(req, 'versen_customer_token');
-    const session = await getCustomerSession(token);
+    let session = await getCustomerSession(token);
 
     if (!session.authenticated) {
-      clearCustomerCookie(res);
+      try {
+        const refreshed = await refreshSupabaseSession(getCookie(req, 'versen_refresh_token'));
+        setAuthCookies(res, refreshed);
+        session = await getCustomerSession(refreshed.access_token);
+      } catch (error) {
+        session = { authenticated: false, customer: null };
+      }
+    }
+
+    if (!session.authenticated) {
+      clearAuthCookies(res);
     }
 
     sendJson(res, 200, session);
@@ -1022,7 +712,7 @@ module.exports = async function handler(req, res) {
   }
 
   if (body.action === 'logout') {
-    clearCustomerCookie(res);
+    clearAuthCookies(res);
     sendJson(res, 200, { authenticated: false });
     return;
   }
@@ -1163,37 +853,20 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    const result = await shopifyFetch(CUSTOMER_CREATE_MUTATION, {
-      input: {
+    try {
+      const user = await createSupabaseUser({
         email: verified.email,
         password,
-        firstName: verified.firstName || undefined,
-        lastName: verified.lastName || undefined,
-        acceptsMarketing: Boolean(body.acceptsMarketing),
-      },
-    });
-
-    if (!result.ok) {
-      sendJson(res, result.status, result.body);
-      return;
-    }
-
-    const payload = result.body.data.customerCreate;
-
-    if (payload.customerUserErrors.length) {
-      sendJson(res, 400, { error: payload.customerUserErrors[0].message });
-      return;
-    }
-
-    if (isSupabaseConfigured()) {
-      await upsertProfile({
-        id: payload.customer.id,
+        firstName: verified.firstName,
+        lastName: verified.lastName,
+      });
+      await sendWelcomeEmail({
+        id: user.id,
         email: verified.email,
-        first_name: verified.firstName,
-        last_name: verified.lastName,
-        shopify_customer_id: payload.customer.id,
-        membership_status: 'inactive',
       }).catch(() => {});
+    } catch (error) {
+      sendJson(res, error.status || 500, { error: error.message || 'Kunde inte skapa konto.' });
+      return;
     }
 
     await loginCustomer(res, verified.email, password);

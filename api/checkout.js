@@ -172,13 +172,12 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const { customerAccessToken, session } = await getSession(req);
+    const { session } = await getSession(req);
 
     if (body.action === 'quote') {
       const validation = await validateCheckout({
         items: body.items,
         discountCode: body.discountCode,
-        customerAccessToken,
         session,
       });
 
@@ -217,7 +216,6 @@ module.exports = async function handler(req, res) {
       const validation = await validateCheckout({
         items: body.items,
         discountCode: body.discountCode,
-        customerAccessToken,
         session,
       });
       const intent = await createPaymentIntent({
@@ -259,7 +257,6 @@ module.exports = async function handler(req, res) {
         const validation = await validateCheckout({
           items: body.items,
           discountCode: body.discountCode,
-          customerAccessToken,
           session,
         });
         fallbackDraft = await saveDraft({
