@@ -2843,6 +2843,13 @@ if (checkoutPayButton) {
             email: draft.contact && draft.contact.email,
             phone: draft.contact && draft.contact.phone,
             name: draft.shippingAddress ? `${draft.shippingAddress.firstName || ''} ${draft.shippingAddress.lastName || ''}`.trim() : undefined,
+            address: draft.shippingAddress ? {
+              line1: draft.shippingAddress.address1,
+              line2: draft.shippingAddress.address2,
+              city: draft.shippingAddress.city,
+              postal_code: draft.shippingAddress.postalCode,
+              country: 'SE',
+            } : undefined,
           },
         },
       },
