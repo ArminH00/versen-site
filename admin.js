@@ -73,6 +73,7 @@
     box: '<path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/>',
     truck: '<path d="M10 17H6a2 2 0 1 1-4 0V6h12v11"/><path d="M14 9h4l4 4v4h-2a2 2 0 1 1-4 0h-2V9Z"/><circle cx="6" cy="17" r="2"/><circle cx="18" cy="17" r="2"/>',
     copy: '<path d="M8 8h12v12H8V8Z"/><path d="M4 16V4h12"/>',
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 10v6M12 7h.01"/>',
     arrowLeft: '<path d="M15 18 9 12l6-6"/>',
   };
 
@@ -710,6 +711,50 @@
     return `<div class="admin-detail-card"><span class="admin-mini-label">${escapeHtml(label)}</span><p class="admin-meta">${escapeHtml(value || 'Saknas')}</p></div>`;
   }
 
+  function relevantOrderChanges(order) {
+    return list('activity')
+      .filter((event) => String(event.target_type || '') === 'order' && String(event.target_id || '') === String(order.id))
+      .filter((event) => String(event.action || '').includes('order_status'))
+      .slice(0, 12);
+  }
+
+  function formatChangeValue(value) {
+    if (value == null || value === '') return 'Saknas';
+    if (typeof value === 'object') return JSON.stringify(value);
+    return String(value);
+  }
+
+  function renderOrderChanges(order) {
+    const changes = relevantOrderChanges(order);
+
+    if (!changes.length) {
+      return '<p class="admin-meta">Inga sparade adminändringar finns ännu.</p>';
+    }
+
+    return `
+      <div class="admin-change-list">
+        ${changes.map((event) => {
+          const metadata = event.metadata && typeof event.metadata === 'object' ? event.metadata : {};
+          const changed = metadata.changes && typeof metadata.changes === 'object' ? metadata.changes : {};
+          const notified = metadata.customerNotified === true;
+          return `
+            <article class="admin-change-card ${notified ? 'notified' : 'silent'}">
+              <div>
+                <strong>${escapeHtml(event.message || 'Order ändrad')}</strong>
+                <small>${compactDate(event.created_at || event.createdAt)} · ${notified ? 'Kund mailad' : 'Ej mailad till kund'}</small>
+              </div>
+              <dl>
+                ${Object.keys(changed).map((key) => `
+                  <div><dt>${escapeHtml(titleLabel(key))}</dt><dd>${escapeHtml(formatChangeValue(changed[key]))}</dd></div>
+                `).join('')}
+              </dl>
+            </article>
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
+
   function orderFlowSteps(order) {
     const status = String(order.orderStatus || order.fulfillmentStatus || '').toLowerCase();
     return [
@@ -729,6 +774,8 @@
       ? 'Shopify-order visas här för överblick. Statusändringar i denna panel loggas i Versen och synkar fullt när ordern finns i Supabase.'
       : 'Det här är Versens orderflöde. Hantera packning, tracking, statusmail och intern logg här.';
     const address = order.shippingAddress || {};
+    const orderChanges = relevantOrderChanges(order);
+    const hasSilentChanges = orderChanges.some((event) => event.metadata && event.metadata.customerNotified === false);
     const addressText = [
       address.name || [address.first_name, address.firstName, address.last_name, address.lastName].filter(Boolean).join(' '),
       address.address1,
@@ -748,6 +795,7 @@
           <div class="admin-order-hero-status">
             ${badge(order.paymentStatus || 'payment')}
             ${badge(order.orderStatus || 'status')}
+            ${hasSilentChanges ? badge('ej mailad') : ''}
           </div>
         </div>
         <div class="admin-detail-tabs">
@@ -803,10 +851,13 @@
               <div class="admin-field"><label>Nästa status</label><select data-order-status>${orderStatuses.filter((item) => item !== 'alla').map((status) => `<option value="${escapeHtml(status)}" ${String(status).toLowerCase() === String(order.orderStatus || '').toLowerCase() ? 'selected' : ''}>${escapeHtml(titleLabel(status))}</option>`).join('')}</select></div>
               <div class="admin-field"><label>Trackingnummer</label><input data-order-tracking-number value="${escapeHtml(order.trackingNumber || '')}" placeholder="t.ex. 0034..."></div>
               <div class="admin-field"><label>Trackinglänk</label><input data-order-tracking-url value="${escapeHtml(order.trackingUrl || '')}" placeholder="https://..."></div>
+              ${hasSilentChanges ? '<div class="admin-silent-warning">Det finns sparade ändringar på den här ordern som kunden inte har mailats om.</div>' : ''}
               <div class="admin-action-row">
                 <button class="admin-action" type="button" data-set-order-status="packas">${icon('box')}Markera packas</button>
                 <button class="admin-action" type="button" data-set-order-status="skickad">${icon('truck')}Markera skickad</button>
-                <button class="admin-action danger" type="button" data-update-order="${escapeHtml(order.id)}">${icon('mail')}Spara och maila kund</button>
+                <button class="admin-action" type="button" data-order-change-info="${escapeHtml(order.id)}">${icon('info')}Ändringar</button>
+                <button class="admin-action" type="button" data-update-order="${escapeHtml(order.id)}" data-send-email="false">${icon('copy')}Spara</button>
+                <button class="admin-action danger" type="button" data-update-order="${escapeHtml(order.id)}" data-send-email="true">${icon('mail')}Spara + maila kund</button>
               </div>
             </div>
           </section>
@@ -823,13 +874,16 @@
         <section class="admin-tab-panel" data-order-panel="statusmail" hidden>
           <section class="admin-order-panel">
             <div class="admin-section-title"><h3>Statusmail</h3><span>Resend</span></div>
-            <p class="admin-meta">Statusmail skickas när du sparar orderstatus under Packning.</p>
+            <p class="admin-meta">Använd “Spara + maila kund” om kunden ska få statusmail. Vanlig “Spara” uppdaterar ordern internt och markeras som ej mailad.</p>
+            ${renderOrderChanges(order)}
           </section>
         </section>
         <section class="admin-tab-panel" data-order-panel="intern-logg" hidden>
           <section class="admin-order-panel">
             <h3>Intern timeline</h3>
             <ul class="admin-timeline">${(order.timeline || []).map((event) => `<li><span>${escapeHtml(event.label)}</span><small>${compactDate(event.at)}</small></li>`).join('')}</ul>
+            <div class="admin-section-title admin-change-title"><h3>Adminändringar</h3><span>${escapeHtml(String(orderChanges.length))}</span></div>
+            ${renderOrderChanges(order)}
           </section>
         </section>
       </div>
@@ -1124,14 +1178,27 @@
         showToast('Orderpanelen kunde inte läsas. Ladda om admin och försök igen.');
         return;
       }
-      await guardedAction('Ändra orderstatus?', 'Statusändringen påverkar orderflödet och loggas.', () => postJson('/api/admin-members', {
+      const shouldEmail = updateOrder.dataset.sendEmail === 'true';
+      await guardedAction(
+        shouldEmail ? 'Spara och maila kund?' : 'Spara utan kundmail?',
+        shouldEmail
+          ? 'Statusändringen sparas och kunden får rätt statusmail via Resend.'
+          : 'Statusändringen sparas internt och markeras som ej mailad till kund.',
+        () => postJson('/api/admin-members', {
         action: 'update_order_status',
         orderId: updateOrder.dataset.updateOrder,
         orderStatus: panel.querySelector('[data-order-status]').value,
         trackingNumber: panel.querySelector('[data-order-tracking-number]').value,
         trackingUrl: panel.querySelector('[data-order-tracking-url]').value,
-        sendEmail: true,
+        sendEmail: shouldEmail,
       }));
+    }
+
+    const orderChangeInfo = event.target.closest('[data-order-change-info]');
+    if (orderChangeInfo) {
+      const detail = orderChangeInfo.closest('.admin-order-detail');
+      const tab = detail && detail.querySelector('[data-order-tab="statusmail"]');
+      if (tab) tab.click();
     }
 
     const quickOrderStatus = event.target.closest('[data-set-order-status]');

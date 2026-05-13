@@ -1005,6 +1005,39 @@ button{cursor:pointer}
 }
 .admin-status-steps button.active{border-color:rgba(66,215,136,.20);background:rgba(66,215,136,.08);color:#78e0a8}
 .admin-order-note{padding:12px 14px;font-size:12px}
+.admin-silent-warning{
+  grid-column:1 / -1;
+  border:1px solid rgba(246,169,77,.22);
+  border-radius:var(--admin-radius-sm);
+  background:rgba(246,169,77,.09);
+  color:#f4c27e;
+  padding:10px 12px;
+  font-size:12px;
+  font-weight:720;
+}
+.admin-change-title{margin:18px 0 8px}
+.admin-change-list{display:grid;gap:9px;margin-top:12px}
+.admin-change-card{
+  border:1px solid var(--admin-line);
+  border-radius:var(--admin-radius-sm);
+  background:rgba(255,255,255,.026);
+  padding:12px;
+}
+.admin-change-card.silent{
+  border-color:rgba(246,169,77,.20);
+  background:rgba(246,169,77,.055);
+}
+.admin-change-card.notified{
+  border-color:rgba(66,215,136,.16);
+  background:rgba(66,215,136,.045);
+}
+.admin-change-card strong{display:block;font-size:12px;line-height:1.35}
+.admin-change-card small{display:block;margin-top:4px;color:#9ca6b5;font-size:11px}
+.admin-change-card dl{display:grid;gap:6px;margin:10px 0 0}
+.admin-change-card dl div{display:flex;justify-content:space-between;gap:12px;border-top:1px solid var(--admin-line);padding-top:6px}
+.admin-change-card dt,
+.admin-change-card dd{margin:0;color:#aeb8c7;font-size:11px;overflow-wrap:anywhere}
+.admin-change-card dd{color:#fff;text-align:right;font-weight:720}
 .admin-order-summary{gap:10px}
 .admin-order-summary article{min-height:94px;padding:18px 18px;background:var(--admin-card-soft)}
 .admin-order-summary strong{font-size:20px;font-weight:730}

@@ -21,7 +21,11 @@ const {
   signInWithPassword,
   updateSupabasePassword,
 } = require('../lib/supabase-auth');
-const { sendWelcomeEmail } = require('../lib/email');
+const {
+  sendPasswordResetEmail: sendPasswordResetTemplateEmail,
+  sendVerificationRequestEmail,
+  sendWelcomeEmail,
+} = require('../lib/email');
 
 function normalizeEmail(email) {
   return String(email || '').trim().toLowerCase();
@@ -180,8 +184,6 @@ function verifyPayload(token) {
 }
 
 async function sendVerificationEmail(req, payload) {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.VERSEN_EMAIL_FROM || 'Versen <onboarding@resend.dev>';
   const token = signPayload(payload);
 
   if (!token) {
@@ -194,69 +196,22 @@ async function sendVerificationEmail(req, payload) {
 
   const verificationUrl = `${getBaseUrl(req)}/konto?verify=${encodeURIComponent(token)}&next=${encodeURIComponent(payload.next || '')}`;
 
-  if (!apiKey) {
-    return {
-      ok: false,
-      status: 503,
-      body: {
-        error: 'Emailutskick är inte konfigurerat ännu',
-        missing: ['RESEND_API_KEY', 'VERSEN_EMAIL_FROM'],
-      },
-    };
-  }
-
-  const response = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from,
-      to: [payload.email],
-      subject: 'Verifiera ditt Versen-konto',
-      html: `
-        <div style="font-family:Inter,Arial,sans-serif;background:#0a0a0a;color:#fff;padding:32px">
-          <h1 style="margin:0 0 12px">Verifiera ditt Versen-konto</h1>
-          <p style="color:#c9c9c9;line-height:1.5">Klicka på knappen för att verifiera din email och skapa ditt lösenord.</p>
-          <a href="${verificationUrl}" style="display:inline-block;margin-top:18px;background:#fff;color:#000;padding:14px 22px;border-radius:999px;text-decoration:none;font-weight:700">Verifiera email</a>
-          <p style="color:#8d8d8d;margin-top:24px;font-size:13px">Länken gäller i 30 minuter.</p>
-        </div>
-      `,
-      text: `Verifiera ditt Versen-konto: ${verificationUrl}`,
-    }),
+  const result = await sendVerificationRequestEmail({
+    to: payload.email,
+    verificationUrl,
+    next: payload.next,
   });
 
-  if (!response.ok) {
-    let details = null;
-
-    try {
-      details = await response.json();
-    } catch (error) {
-      details = { message: 'Resend svarade inte med JSON' };
-    }
-
-    return {
-      ok: false,
-      status: response.status,
-      body: {
-        error: details.message || details.error || 'Kunde inte skicka verifieringsmail',
-        provider: 'Resend',
-        details,
-      },
-    };
-  }
-
   return {
-    ok: true,
-    status: 200,
-    body: { status: 'Verifieringsmail skickat. Kontrollera inkorgen.' },
+    ok: result.ok,
+    status: result.ok ? 200 : (result.status || 503),
+    body: result.ok
+      ? { status: 'Verifieringsmail skickat. Kontrollera inkorgen och skräpposten.' }
+      : { error: 'Kunde inte skicka verifieringsmail', provider: 'Resend', details: result.body || result },
   };
 }
 
 async function sendPasswordResetEmail(req, payload) {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.VERSEN_EMAIL_FROM || 'Versen <hej@versen.se>';
   const token = signPayload({
     type: 'password_reset',
     customerId: payload.customerId,
@@ -275,61 +230,17 @@ async function sendPasswordResetEmail(req, payload) {
 
   const resetUrl = `${getBaseUrl(req)}/konto?reset=${encodeURIComponent(token)}`;
 
-  if (!apiKey) {
-    return {
-      ok: false,
-      status: 503,
-      body: { error: 'Emailutskick är inte konfigurerat ännu' },
-    };
-  }
-
-  const response = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from,
-      to: [payload.email],
-      subject: 'Återställ ditt Versen-lösenord',
-      html: `
-        <div style="font-family:Inter,Arial,sans-serif;background:#0a0a0a;color:#fff;padding:32px">
-          <p style="letter-spacing:2px;text-transform:uppercase;color:#82f7d2;font-size:12px;margin:0 0 18px">Versen</p>
-          <h1 style="margin:0 0 12px">Återställ lösenord</h1>
-          <p style="color:#c9c9c9;line-height:1.5">Klicka på knappen för att välja ett nytt lösenord för ditt Versen-konto.</p>
-          <a href="${resetUrl}" style="display:inline-block;margin-top:18px;background:#fff;color:#000;padding:14px 22px;border-radius:999px;text-decoration:none;font-weight:700">Välj nytt lösenord</a>
-          <p style="color:#8d8d8d;margin-top:24px;font-size:13px">Länken gäller i 30 minuter. Om du inte bad om detta kan du ignorera mailet.</p>
-        </div>
-      `,
-      text: `Återställ ditt Versen-lösenord: ${resetUrl}`,
-    }),
+  const result = await sendPasswordResetTemplateEmail({
+    to: payload.email,
+    resetUrl,
   });
 
-  if (!response.ok) {
-    let details = null;
-
-    try {
-      details = await response.json();
-    } catch (error) {
-      details = { message: 'Resend svarade inte med JSON' };
-    }
-
-    return {
-      ok: false,
-      status: response.status,
-      body: {
-        error: details.message || details.error || 'Kunde inte skicka återställningsmail',
-        provider: 'Resend',
-        details,
-      },
-    };
-  }
-
   return {
-    ok: true,
-    status: 200,
-    body: { status: 'Återställningsmail skickat. Kontrollera inkorgen.' },
+    ok: result.ok,
+    status: result.ok ? 200 : (result.status || 503),
+    body: result.ok
+      ? { status: 'Återställningsmail skickat. Kontrollera inkorgen.' }
+      : { error: 'Kunde inte skicka återställningsmail', provider: 'Resend', details: result.body || result },
   };
 }
 
