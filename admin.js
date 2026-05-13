@@ -287,6 +287,10 @@
     return `<span class="admin-badge ${cls}">${escapeHtml(titleLabel(value || 'okänd'))}</span>`;
   }
 
+  function statusPair(primary, secondary) {
+    return `<span class="admin-status-pair">${badge(primary || 'Saknas')}${badge(secondary || 'Saknas')}</span>`;
+  }
+
   function sectionIntro(title, copy, count) {
     return `
       <div class="admin-heading">
@@ -448,7 +452,7 @@
           <small>${escapeHtml(order.email || 'Email saknas')} · ${compactDate(order.createdAt)}</small>
         </div>
         <span>${escapeHtml((order.items || []).slice(0, 2).map((item) => `${item.quantity} x ${item.title}`).join(', ') || 'Produkter saknas')}</span>
-        <span>${badge(order.paymentStatus || order.orderStatus)} ${escapeHtml(order.total || '')}</span>
+        <span>${statusPair(order.orderStatus || order.fulfillmentStatus || 'Saknas', order.paymentStatus || 'Saknas')} <small>${escapeHtml(order.total || '')}</small></span>
         <button class="admin-action" type="button" data-open-order="${escapeHtml(order.id)}">Öppna</button>
       </div>
     `;
@@ -885,11 +889,36 @@
           ${detailValue('Spend', user.amountSpent)}
           ${detailValue('Profil-id', user.profileId || user.id)}
         </div>
-        ${miniList('Orderhistorik', user.orders, (order) => `${order.name || order.id} · ${order.total || ''}`)}
+        ${linkedList('Orderhistorik', user.orders, (order) => `
+          <button class="admin-linked-row" type="button" data-open-order="${escapeHtml(order.id)}">
+            <span><strong>${escapeHtml(order.name || order.id)}</strong><small>${compactDate(order.createdAt)} · ${escapeHtml(order.total || '')}</small></span>
+            <span>${statusPair(order.orderStatus || order.fulfillmentStatus || 'Saknas', order.paymentStatus || 'Saknas')}</span>
+          </button>
+        `, 'Inga ordrar kopplade ännu.')}
+        ${linkedList('Supportmail', user.supportTickets, (ticket) => `
+          <button class="admin-linked-row" type="button" data-open-support="${escapeHtml(ticket.id)}">
+            <span><strong>${escapeHtml(ticket.subject || ticket.id)}</strong><small>${compactDate(ticket.updatedAt || ticket.createdAt)} · ${escapeHtml(ticket.email || '')}</small></span>
+            <span>${badge(ticket.unread ? 'Oläst' : ticket.status)} ${badge(ticket.category || 'Övrigt')}</span>
+          </button>
+        `, 'Inga supportmail från kunden ännu.')}
+        ${linkedList('Aktiva returer', (user.supportTickets || []).filter((ticket) => String(ticket.category || '').toLowerCase().includes('retur') || String(ticket.status || '').toLowerCase().includes('return')), (ticket) => `
+          <button class="admin-linked-row" type="button" data-open-support="${escapeHtml(ticket.id)}">
+            <span><strong>${escapeHtml(ticket.subject || ticket.id)}</strong><small>${compactDate(ticket.updatedAt || ticket.createdAt)}</small></span>
+            <span>${badge(ticket.status || 'Pågående')}</span>
+          </button>
+        `, 'Inga aktiva returer kopplade.')}
         ${miniList('Checkout-historik', user.checkouts, (checkout) => `${checkout.id} · ${checkout.cartValue || ''}`)}
-        ${miniList('Supportärenden', user.supportTickets, (ticket) => `${ticket.subject || ticket.id} · ${ticket.status || ''}`)}
       </div>
     `);
+  }
+
+  function linkedList(title, rows, renderRow, emptyCopy) {
+    return `
+      <section class="admin-detail-card">
+        <div class="admin-section-title"><h3>${escapeHtml(title)}</h3><span>${escapeHtml(String((rows || []).length))}</span></div>
+        ${(rows || []).length ? rows.map(renderRow).join('') : `<p class="admin-meta">${escapeHtml(emptyCopy || 'Ingen data kopplad ännu.')}</p>`}
+      </section>
+    `;
   }
 
   function miniList(title, rows, format) {
