@@ -13014,3 +13014,187 @@ body.mobile-menu-open{
     letter-spacing:.06em;
   }
 }
+
+/* Homepage hero mockup stack: products sit as one premium studio group. */
+.page-home .premium-hero{
+  isolation:isolate;
+}
+
+.page-home main .premium-hero .mobile-hero-visual{
+  background:
+    radial-gradient(ellipse at 70% 78%,rgba(8,9,9,.16),rgba(8,9,9,0) 29%),
+    linear-gradient(180deg,rgba(255,255,255,0) 0%,#fff 34%,#fff 100%)!important;
+}
+
+.page-home .mobile-hero-visual::after{
+  z-index:1;
+  left:38%!important;
+  right:6%!important;
+  bottom:7%!important;
+  height:20%!important;
+  background:rgba(255,255,255,.98)!important;
+  filter:blur(3px)!important;
+}
+
+.page-home .mobile-hero-product{
+  filter:drop-shadow(0 20px 16px rgba(8,9,9,.16))!important;
+  transform-origin:50% 88%;
+}
+
+.page-home .mobile-hero-product-back{
+  display:block!important;
+  z-index:2!important;
+  left:auto!important;
+  right:18%!important;
+  top:auto!important;
+  bottom:20%!important;
+  width:26%!important;
+  transform:rotate(4deg)!important;
+}
+
+.page-home .mobile-hero-product-main,
+.page-home .mobile-hero-product-right{
+  display:none!important;
+}
+
+.page-home .mobile-hero-product-pear{
+  display:block!important;
+  z-index:4!important;
+  right:8%!important;
+  bottom:7%!important;
+  width:38%!important;
+  transform:rotate(2deg)!important;
+  filter:drop-shadow(0 24px 17px rgba(8,9,9,.18))!important;
+}
+
+.page-home .mobile-hero-product-left{
+  display:block!important;
+  z-index:5!important;
+  left:42%!important;
+  bottom:8%!important;
+  width:24%!important;
+  transform:rotate(-2deg)!important;
+  filter:drop-shadow(0 25px 17px rgba(8,9,9,.18))!important;
+}
+
+@media (max-width:640px){
+  .page-home .premium-hero{
+    min-height:724px!important;
+  }
+
+  .page-home .premium-hero-copy{
+    position:relative!important;
+    z-index:6!important;
+    padding-top:88px!important;
+  }
+
+  .page-home .premium-hero-copy h1{
+    max-width:330px!important;
+    font-size:45px!important;
+    line-height:.95!important;
+  }
+
+  .page-home .premium-hero-copy p{
+    max-width:330px!important;
+    font-size:17px!important;
+    line-height:1.34!important;
+  }
+
+  .page-home .hero-actions .cta{
+    min-height:46px;
+    padding:0 24px;
+    font-size:16px;
+  }
+
+  .page-home .hero-drop-clock{
+    position:absolute!important;
+    left:24px!important;
+    top:548px!important;
+    bottom:auto!important;
+    z-index:7!important;
+    width:164px;
+    margin:0!important;
+  }
+
+  .page-home .hero-drop-clock span,
+  .page-home .hero-drop-clock small{
+    font-size:14px;
+    letter-spacing:.03em;
+    text-transform:none;
+  }
+
+  .page-home .hero-drop-clock strong{
+    margin-top:12px;
+    font-size:33px!important;
+    letter-spacing:.06em;
+  }
+
+  .page-home main .premium-hero .mobile-hero-visual{
+    position:absolute!important;
+    inset:auto 0 -8px!important;
+    height:370px!important;
+    margin:0!important;
+    overflow:visible!important;
+  }
+
+  .page-home .mobile-hero-product-back{
+    right:12%!important;
+    bottom:34%!important;
+    width:31%!important;
+  }
+
+  .page-home .mobile-hero-product-pear{
+    right:0!important;
+    bottom:16%!important;
+    width:47%!important;
+  }
+
+  .page-home .mobile-hero-product-left{
+    left:38%!important;
+    bottom:16%!important;
+    width:31%!important;
+  }
+
+  .page-home .product-showcase{
+    padding-top:42px!important;
+  }
+}
+
+@media (max-width:380px){
+  .page-home .premium-hero-copy h1{
+    font-size:41px!important;
+  }
+
+  .page-home .premium-hero-copy p{
+    font-size:16px!important;
+  }
+
+  .page-home .mobile-hero-product-pear{
+    right:7%!important;
+    width:40%!important;
+  }
+}
+
+@media (min-width:981px){
+  .page-home main .premium-hero .mobile-hero-visual{
+    min-height:690px;
+  }
+
+  .page-home .mobile-hero-product-back{
+    right:12%!important;
+    bottom:30%!important;
+    width:24%!important;
+  }
+
+  .page-home .mobile-hero-product-pear{
+    right:0!important;
+    bottom:18%!important;
+    width:36%!important;
+  }
+
+  .page-home .mobile-hero-product-left{
+    left:34%!important;
+    bottom:18%!important;
+    width:24%!important;
+  }
+}
