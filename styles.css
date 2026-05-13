@@ -13381,3 +13381,68 @@ body.mobile-menu-open{
     width:110%;
   }
 }
+
+/* Beige hero blend: use the supplied full artwork and match the page around it. */
+@media (max-width:640px){
+  .page-home,
+  .page-home main,
+  .page-home .premium-home{
+    background:#efe4d1!important;
+  }
+
+  .page-home .premium-hero{
+    min-height:760px!important;
+    background:
+      linear-gradient(180deg,#fff 0%,#fff 42%,#f4ead9 61%,#eadbc4 100%)!important;
+    overflow:hidden!important;
+  }
+
+  .page-home .premium-hero-copy{
+    z-index:5!important;
+    background:linear-gradient(180deg,#fff 0%,rgba(255,255,255,.96) 72%,rgba(255,255,255,0) 100%)!important;
+  }
+
+  .page-home main .premium-hero .mobile-hero-visual{
+    inset:auto 0 0!important;
+    height:452px!important;
+    overflow:hidden!important;
+    background:#eadbc4!important;
+  }
+
+  .page-home main .premium-hero .mobile-hero-visual::before{
+    content:""!important;
+    position:absolute;
+    z-index:2;
+    inset:0 0 auto;
+    height:58px;
+    background:linear-gradient(180deg,#fff 0%,rgba(255,255,255,.72) 42%,rgba(244,234,217,0) 100%);
+    pointer-events:none;
+  }
+
+  .page-home main .premium-hero .mobile-hero-visual::after{
+    content:none!important;
+    display:none!important;
+  }
+
+  .page-home .hero-campaign-cutout{
+    left:50%;
+    bottom:-86px;
+    width:108%;
+    height:500px;
+    object-fit:cover;
+    object-position:50% 100%;
+    transform:translateX(-50%);
+    filter:none;
+  }
+
+  .page-home .product-showcase{
+    background:#fff!important;
+  }
+}
+
+@media (max-width:380px){
+  .page-home .hero-campaign-cutout{
+    width:112%;
+    height:480px;
+  }
+}
