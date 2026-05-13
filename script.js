@@ -1013,7 +1013,7 @@ function productCard(product) {
     ? `<img src="${escapeHtml(product.image.url)}" alt="${escapeHtml(product.image.altText || product.title)}">`
     : `<img src="assets/hero-studio/snabbforsegling-tershine-amplify-500-ml.png" alt="${escapeHtml(product.title || 'Versen produkt')}">`;
 
-  const compareAtPrice = product.compareAtPrice || product.price || '';
+  const compareAtPrice = product.compareAtPrice && product.compareAtPrice !== product.price ? product.compareAtPrice : '';
   const memberPrice = product.price || 'Pris kommer';
   const productUrl = `/produkt?handle=${encodeURIComponent(product.handle)}`;
   const variantText = product.variants && product.variants.length > 1
@@ -1044,10 +1044,10 @@ function productCard(product) {
         </div>
         <h3>${escapeHtml(product.title)}</h3>
         <div class="product-prices">
-          <span class="old">${escapeHtml(compareAtPrice)}</span>
           <span class="new">${escapeHtml(memberPrice)}</span>
+          ${compareAtPrice ? `<span class="old">${escapeHtml(compareAtPrice)}</span>` : ''}
         </div>
-        ${discount ? `<div class="product-saving">Du sparar ${escapeHtml(formatSavingsSek(discount))}${discountPercent ? ` (${discountPercent}%)` : ''}</div>` : ''}
+        ${discount ? `<div class="product-saving">Du sparar ${escapeHtml(formatSek(discount))}</div>` : ''}
         <div class="product-actions">
           <a class="product-btn secondary" href="${escapeHtml(productUrl)}">Detaljer</a>
           <button class="product-btn" type="button" data-catalog-add>Lägg i kundkorg</button>
@@ -1148,7 +1148,7 @@ function homeDealTeaserCard(products) {
                   <em>${escapeHtml(product.price || 'Medlemspris')}</em>
                   ${product.compareAtPrice ? `<del>${escapeHtml(product.compareAtPrice)}</del>` : ''}
                 </span>
-                ${productDiscountAmount(product) ? `<span class="home-featured-saving">Du sparar ${escapeHtml(formatSavingsSek(productDiscountAmount(product)))}</span>` : ''}
+                ${productDiscountAmount(product) ? `<span class="home-featured-saving">Du sparar ${escapeHtml(formatSek(productDiscountAmount(product)))}</span>` : ''}
               </span>
             </a>
           `;
@@ -1182,7 +1182,7 @@ function homeTrendingCard(product) {
           <em>${escapeHtml(product.price || 'Medlemspris')}</em>
           ${compareAtPrice ? `<del>${escapeHtml(compareAtPrice)}</del>` : ''}
         </span>
-        ${saving ? `<span class="home-trending-saving">Du sparar ${escapeHtml(formatSavingsSek(saving))}</span>` : ''}
+        ${saving ? `<span class="home-trending-saving">Du sparar ${escapeHtml(formatSek(saving))}</span>` : ''}
       </a>
     </article>
   `;
@@ -1301,7 +1301,7 @@ function renderHomeTrendingFallback() {
         <strong>10 st Whey 100% Portionspåse</strong>
         <span class="member-price-label">Medlemspris</span>
         <span class="home-trending-prices"><em>119 kr</em><del>150 kr</del></span>
-        <span class="home-trending-saving">Du sparar -31 kr</span>
+        <span class="home-trending-saving">Du sparar 31 kr</span>
       </span>
       <a class="home-add-button" href="/produkter" aria-label="Visa produkter">+</a>
     </article>
@@ -1313,7 +1313,7 @@ function renderHomeTrendingFallback() {
         <strong>Purify S Keramiskt schampo</strong>
         <span class="member-price-label">Medlemspris</span>
         <span class="home-trending-prices"><em>159 kr</em><del>199 kr</del></span>
-        <span class="home-trending-saving">Du sparar -40 kr</span>
+        <span class="home-trending-saving">Du sparar 40 kr</span>
       </span>
       <a class="home-add-button" href="/produkter" aria-label="Visa produkter">+</a>
     </article>
@@ -1325,7 +1325,7 @@ function renderHomeTrendingFallback() {
         <strong>Amplify snabbförsegling</strong>
         <span class="member-price-label">Medlemspris</span>
         <span class="home-trending-prices"><em>149 kr</em><del>199 kr</del></span>
-        <span class="home-trending-saving">Du sparar -50 kr</span>
+        <span class="home-trending-saving">Du sparar 50 kr</span>
       </span>
       <a class="home-add-button" href="/produkter" aria-label="Visa produkter">+</a>
     </article>
