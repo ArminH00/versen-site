@@ -39,6 +39,7 @@ const sampleOrder = {
   email: to,
   order_number: '#V12345',
   created_at: now,
+  discount: 3900,
   total: 53800,
   tracking_number: 'SE12345678900',
   tracking_url: 'https://versen.se/order',
@@ -48,6 +49,7 @@ const sampleOrder = {
       sku: 'VERSEN-TOTE-GRON',
       quantity: 1,
       unit_price: 49900,
+      compare_at_price: 53800,
       total_price: 49900,
       total: '499 kr',
     },
@@ -61,8 +63,11 @@ const checkout = {
       title: 'Thermo Bottle',
       quantity: 1,
       price: '299 kr',
+      unit_price: 29900,
+      compare_at_price: 34900,
     },
   ],
+  discount: 5000,
 };
 
 async function run() {
@@ -86,17 +91,17 @@ async function run() {
     ['order_return_received', () => sendOrderStatusEmail(sampleOrder, { type: 'order_return_received', status: 'retur mottagen' })],
     ['abandoned_checkout_reminder', () => sendAbandonedCheckoutEmail({ email: to, checkout })],
     ['membership_activated', () => sendMembershipEmail({
-      customer: { id: 'usr_test_versen', email: to },
+      customer: { id: 'usr_test_versen', email: to, firstName: 'Armin', lastName: 'Hurtic', displayName: 'Armin Hurtic' },
       subscription: { id: 'sub_test_versen' },
       type: 'membership_activated',
     })],
     ['payment_failed', () => sendMembershipEmail({
-      customer: { id: 'usr_test_versen', email: to },
+      customer: { id: 'usr_test_versen', email: to, firstName: 'Armin', lastName: 'Hurtic', displayName: 'Armin Hurtic' },
       subscription: { id: 'sub_test_versen' },
       type: 'payment_failed',
     })],
     ['membership_cancelled', () => sendMembershipEmail({
-      customer: { id: 'usr_test_versen', email: to },
+      customer: { id: 'usr_test_versen', email: to, firstName: 'Armin', lastName: 'Hurtic', displayName: 'Armin Hurtic' },
       subscription: { id: 'sub_test_versen' },
       type: 'membership_cancelled',
     })],

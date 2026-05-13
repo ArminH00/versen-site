@@ -125,6 +125,11 @@
       "permanent": true
     },
     {
+      "source": "/uppdatera-betalning.html",
+      "destination": "/uppdatera-betalning",
+      "permanent": true
+    },
+    {
       "source": "/order.html",
       "destination": "/order",
       "permanent": true
@@ -219,6 +224,10 @@
     {
       "source": "/installningar",
       "destination": "/installningar.html"
+    },
+    {
+      "source": "/uppdatera-betalning",
+      "destination": "/uppdatera-betalning.html"
     },
     {
       "source": "/order",

@@ -5,7 +5,10 @@ const {
   sendJson,
 } = require('../lib/shopify');
 const { getCustomerSession } = require('./membership');
-const { cancelStripeMembership } = require('../lib/membership-service');
+const {
+  cancelStripeMembership,
+  createStripeBillingPortalSession,
+} = require('../lib/membership-service');
 const {
   appendProductSuggestion,
   isSupabaseConfigured,
@@ -599,6 +602,33 @@ async function cancelMembership(req, res) {
   sendJson(res, 404, { error: 'Ingen aktiv Stripe-prenumeration hittades.' });
 }
 
+async function createBillingPortal(req, res) {
+  const session = await getCustomerSession(getCookie(req, 'versen_customer_token'));
+
+  if (!session.authenticated || !session.customer) {
+    sendJson(res, 401, { error: 'Logga in först.' });
+    return;
+  }
+
+  const membership = session.customer.membership || {};
+  if (!membership.subscriptionId) {
+    sendJson(res, 404, { error: 'Ingen aktiv Stripe-prenumeration hittades.' });
+    return;
+  }
+
+  try {
+    const origin = new URL(getBaseUrl(req)).origin;
+    const portal = await createStripeBillingPortalSession({
+      subscriptionId: membership.subscriptionId,
+      returnUrl: `${origin}/installningar`,
+    });
+
+    sendJson(res, 200, { url: portal.url });
+  } catch (error) {
+    sendJson(res, error.status || 500, { error: error.message || 'Kunde inte öppna Stripe betalningsportal.' });
+  }
+}
+
 function parseSuggestionList(value) {
   try {
     const parsed = JSON.parse(value || '[]');
@@ -731,6 +761,11 @@ module.exports = async function handler(req, res) {
 
   if (body.action === 'cancel_membership') {
     await cancelMembership(req, res);
+    return;
+  }
+
+  if (body.action === 'create_billing_portal') {
+    await createBillingPortal(req, res);
     return;
   }
 

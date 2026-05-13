@@ -33,6 +33,7 @@ function normalizedRoutePath(pathname = window.location.pathname) {
     '/gillar.html': '/gillar',
     '/forslag.html': '/forslag',
     '/installningar.html': '/installningar',
+    '/uppdatera-betalning.html': '/uppdatera-betalning',
     '/order.html': '/order',
     '/villkor.html': '/villkor',
     '/integritet.html': '/integritet',
@@ -3168,6 +3169,7 @@ function updateMemberStatus(session = accountSession) {
 
   if (!status) {
     renderSettingsPage(session);
+    renderPaymentUpdatePage(session);
     return;
   }
 
@@ -3207,6 +3209,7 @@ function updateMemberStatus(session = accountSession) {
     if (settingsLink) settingsLink.hidden = true;
     renderOrders([]);
     renderSettingsPage(session);
+    renderPaymentUpdatePage(session);
     return;
   }
 
@@ -3254,6 +3257,7 @@ function updateMemberStatus(session = accountSession) {
   renderOrders(session.customer.orders);
   renderStoredOrders(session.customer.orders);
   renderSettingsPage(session);
+  renderPaymentUpdatePage(session);
 }
 
 function showPointsIntroIfNeeded(session) {
@@ -3336,6 +3340,45 @@ function renderSettingsPage(session = accountSession) {
   if (message && membership.cancellationRequested) {
     message.textContent = `Prenumerationen är avslutad. Access ligger kvar till ${date || 'sista perioden'}.`;
   }
+}
+
+function renderPaymentUpdatePage(session = accountSession) {
+  const shell = document.querySelector('[data-payment-update-page]');
+
+  if (!shell) {
+    return;
+  }
+
+  const status = document.querySelector('[data-payment-update-status]');
+  const button = document.querySelector('[data-update-payment-button]');
+  const loginLink = document.querySelector('[data-payment-update-login]');
+  const message = document.querySelector('[data-payment-update-message]');
+  const membership = session && session.customer && session.customer.membership ? session.customer.membership : {};
+  const date = formatDate(membership.activeUntil || membership.nextChargeScheduledAt);
+
+  if (!session || !session.authenticated) {
+    if (status) {
+      status.innerHTML = `
+        <span>Inloggning krävs</span>
+        <strong>Logga in för att uppdatera kortet</strong>
+        <p>Vi behöver koppla betalningen till ditt Versen-konto innan Stripe öppnas.</p>
+      `;
+    }
+    if (button) button.hidden = true;
+    if (loginLink) loginLink.hidden = false;
+    if (message) message.textContent = '';
+    return;
+  }
+
+  if (status) {
+    status.innerHTML = `
+      <span>${membership.status || 'Medlemskap'}</span>
+      <strong>${date ? `Förnyas ${date}` : 'Stripe-prenumeration'}</strong>
+      <p>Öppna Stripes säkra portal för att byta kort, genomföra betalning eller uppdatera fakturauppgifter.</p>
+    `;
+  }
+  if (button) button.hidden = false;
+  if (loginLink) loginLink.hidden = true;
 }
 
 function showAccountExpressMembership() {
@@ -3920,6 +3963,36 @@ if (cancelMembershipButton) {
       if (message) message.textContent = 'Kunde inte kontakta servern.';
       cancelMembershipButton.disabled = false;
       cancelMembershipButton.textContent = 'Avsluta prenumeration';
+    }
+  });
+}
+
+const updatePaymentButton = document.querySelector('[data-update-payment-button]');
+
+if (updatePaymentButton) {
+  updatePaymentButton.addEventListener('click', async () => {
+    const message = document.querySelector('[data-payment-update-message]');
+    updatePaymentButton.disabled = true;
+    updatePaymentButton.textContent = 'Öppnar Stripe...';
+    if (message) message.textContent = 'Skapar säker betalningslänk...';
+
+    try {
+      const { response, data } = await postJson('/api/account', {
+        action: 'create_billing_portal',
+      });
+
+      if (!response.ok || !data.url) {
+        if (message) message.textContent = data.error || 'Kunde inte öppna Stripe just nu.';
+        updatePaymentButton.disabled = false;
+        updatePaymentButton.textContent = 'Uppdatera betalning';
+        return;
+      }
+
+      window.location.href = data.url;
+    } catch (error) {
+      if (message) message.textContent = 'Kunde inte kontakta servern.';
+      updatePaymentButton.disabled = false;
+      updatePaymentButton.textContent = 'Uppdatera betalning';
     }
   });
 }
