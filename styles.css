@@ -13512,3 +13512,92 @@ body.mobile-menu-open{
     color:#6f6d67!important;
   }
 }
+
+/* Return the page to Versen white; only the hero artwork carries the warm tone. */
+@media (max-width:640px){
+  .page-home,
+  .page-home body,
+  body.page-home,
+  .page-home main,
+  .page-home .premium-home,
+  .page-home .product-showcase,
+  .page-home .premium-trust-bar{
+    background:#fff!important;
+  }
+
+  .page-home .nav,
+  .page-home .launch-nav{
+    background:rgba(255,255,255,.94)!important;
+    border-bottom-color:rgba(9,11,12,.07)!important;
+    box-shadow:0 1px 0 rgba(255,255,255,.62) inset!important;
+  }
+
+  .page-home .premium-hero{
+    min-height:820px!important;
+    background:
+      linear-gradient(180deg,#fff 0%,#fff 44%,#f2e7d9 60%,#f2e7d9 78%,#fff 100%)!important;
+    overflow:hidden!important;
+  }
+
+  .page-home .premium-hero-copy{
+    background:transparent!important;
+  }
+
+  .page-home main .premium-hero .mobile-hero-visual{
+    inset:auto 0 18px!important;
+    height:520px!important;
+    background:transparent!important;
+    overflow:hidden!important;
+  }
+
+  .page-home main .premium-hero .mobile-hero-visual::before{
+    content:""!important;
+    position:absolute;
+    z-index:2;
+    inset:0 0 auto;
+    height:74px;
+    background:linear-gradient(180deg,#fff 0%,rgba(255,255,255,.68) 44%,rgba(242,231,217,0) 100%)!important;
+    pointer-events:none;
+  }
+
+  .page-home main .premium-hero .mobile-hero-visual::after{
+    content:""!important;
+    position:absolute;
+    z-index:2;
+    inset:auto 0 0;
+    height:128px;
+    display:block!important;
+    background:linear-gradient(180deg,rgba(242,231,217,0) 0%,rgba(255,255,255,.82) 68%,#fff 100%)!important;
+    pointer-events:none;
+  }
+
+  .page-home .hero-campaign-cutout{
+    left:50%;
+    bottom:-58px;
+    width:112%;
+    height:560px;
+    object-fit:cover;
+    object-position:50% 100%;
+    transform:translateX(-50%);
+    filter:none;
+  }
+
+  .page-home .product-showcase{
+    margin-top:0!important;
+    padding-inline:16px!important;
+    background:#fff!important;
+  }
+
+  .page-home .home-trending-card,
+  .page-home .home-trending-image,
+  .page-home .product-image{
+    background:#f6f5f1!important;
+  }
+}
+
+@media (max-width:380px){
+  .page-home .hero-campaign-cutout{
+    width:116%;
+    height:535px;
+  }
+}
