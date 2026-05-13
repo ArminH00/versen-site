@@ -58,8 +58,39 @@
   const supportStatuses = ['alla', 'olästa', 'pågående', 'avslutade', 'returer', 'övrigt'];
   const membershipStatuses = ['alla', 'active', 'trialing', 'paused', 'canceled', 'incomplete', 'past_due'];
 
+  const iconPaths = {
+    home: '<path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9.5Z"/>',
+    orders: '<path d="M7 3h10l2 4v14H5V7l2-4Z"/><path d="M5 7h14M9 11h6M9 15h6"/>',
+    cart: '<path d="M6 6h15l-2 8H8L6 3H3"/><path d="M9 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM18 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"/>',
+    membership: '<path d="M12 3 3.5 7.5 12 12l8.5-4.5L12 3Z"/><path d="M4 12.5 12 17l8-4.5M4 17l8 4 8-4"/>',
+    users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+    support: '<path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z"/><path d="M8 9h8M8 13h5"/>',
+    returns: '<path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/>',
+    settings: '<path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 .6 1.65 1.65 0 0 0-.4 1.08V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 8.6 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.08-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 8.6a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-.6 1.65 1.65 0 0 0 .4-1.08V3a2 2 0 1 1 4 0v.09A1.65 1.65 0 0 0 15.4 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.2.63.7 1.12 1.33 1.28H21a2 2 0 1 1 0 4h-.09A1.65 1.65 0 0 0 19.4 15Z"/>',
+    activity: '<path d="M3 12h4l3 8 4-16 3 8h4"/>',
+    mail: '<path d="M4 4h16v16H4V4Z"/><path d="m4 7 8 6 8-6"/>',
+    refresh: '<path d="M21 12a9 9 0 0 1-15.4 6.36L3 16M3 12a9 9 0 0 1 15.4-6.36L21 8"/><path d="M3 16v5h5M21 8V3h-5"/>',
+    box: '<path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/>',
+    truck: '<path d="M10 17H6a2 2 0 1 1-4 0V6h12v11"/><path d="M14 9h4l4 4v4h-2a2 2 0 1 1-4 0h-2V9Z"/><circle cx="6" cy="17" r="2"/><circle cx="18" cy="17" r="2"/>',
+    copy: '<path d="M8 8h12v12H8V8Z"/><path d="M4 16V4h12"/>',
+    arrowLeft: '<path d="M15 18 9 12l6-6"/>',
+  };
+
+  function icon(name) {
+    const paths = iconPaths[name] || iconPaths.home;
+    return `<svg class="admin-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" aria-hidden="true">${paths}</svg>`;
+  }
+
+  function hydrateStaticIcons(root = document) {
+    root.querySelectorAll('[data-icon]').forEach((element) => {
+      if (element.querySelector('.admin-icon')) return;
+      element.insertAdjacentHTML('afterbegin', icon(element.dataset.icon));
+    });
+  }
+
   document.documentElement.style.setProperty('--admin-view-copy', `"${viewCopy.dashboard}"`);
   if (topbarTitle) topbarTitle.textContent = labels.dashboard;
+  hydrateStaticIcons();
 
   function escapeHtml(value) {
     return String(value == null ? '' : value)
@@ -68,6 +99,47 @@
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
+  }
+
+  function titleLabel(value) {
+    const text = String(value == null ? '' : value).trim();
+    const dictionary = {
+      alla: 'Alla',
+      ny: 'Ny',
+      betald: 'Betald',
+      'väntar på packning': 'Väntar på packning',
+      packas: 'Packas',
+      skickad: 'Skickad',
+      levererad: 'Levererad',
+      avbruten: 'Avbruten',
+      återbetald: 'Återbetald',
+      retur: 'Retur',
+      returer: 'Returer',
+      olästa: 'Olästa',
+      pågående: 'Pågående',
+      avslutade: 'Avslutade',
+      övrigt: 'Övrigt',
+      active: 'Aktiv',
+      trialing: 'Trial',
+      paused: 'Pausad',
+      canceled: 'Avbruten',
+      incomplete: 'Ofullständig',
+      past_due: 'Försenad betalning',
+      paid: 'Paid',
+      pending: 'Pending',
+      open: 'Open',
+      fulfilled: 'Fulfilled',
+      unfulfilled: 'Unfulfilled',
+      unknown: 'Unknown',
+      okänd: 'Okänd',
+      saknas: 'Saknas',
+      server: 'Server',
+      kontaktad: 'Kontaktad',
+      oläst: 'Oläst',
+    };
+    const key = text.toLowerCase();
+    if (dictionary[key]) return dictionary[key];
+    return text.replace(/[_-]+/g, ' ').replace(/^./, (char) => char.toLocaleUpperCase('sv-SE'));
   }
 
   function compactDate(value) {
@@ -131,7 +203,7 @@
     ];
 
     bottomNav.innerHTML = items.map(([view, label]) => (
-      `<button class="${state.view === view ? 'active' : ''}" type="button" data-admin-view="${view}">${escapeHtml(label)}</button>`
+      `<button class="${state.view === view ? 'active' : ''}" type="button" data-admin-view="${view}">${icon(view === 'dashboard' ? 'home' : view === 'orders' ? 'orders' : view === 'checkouts' ? 'cart' : view === 'users' ? 'users' : 'settings')}${escapeHtml(label)}</button>`
     )).join('');
   }
 
@@ -212,7 +284,7 @@
       : normalized.includes('failed') || normalized.includes('cancel') || normalized.includes('avbruten') || normalized.includes('refund')
         ? 'danger'
         : 'warn';
-    return `<span class="admin-badge ${cls}">${escapeHtml(value || 'okänd')}</span>`;
+    return `<span class="admin-badge ${cls}">${escapeHtml(titleLabel(value || 'okänd'))}</span>`;
   }
 
   function sectionIntro(title, copy, count) {
@@ -478,7 +550,7 @@
   function filterButtons(key, values) {
     const active = state.filters[key] || 'alla';
     return `<div class="admin-filter-row">${values.map((value) => `
-      <button class="${active === value ? 'active' : ''}" type="button" data-filter-key="${escapeHtml(key)}" data-filter-value="${escapeHtml(value)}">${escapeHtml(value)}</button>
+      <button class="${active === value ? 'active' : ''}" type="button" data-filter-key="${escapeHtml(key)}" data-filter-value="${escapeHtml(value)}">${escapeHtml(titleLabel(value))}</button>
     `).join('')}</div>`;
   }
 
@@ -677,6 +749,12 @@
         <div class="admin-detail-tabs">
           ${['Översikt', 'Packning', 'Tracking', 'Statusmail', 'Intern logg'].map((label, index) => `<button class="${index === 0 ? 'active' : ''}" type="button" data-order-tab="${escapeHtml(label.toLowerCase().replace(/\s+/g, '-'))}">${escapeHtml(label)}</button>`).join('')}
         </div>
+        <div class="admin-detail-actions">
+          <button class="admin-action" type="button" data-order-tab="packning">${icon('box')}Packning</button>
+          <button class="admin-action" type="button" data-order-tab="tracking">${icon('truck')}Tracking</button>
+          <button class="admin-action" type="button" data-copy-order="${escapeHtml(order.name || order.id)}">${icon('copy')}Kopiera order</button>
+          <button class="admin-action" type="button" data-admin-drawer-overview>${icon('home')}Till översikt</button>
+        </div>
         <section class="admin-tab-panel active" data-order-panel="översikt">
           <div class="admin-order-note">${escapeHtml(sourceCopy)}</div>
           <div class="admin-order-summary">
@@ -718,13 +796,13 @@
               ${flow.map(([value, label, active]) => `<button type="button" class="${active ? 'active' : ''}" data-set-order-status="${escapeHtml(value)}">${escapeHtml(label)}</button>`).join('')}
             </div>
             <div class="admin-form-grid">
-              <div class="admin-field"><label>Nästa status</label><select data-order-status>${orderStatuses.filter((item) => item !== 'alla').map((status) => `<option value="${escapeHtml(status)}" ${String(status).toLowerCase() === String(order.orderStatus || '').toLowerCase() ? 'selected' : ''}>${escapeHtml(status)}</option>`).join('')}</select></div>
+              <div class="admin-field"><label>Nästa status</label><select data-order-status>${orderStatuses.filter((item) => item !== 'alla').map((status) => `<option value="${escapeHtml(status)}" ${String(status).toLowerCase() === String(order.orderStatus || '').toLowerCase() ? 'selected' : ''}>${escapeHtml(titleLabel(status))}</option>`).join('')}</select></div>
               <div class="admin-field"><label>Trackingnummer</label><input data-order-tracking-number value="${escapeHtml(order.trackingNumber || '')}" placeholder="t.ex. 0034..."></div>
               <div class="admin-field"><label>Trackinglänk</label><input data-order-tracking-url value="${escapeHtml(order.trackingUrl || '')}" placeholder="https://..."></div>
               <div class="admin-action-row">
-                <button class="admin-action" type="button" data-set-order-status="packas">Markera packas</button>
-                <button class="admin-action" type="button" data-set-order-status="skickad">Markera skickad</button>
-                <button class="admin-action danger" type="button" data-update-order="${escapeHtml(order.id)}">Spara och maila kund</button>
+                <button class="admin-action" type="button" data-set-order-status="packas">${icon('box')}Markera packas</button>
+                <button class="admin-action" type="button" data-set-order-status="skickad">${icon('truck')}Markera skickad</button>
+                <button class="admin-action danger" type="button" data-update-order="${escapeHtml(order.id)}">${icon('mail')}Spara och maila kund</button>
               </div>
             </div>
           </section>
@@ -783,6 +861,7 @@
             <button class="admin-action" type="button" data-copy-email="${escapeHtml(checkout.email || '')}">Kopiera email</button>
             <button class="admin-action" type="button" data-open-user="${escapeHtml(checkout.email || checkout.userId)}">Öppna användare</button>
             <button class="admin-action danger" type="button" data-mark-checkout-contacted="${escapeHtml(checkout.id)}">Markera som kontaktad</button>
+            <button class="admin-action danger" type="button" data-clear-checkout="${escapeHtml(checkout.id)}">Rensa checkout</button>
           </div>
         </section>
       </div>
@@ -867,7 +946,7 @@
         <section class="admin-detail-card">
           <h3>Svara via email</h3>
           <div class="admin-form-grid">
-            <div class="admin-field"><label>Status</label><select data-support-status>${supportStatuses.filter((item) => item !== 'alla').map((status) => `<option value="${escapeHtml(status)}">${escapeHtml(status)}</option>`).join('')}</select></div>
+            <div class="admin-field"><label>Status</label><select data-support-status>${supportStatuses.filter((item) => item !== 'alla').map((status) => `<option value="${escapeHtml(status)}">${escapeHtml(titleLabel(status))}</option>`).join('')}</select></div>
             <div class="admin-field"><label>Svar</label><textarea data-support-reply placeholder="Skriv svar till kunden"></textarea></div>
             <button class="admin-action" type="button" data-send-support-reply="${escapeHtml(ticket.id)}" data-email="${escapeHtml(ticket.email || '')}">Skicka svar</button>
             <button class="admin-action danger" type="button" data-update-support="${escapeHtml(ticket.id)}">Ändra status</button>
@@ -933,6 +1012,12 @@
 
     if (event.target.closest('[data-admin-drawer-close]')) closeDrawer();
 
+    if (event.target.closest('[data-admin-drawer-overview]')) {
+      closeDrawer();
+      setView('dashboard');
+      return;
+    }
+
     const filter = event.target.closest('[data-filter-key]');
     if (filter) {
       state.filters[filter.dataset.filterKey] = filter.dataset.filterValue;
@@ -952,6 +1037,12 @@
           panel.classList.toggle('active', panel.dataset.orderPanel === orderTab.dataset.orderTab);
         });
       }
+    }
+
+    const copyOrder = event.target.closest('[data-copy-order]');
+    if (copyOrder) {
+      await navigator.clipboard.writeText(copyOrder.dataset.copyOrder || '');
+      showToast('Order kopierad.');
     }
 
     const checkoutButton = event.target.closest('[data-open-checkout]');
@@ -986,6 +1077,14 @@
       await guardedAction('Markera kontaktad?', 'Detta loggas i activity och uppdaterar abandoned_checkouts om tabellen finns.', () => postJson('/api/admin-members', {
         action: 'mark_checkout_contacted',
         checkoutId: contacted.dataset.markCheckoutContacted,
+      }));
+    }
+
+    const clearCheckout = event.target.closest('[data-clear-checkout]');
+    if (clearCheckout) {
+      await guardedAction('Rensa checkout?', 'Checkouten döljs från listan och action loggas. Detta går inte via kundmail.', () => postJson('/api/admin-members', {
+        action: 'clear_abandoned_checkout',
+        checkoutId: clearCheckout.dataset.clearCheckout,
       }));
     }
 

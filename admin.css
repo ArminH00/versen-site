@@ -17,7 +17,7 @@
   --admin-radius-sm:6px;
   --admin-shadow:0 18px 54px rgba(0,0,0,.36);
   --admin-font:Inter,Arial,sans-serif;
-  --admin-shell-width:1120px;
+  --admin-shell-width:100vw;
   --admin-space-1:6px;
   --admin-space-2:10px;
   --admin-space-3:14px;
@@ -244,27 +244,6 @@ button{cursor:pointer}
   font-weight:650;
 }
 
-.admin-nav button:before,
-.admin-logout:before,
-.admin-menu-button:before,
-.admin-refresh:before{
-  width:18px;
-  color:#a8b0bd;
-  font-size:13px;
-  text-align:center;
-}
-
-.admin-nav button:nth-child(1):before{content:"⌂"}
-.admin-nav button:nth-child(2):before{content:"▣"}
-.admin-nav button:nth-child(3):before{content:"◌"}
-.admin-nav button:nth-child(4):before{content:"◇"}
-.admin-nav button:nth-child(5):before{content:"♙"}
-.admin-nav button:nth-child(6):before{content:"✉"}
-.admin-nav button:nth-child(7):before{content:"↩"}
-.admin-nav button:nth-child(8):before{content:"⚙"}
-.admin-nav button:nth-child(9):before{content:"≋"}
-.admin-nav button:nth-child(10):before{content:"◈"}
-
 .admin-nav button:hover,
 .admin-nav button.active{
   border-color:rgba(123,53,242,.35);
@@ -275,7 +254,6 @@ button{cursor:pointer}
 
 .admin-nav button.active:before{color:#c28cff}
 .admin-logout{margin-top:auto;color:#ff6c71}
-.admin-logout:before{content:"↧";color:#ff6c71}
 
 .admin-main{
   min-height:100svh;
@@ -327,7 +305,6 @@ button{cursor:pointer}
   font-size:0;
 }
 
-.admin-menu-button:before{content:"☰";font-size:20px;color:#fff}
 .admin-search{min-width:min(420px,34vw)}
 .admin-search input{min-height:38px;background:rgba(12,17,24,.88)}
 .admin-refresh{
@@ -339,7 +316,6 @@ button{cursor:pointer}
   border:0;
   box-shadow:0 10px 22px rgba(123,53,242,.22);
 }
-.admin-refresh:before{content:"↻";color:#fff}
 
 .admin-status-row{
   display:flex;
@@ -708,17 +684,17 @@ button{cursor:pointer}
 .admin-shell{isolation:isolate}
 .admin-sidebar{transform:translateX(-104%)}
 .admin-main{
-  width:min(var(--admin-shell-width),calc(100vw - 48px));
+  width:calc(100vw - 44px);
   margin:0 auto;
   padding:0 0 48px;
 }
 .admin-topbar{
-  min-height:74px;
+  min-height:104px;
   display:grid;
-  grid-template-columns:auto minmax(0,1fr) auto auto auto;
+  grid-template-columns:auto minmax(360px,1fr) auto auto;
   align-items:center;
-  gap:14px;
-  padding:14px 0 13px;
+  gap:12px;
+  padding:12px 0 10px;
   border-bottom:1px solid var(--admin-line);
   background:rgba(7,11,16,.82);
   backdrop-filter:blur(18px);
@@ -741,25 +717,31 @@ button{cursor:pointer}
 .admin-topbrand strong:after{content:"."}
 .admin-current-view{display:none}
 .admin-topnav{
-  display:flex;
-  gap:4px;
+  grid-column:1 / -1;
+  display:grid;
+  grid-template-columns:repeat(10,minmax(0,1fr));
+  gap:6px;
   min-width:0;
-  overflow-x:auto;
-  padding:0 2px;
-  scrollbar-width:none;
+  overflow:visible;
+  padding:0;
 }
-.admin-topnav::-webkit-scrollbar{display:none}
 .admin-topnav button{
-  flex:0 0 auto;
-  min-height:34px;
+  min-width:0;
+  min-height:32px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
   border:1px solid transparent;
   border-radius:7px;
   background:transparent;
   color:#aeb7c6;
-  padding:0 12px;
-  font-size:13px;
+  padding:0 8px;
+  font-size:12px;
   font-weight:650;
+  white-space:nowrap;
 }
+.admin-icon{flex:0 0 auto;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .admin-topnav button:hover,
 .admin-topnav button.active{
   color:#fff;
@@ -801,7 +783,7 @@ button{cursor:pointer}
   transition:border-color .16s ease,background-color .16s ease,color .16s ease,transform .16s ease;
 }
 .admin-refresh{background:rgba(255,255,255,.045);border:1px solid var(--admin-line-strong);box-shadow:none}
-.admin-refresh:before{color:#c7cfda}
+.admin-refresh:before{content:none}
 .admin-account-chip{
   display:flex;
   align-items:center;
@@ -821,6 +803,7 @@ button{cursor:pointer}
   padding:0;
 }
 .admin-moon{color:#d8deea!important;font-size:15px!important}
+.admin-moon{display:inline-grid;place-items:center}
 .admin-mobile-avatar{
   display:grid;
   width:30px;
@@ -928,26 +911,41 @@ button{cursor:pointer}
 .admin-drawer-backdrop,
 .admin-modal-backdrop{background:rgba(0,0,0,.58);backdrop-filter:blur(7px)}
 .admin-drawer-panel{
-  inset:18px;
-  width:min(1040px,calc(100vw - 36px));
+  inset:16px 22px;
+  width:calc(100vw - 44px);
   margin:0 auto;
   border-radius:10px;
   background:
     radial-gradient(circle at 8% 0,rgba(77,123,155,.13),transparent 24rem),
     linear-gradient(145deg,rgba(9,15,22,.98),rgba(6,10,15,.98));
-  padding:18px 20px 28px;
+  padding:14px 18px 28px;
 }
-.admin-drawer-close{
-  float:none;
+.admin-drawer-toolbar{
+  position:sticky;
+  top:0;
+  z-index:4;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin:0 -2px 14px;
+  padding:0 0 10px;
+  background:linear-gradient(180deg,rgba(9,15,22,.98),rgba(9,15,22,.86));
+}
+.admin-drawer-close,
+.admin-drawer-overview{
   display:inline-flex;
   align-items:center;
   gap:6px;
-  margin:0 0 14px;
   background:transparent;
-  border-color:transparent;
   color:#aeb8c7;
+  min-height:32px;
+  border:1px solid var(--admin-line);
+  border-radius:var(--admin-radius-sm);
+  padding:0 10px;
+  font-size:12px;
+  font-weight:720;
 }
-.admin-drawer-close:before{content:"←";font-size:14px}
 .admin-detail{gap:16px}
 .admin-detail h2{font-size:25px;letter-spacing:-.04em;font-weight:760}
 .admin-detail-card{padding:14px}
@@ -980,6 +978,14 @@ button{cursor:pointer}
 .admin-detail-tabs button.active{border-color:var(--admin-purple);background:transparent;color:#fff}
 .admin-tab-panel{display:grid;gap:14px}
 .admin-tab-panel[hidden]{display:none}
+.admin-detail-actions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:8px;
+}
+.admin-detail-actions .admin-action,
+.admin-action-row .admin-action{display:inline-flex;align-items:center;justify-content:center;gap:7px}
 .admin-status-steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin:0 0 12px}
 .admin-status-steps button{
   min-height:32px;
@@ -1010,6 +1016,11 @@ button{cursor:pointer}
 .admin-settings-card{padding:15px}
 
 @media (max-width:1180px){
+  .admin-main{width:calc(100vw - 28px)}
+  .admin-topbar{grid-template-columns:auto minmax(260px,1fr) auto;min-height:auto}
+  .admin-account-chip{grid-column:auto}
+  .admin-refresh{display:none}
+  .admin-topnav{grid-template-columns:repeat(5,minmax(0,1fr))}
   .admin-kpi-grid{grid-template-columns:repeat(8,minmax(0,1fr))}
   .admin-card:nth-child(1),
   .admin-card:nth-child(2){grid-column:span 4}
@@ -1037,7 +1048,8 @@ button{cursor:pointer}
   .admin-topbar > div:after{display:none}
   .admin-topbrand strong{font-size:23px;color:#fff}
   .admin-current-view{display:none}
-  .admin-topnav{grid-column:1 / -1;order:5;margin:2px -2px 0;padding-bottom:1px}
+  .admin-topnav{grid-column:1 / -1;order:5;display:flex;overflow-x:auto;margin:2px -2px 0;padding-bottom:1px;scrollbar-width:none}
+  .admin-topnav::-webkit-scrollbar{display:none}
   .admin-topnav button{min-height:30px;padding:0 10px;font-size:12px}
   .admin-account-chip strong,
   .admin-account-chip .admin-moon{display:none}
@@ -1086,7 +1098,8 @@ button{cursor:pointer}
   .admin-row small,
   .admin-meta{font-size:11px}
   .admin-action{min-height:30px;padding:0 10px}
-  .admin-drawer-panel{inset:0;width:100vw;border-radius:0;padding:16px 14px 86px}
+  .admin-drawer-panel{inset:0;width:100vw;border-radius:0;padding:12px 14px 86px}
+  .admin-drawer-toolbar{margin:0 0 12px}
   .admin-detail h2{font-size:25px}
   .admin-order-hero h2{font-size:22px}
   .admin-line-item{font-size:12px}
@@ -1105,13 +1118,7 @@ button{cursor:pointer}
     backdrop-filter:blur(18px);
   }
   .admin-bottom-nav button{border:0;background:transparent;color:#c5ccd7;font-size:10px;font-weight:650;display:grid;place-items:center;gap:3px}
-  .admin-bottom-nav button:before{font-size:18px}
   .admin-bottom-nav button.active{color:#a65cff}
-  .admin-bottom-nav button:nth-child(1):before{content:"⌂"}
-  .admin-bottom-nav button:nth-child(2):before{content:"▣"}
-  .admin-bottom-nav button:nth-child(3):before{content:"◌"}
-  .admin-bottom-nav button:nth-child(4):before{content:"♙"}
-  .admin-bottom-nav button:nth-child(5):before{content:"◇"}
 }
 
 @media (max-width:480px){
