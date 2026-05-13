@@ -16,6 +16,7 @@
   const content = document.querySelector('[data-admin-content]');
   const statusRow = document.querySelector('[data-admin-status]');
   const sectionLabel = document.querySelector('[data-admin-section-label]');
+  const topbarTitle = document.querySelector('.admin-topbar strong');
   const loginForm = document.querySelector('[data-admin-login-form]');
   const loginMessage = document.querySelector('[data-admin-login-message]');
   const searchForm = document.querySelector('[data-admin-search]');
@@ -28,7 +29,7 @@
   const confirmOk = document.querySelector('[data-admin-confirm-ok]');
 
   const labels = {
-    dashboard: 'Dashboard',
+    dashboard: 'Översikt',
     orders: 'Ordrar',
     checkouts: 'Lämnade Checkouts',
     memberships: 'Medlemskap',
@@ -40,9 +41,25 @@
     emails: 'Email / Notiser',
   };
 
+  const viewCopy = {
+    dashboard: 'Här är en snabb överblick av din butik.',
+    orders: 'Alla inkommande och tidigare ordrar.',
+    checkouts: 'Följ kunder som lämnade checkout.',
+    memberships: 'Medlemskap, status och recurring revenue.',
+    users: 'Alla kunder och profiler samlade.',
+    support: 'Ärenden, svar och kundhistorik.',
+    returns: 'Returer och reklamationer.',
+    settings: 'Ändra inställningar för din butik.',
+    activity: 'Interna händelser och admin-actions.',
+    emails: 'Skickade email och notiser.',
+  };
+
   const orderStatuses = ['alla', 'ny', 'betald', 'väntar på packning', 'packas', 'skickad', 'levererad', 'avbruten', 'återbetald', 'retur'];
   const supportStatuses = ['alla', 'olästa', 'pågående', 'avslutade', 'returer', 'övrigt'];
   const membershipStatuses = ['alla', 'active', 'trialing', 'paused', 'canceled', 'incomplete', 'past_due'];
+
+  document.documentElement.style.setProperty('--admin-view-copy', `"${viewCopy.dashboard}"`);
+  if (topbarTitle) topbarTitle.textContent = labels.dashboard;
 
   function escapeHtml(value) {
     return String(value == null ? '' : value)
@@ -86,6 +103,36 @@
     if (login) login.hidden = authenticated;
     if (main) main.hidden = !authenticated;
     if (sidebar) sidebar.hidden = !authenticated;
+    renderBottomNav();
+  }
+
+  function renderBottomNav() {
+    let bottomNav = document.querySelector('[data-admin-bottom-nav]');
+
+    if (!state.authenticated) {
+      if (bottomNav) bottomNav.remove();
+      return;
+    }
+
+    if (!bottomNav) {
+      bottomNav = document.createElement('nav');
+      bottomNav.className = 'admin-bottom-nav';
+      bottomNav.dataset.adminBottomNav = 'true';
+      bottomNav.setAttribute('aria-label', 'Admin snabbnavigering');
+      document.body.appendChild(bottomNav);
+    }
+
+    const items = [
+      ['dashboard', 'Översikt'],
+      ['orders', 'Ordrar'],
+      ['checkouts', 'Checkouts'],
+      ['users', 'Kunder'],
+      ['settings', 'Mer'],
+    ];
+
+    bottomNav.innerHTML = items.map(([view, label]) => (
+      `<button class="${state.view === view ? 'active' : ''}" type="button" data-admin-view="${view}">${escapeHtml(label)}</button>`
+    )).join('');
   }
 
   async function getJson(url, options = {}) {
@@ -134,9 +181,12 @@
   function setView(view) {
     state.view = view;
     if (sectionLabel) sectionLabel.textContent = labels[view] || 'Admin';
+    if (topbarTitle) topbarTitle.textContent = labels[view] || 'Admin';
+    document.documentElement.style.setProperty('--admin-view-copy', `"${viewCopy[view] || viewCopy.dashboard}"`);
     document.querySelectorAll('[data-admin-view]').forEach((button) => {
       button.classList.toggle('active', button.dataset.adminView === view);
     });
+    renderBottomNav();
     document.body.classList.remove('admin-sidebar-open');
     render();
   }
@@ -178,8 +228,8 @@
   function renderKpis() {
     const stats = state.data && state.data.stats ? state.data.stats : {};
     const cards = [
-      ['ordersToday', 'Ordrar idag', stats.ordersToday, 'orders', 'Klicka för orderlistan'],
-      ['revenueToday', 'Beställningar idag', stats.revenueToday, 'orders', 'Omsättning i kr'],
+      ['revenueToday', 'Intjänat belopp', stats.revenueToday, 'orders', 'Inkommande'],
+      ['ordersToday', 'Antal ordrar', stats.ordersToday, 'orders', 'Inkommande'],
       ['abandonedToday', 'Lämnade checkouts', stats.abandonedToday, 'checkouts', 'Öppna checkout-listan'],
       ['membershipsToday', 'Medlemskap idag', stats.membershipsToday, 'memberships', 'Nya skapade/sålda'],
       ['membershipRevenueToday', 'Medlemskap kr', stats.membershipRevenueToday, 'memberships', 'Kräver prisdata/webhook'],
@@ -200,6 +250,94 @@
         </button>
       </article>
     `).join('')}</div>`;
+  }
+
+  function dayKey(value) {
+    try {
+      return new Intl.DateTimeFormat('sv-SE', {
+        timeZone: 'Europe/Stockholm',
+        month: 'short',
+        day: 'numeric',
+      }).format(new Date(value));
+    } catch (error) {
+      return '';
+    }
+  }
+
+  function chartSeries() {
+    const now = new Date();
+    const days = Array.from({ length: 7 }, (_, index) => {
+      const date = new Date(now);
+      date.setDate(now.getDate() - (6 - index));
+      return {
+        key: dayKey(date.toISOString()),
+        value: 0,
+      };
+    });
+    list('orders').forEach((order) => {
+      const key = dayKey(order.createdAt);
+      const item = days.find((day) => day.key === key);
+      if (item) item.value += Number(order.totalValue) || 0;
+    });
+    const max = Math.max(...days.map((day) => day.value), 1);
+    return { days, max };
+  }
+
+  function statusDistribution() {
+    const orders = list('orders');
+    const groups = [
+      ['Betald', orders.filter((order) => String(order.paymentStatus || order.orderStatus || '').toLowerCase().includes('paid')).length, '--admin-green'],
+      ['Under behandling', orders.filter((order) => /pending|open|unfulfilled|under/.test(String(order.orderStatus || order.fulfillmentStatus || '').toLowerCase())).length, '--admin-blue'],
+      ['Skickad', orders.filter((order) => /shipped|fulfilled|skickad/.test(String(order.orderStatus || order.fulfillmentStatus || '').toLowerCase())).length, '--admin-purple'],
+      ['Avbruten', orders.filter((order) => /cancel|refund|avbruten/.test(String(order.orderStatus || order.paymentStatus || '').toLowerCase())).length, '--admin-yellow'],
+    ];
+    const total = Math.max(groups.reduce((sum, group) => sum + group[1], 0), 1);
+    let cursor = 0;
+    const stops = groups.map((group) => {
+      const start = cursor;
+      cursor += (group[1] / total) * 100;
+      return { label: group[0], count: group[1], start, end: cursor, color: group[2] };
+    });
+    return { stops, total };
+  }
+
+  function renderCharts() {
+    const series = chartSeries();
+    const distribution = statusDistribution();
+    const paid = distribution.stops[0] ? distribution.stops[0].end : 0;
+    const processing = distribution.stops[1] ? distribution.stops[1].end : paid;
+    const shipped = distribution.stops[2] ? distribution.stops[2].end : processing;
+    return `
+      <div class="admin-chart-grid">
+        <article class="admin-chart-card">
+          <div class="admin-table-top">
+            <h2>Intäkter över tid</h2>
+            <span class="admin-pill">Senaste 7 dagarna</span>
+          </div>
+          <div class="admin-bars">
+            ${series.days.map((day) => `
+              <div class="admin-bar" title="${escapeHtml(`${day.key}: ${day.value} kr`)}">
+                <span style="height:${Math.max(8, Math.round((day.value / series.max) * 100))}%"></span>
+                <small>${escapeHtml(day.key)}</small>
+              </div>
+            `).join('')}
+          </div>
+        </article>
+        <article class="admin-chart-card">
+          <div class="admin-table-top">
+            <h2>Statusfördelning</h2>
+          </div>
+          <div class="admin-donut-wrap">
+            <div class="admin-donut" style="--paid:${paid}%;--processing:${processing}%;--shipped:${shipped}%"></div>
+            <div class="admin-legend">
+              ${distribution.stops.map((item) => `
+                <span style="--legend-color:var(${item.color})"><b>${escapeHtml(item.label)}</b><strong>${escapeHtml(String(item.count))}</strong></span>
+              `).join('')}
+            </div>
+          </div>
+        </article>
+      </div>
+    `;
   }
 
   function renderRecent() {
@@ -301,6 +439,7 @@
       <section class="admin-section">
         ${sectionIntro('Dagens statistik', 'Snabb överblick över Versens liveflöden.', undefined)}
         ${renderKpis()}
+        ${renderCharts()}
         ${renderRecent()}
       </section>
     `;
