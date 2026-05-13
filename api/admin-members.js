@@ -349,7 +349,7 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    if (['send_checkout_reminder', 'send_support_reply', 'update_order_status', 'update_support_status', 'mark_checkout_contacted', 'clear_abandoned_checkout'].includes(body.action)) {
+    if (['send_checkout_reminder', 'send_support_reply', 'update_order_status', 'update_order_items', 'update_support_status', 'mark_checkout_contacted', 'clear_abandoned_checkout'].includes(body.action)) {
       const result = await adminActions.runAdminAction(body);
       sendJson(res, result.status, result.body);
       return;

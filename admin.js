@@ -54,7 +54,7 @@
     emails: 'Skickade email och notiser.',
   };
 
-  const orderStatuses = ['alla', 'ny', 'betald', 'väntar på packning', 'packas', 'skickad', 'levererad', 'avbruten', 'återbetald', 'retur'];
+  const orderStatuses = ['alla', 'mottagen', 'plockas', 'plockad', 'skickad', 'levererad', 'makulerad', 'återbetald', 'retur'];
   const supportStatuses = ['alla', 'olästa', 'pågående', 'avslutade', 'returer', 'övrigt'];
   const membershipStatuses = ['alla', 'active', 'trialing', 'paused', 'canceled', 'incomplete', 'past_due'];
 
@@ -74,6 +74,9 @@
     truck: '<path d="M10 17H6a2 2 0 1 1-4 0V6h12v11"/><path d="M14 9h4l4 4v4h-2a2 2 0 1 1-4 0h-2V9Z"/><circle cx="6" cy="17" r="2"/><circle cx="18" cy="17" r="2"/>',
     copy: '<path d="M8 8h12v12H8V8Z"/><path d="M4 16V4h12"/>',
     info: '<circle cx="12" cy="12" r="9"/><path d="M12 10v6M12 7h.01"/>',
+    edit: '<path d="m16.5 3.5 4 4L8 20H4v-4L16.5 3.5Z"/><path d="m14 6 4 4"/>',
+    money: '<path d="M4 7h16v10H4V7Z"/><path d="M8 11h.01M16 13h.01"/><circle cx="12" cy="12" r="2"/>',
+    x: '<path d="M18 6 6 18M6 6l12 12"/>',
     arrowLeft: '<path d="M15 18 9 12l6-6"/>',
   };
 
@@ -108,11 +111,15 @@
       alla: 'Alla',
       ny: 'Ny',
       betald: 'Betald',
+      mottagen: 'Mottagen',
+      plockas: 'Plockas',
+      plockad: 'Plockad',
       'väntar på packning': 'Väntar på packning',
       packas: 'Packas',
       skickad: 'Skickad',
       levererad: 'Levererad',
       avbruten: 'Avbruten',
+      makulerad: 'Makulerad',
       återbetald: 'Återbetald',
       retur: 'Retur',
       returer: 'Returer',
@@ -532,11 +539,15 @@
     const aliases = {
       ny: ['new', 'open', 'pending'],
       betald: ['paid'],
+      mottagen: ['mottagen', 'new', 'open', 'pending', 'paid_synced_shopify', 'paid_pending_shopify_sync', 'unfulfilled'],
       'väntar på packning': ['unfulfilled', 'pending_shopify_sync', 'paid_synced_shopify'],
       packas: ['packing', 'packas'],
+      plockas: ['plockas', 'packas', 'packing'],
+      plockad: ['plockad', 'picked'],
       skickad: ['shipped', 'fulfilled', 'skickad'],
       levererad: ['delivered', 'levererad'],
       avbruten: ['cancelled', 'canceled', 'avbruten'],
+      makulerad: ['makulerad', 'cancelled', 'canceled', 'avbruten'],
       återbetald: ['refunded', 'återbetald'],
       retur: ['return', 'retur'],
       olästa: ['unread', 'oläst', 'true'],
@@ -714,8 +725,61 @@
   function relevantOrderChanges(order) {
     return list('activity')
       .filter((event) => String(event.target_type || '') === 'order' && String(event.target_id || '') === String(order.id))
-      .filter((event) => String(event.action || '').includes('order_status'))
+      .filter((event) => String(event.action || '').includes('order_status') || String(event.action || '').includes('order_items'))
       .slice(0, 12);
+  }
+
+  function moneyToNumber(value) {
+    const raw = String(value == null ? '' : value).replace(/[^\d,.-]/g, '').replace(',', '.');
+    const number = Number(raw);
+    return Number.isFinite(number) ? number : 0;
+  }
+
+  function itemUnitSek(item) {
+    if (item.unit_price != null) return Math.round((Number(item.unit_price) || 0) / 100);
+    return moneyToNumber(item.unitPrice || item.price || item.total);
+  }
+
+  function itemTotalSek(item) {
+    if (item.total_price != null) return Math.round((Number(item.total_price) || 0) / 100);
+    return moneyToNumber(item.total || item.totalPrice || item.unitPrice || item.price) || (itemUnitSek(item) * (Number(item.quantity) || 1));
+  }
+
+  function orderTotalSek(order) {
+    return moneyToNumber(order.total) || Math.round((Number(order.totalValue) || 0));
+  }
+
+  function renderOrderItemEditor(order) {
+    const rows = (order.items || []).length ? order.items : [{ title: '', sku: '', quantity: 1, unitPrice: '', total: '' }];
+
+    return `
+      <section class="admin-order-panel admin-order-edit-panel" data-shopify-order-id="${escapeHtml(order.shopifyOrderId || '')}">
+        <div class="admin-section-title">
+          <h3>Ändra orderinnehåll</h3>
+          <span>Internt, inget kundmail</span>
+        </div>
+        <p class="admin-meta">Ändra produkter, antal och ordertotal i Versen. Betalning/återbetalning sköts fortfarande i Stripe.</p>
+        <div class="admin-edit-items" data-order-items-editor>
+          ${rows.map((item) => `
+            <div class="admin-edit-item" data-order-item-row>
+              <div class="admin-field"><label>Produkt</label><input data-order-item-title value="${escapeHtml(item.title || '')}" placeholder="Produktnamn"></div>
+              <div class="admin-field"><label>SKU</label><input data-order-item-sku value="${escapeHtml(item.sku || '')}" placeholder="SKU"></div>
+              <div class="admin-field"><label>Antal</label><input data-order-item-quantity type="number" min="1" step="1" value="${escapeHtml(item.quantity || 1)}"></div>
+              <div class="admin-field"><label>Pris/st kr</label><input data-order-item-unit value="${escapeHtml(itemUnitSek(item) || '')}" inputmode="decimal"></div>
+              <div class="admin-field"><label>Radtotal kr</label><input data-order-item-total value="${escapeHtml(itemTotalSek(item) || '')}" inputmode="decimal"></div>
+              <button class="admin-action" type="button" data-remove-order-item>${icon('x')}</button>
+            </div>
+          `).join('')}
+        </div>
+        <div class="admin-form-grid admin-order-total-edit">
+          <div class="admin-field"><label>Ordertotal kr</label><input data-order-total value="${escapeHtml(orderTotalSek(order) || '')}" inputmode="decimal"></div>
+          <div class="admin-action-row">
+            <button class="admin-action" type="button" data-add-order-item>${icon('edit')}Lägg till produkt</button>
+            <button class="admin-action primary" type="button" data-update-order-items="${escapeHtml(order.id)}">${icon('copy')}Spara orderinnehåll</button>
+          </div>
+        </div>
+      </section>
+    `;
   }
 
   function formatChangeValue(value) {
@@ -757,13 +821,15 @@
 
   function orderFlowSteps(order) {
     const status = String(order.orderStatus || order.fulfillmentStatus || '').toLowerCase();
-    return [
-      ['betald', 'Betald', true],
-      ['väntar på packning', 'Väntar packning', /(väntar|pending|open|unfulfilled|paid|pack)/.test(status)],
-      ['packas', 'Packas', /(packas|packing)/.test(status)],
-      ['skickad', 'Skickad', /(skickad|shipped|fulfilled|delivered)/.test(status)],
-      ['levererad', 'Levererad', /(levererad|delivered)/.test(status)],
+    const steps = [
+      ['mottagen', 'Mottagen', /(mottagen|pending|open|unfulfilled|paid|synced|new)/],
+      ['plockas', 'Plockas', /(plockas|packas|packing)/],
+      ['plockad', 'Plockad', /(plockad|picked)/],
+      ['skickad', 'Skickad', /(skickad|shipped|fulfilled)/],
+      ['levererad', 'Levererad', /(levererad|delivered)/],
     ];
+    const currentIndex = Math.max(0, steps.findIndex(([, , pattern]) => pattern.test(status)));
+    return steps.map(([value, label], index) => [value, label, index <= currentIndex]);
   }
 
   function openOrder(id) {
@@ -799,10 +865,11 @@
           </div>
         </div>
         <div class="admin-detail-tabs">
-          ${['Översikt', 'Packning', 'Tracking', 'Statusmail', 'Intern logg'].map((label, index) => `<button class="${index === 0 ? 'active' : ''}" type="button" data-order-tab="${escapeHtml(label.toLowerCase().replace(/\s+/g, '-'))}">${escapeHtml(label)}</button>`).join('')}
+          ${['Översikt', 'Flöde', 'Innehåll', 'Tracking', 'Statusmail', 'Intern logg'].map((label, index) => `<button class="${index === 0 ? 'active' : ''}" type="button" data-order-tab="${escapeHtml(label.toLowerCase().replace(/\s+/g, '-'))}">${escapeHtml(label)}</button>`).join('')}
         </div>
         <div class="admin-detail-actions">
-          <button class="admin-action" type="button" data-order-tab="packning">${icon('box')}Packning</button>
+          <button class="admin-action" type="button" data-order-tab="flöde">${icon('box')}Flöde</button>
+          <button class="admin-action" type="button" data-order-tab="innehåll">${icon('edit')}Innehåll</button>
           <button class="admin-action" type="button" data-order-tab="tracking">${icon('truck')}Tracking</button>
           <button class="admin-action" type="button" data-copy-order="${escapeHtml(order.name || order.id)}">${icon('copy')}Kopiera order</button>
           <button class="admin-action" type="button" data-admin-drawer-overview>${icon('home')}Till översikt</button>
@@ -838,11 +905,11 @@
             </div>
           </section>
         </section>
-        <section class="admin-tab-panel" data-order-panel="packning" hidden>
-          <section class="admin-order-panel admin-fulfillment-panel">
+        <section class="admin-tab-panel" data-order-panel="flöde" hidden>
+          <section class="admin-order-panel admin-fulfillment-panel" data-shopify-order-id="${escapeHtml(order.shopifyOrderId || '')}">
             <div class="admin-section-title">
-              <h3>Packning</h3>
-              <span>${escapeHtml(order.source || '')}</span>
+              <h3>Orderflöde</h3>
+              <span>${escapeHtml(order.source || '')} · plockad mailas aldrig</span>
             </div>
             <div class="admin-status-steps">
               ${flow.map(([value, label, active]) => `<button type="button" class="${active ? 'active' : ''}" data-set-order-status="${escapeHtml(value)}">${escapeHtml(label)}</button>`).join('')}
@@ -852,15 +919,24 @@
               <div class="admin-field"><label>Trackingnummer</label><input data-order-tracking-number value="${escapeHtml(order.trackingNumber || '')}" placeholder="t.ex. 0034..."></div>
               <div class="admin-field"><label>Trackinglänk</label><input data-order-tracking-url value="${escapeHtml(order.trackingUrl || '')}" placeholder="https://..."></div>
               ${hasSilentChanges ? '<div class="admin-silent-warning">Det finns sparade ändringar på den här ordern som kunden inte har mailats om.</div>' : ''}
+              <div class="admin-action-row admin-flow-actions">
+                <button class="admin-action primary" type="button" data-quick-order-save="${escapeHtml(order.id)}" data-status="plockas" data-send-email="true">${icon('box')}Markera plockas</button>
+                <button class="admin-action" type="button" data-quick-order-save="${escapeHtml(order.id)}" data-status="plockad" data-send-email="false">${icon('copy')}Markera plockad</button>
+                <button class="admin-action primary" type="button" data-quick-order-save="${escapeHtml(order.id)}" data-status="skickad" data-send-email="true">${icon('truck')}Markera skickad</button>
+                <button class="admin-action primary" type="button" data-quick-order-save="${escapeHtml(order.id)}" data-status="levererad" data-send-email="true">${icon('home')}Markera levererad</button>
+              </div>
               <div class="admin-action-row">
-                <button class="admin-action" type="button" data-set-order-status="packas">${icon('box')}Markera packas</button>
-                <button class="admin-action" type="button" data-set-order-status="skickad">${icon('truck')}Markera skickad</button>
                 <button class="admin-action" type="button" data-order-change-info="${escapeHtml(order.id)}">${icon('info')}Ändringar</button>
                 <button class="admin-action" type="button" data-update-order="${escapeHtml(order.id)}" data-send-email="false">${icon('copy')}Spara</button>
-                <button class="admin-action danger" type="button" data-update-order="${escapeHtml(order.id)}" data-send-email="true">${icon('mail')}Spara + maila kund</button>
+                <button class="admin-action primary" type="button" data-update-order="${escapeHtml(order.id)}" data-send-email="true">${icon('mail')}Spara + maila kund</button>
+                <button class="admin-action danger" type="button" data-quick-order-save="${escapeHtml(order.id)}" data-status="makulerad" data-send-email="false">${icon('x')}Makulera</button>
+                <button class="admin-action warning" type="button" data-quick-order-save="${escapeHtml(order.id)}" data-status="återbetald" data-send-email="false">${icon('money')}Markera återbetald</button>
               </div>
             </div>
           </section>
+        </section>
+        <section class="admin-tab-panel" data-order-panel="innehåll" hidden>
+          ${renderOrderItemEditor(order)}
         </section>
         <section class="admin-tab-panel" data-order-panel="tracking" hidden>
           <section class="admin-order-panel">
@@ -1075,6 +1151,42 @@
     }
   }
 
+  function orderStatusPayload(panel, orderId, shouldEmail) {
+    const orderStatus = panel.querySelector('[data-order-status]').value;
+    return {
+      action: 'update_order_status',
+      orderId,
+      shopifyOrderId: panel.dataset.shopifyOrderId || '',
+      orderStatus,
+      trackingNumber: panel.querySelector('[data-order-tracking-number]').value,
+      trackingUrl: panel.querySelector('[data-order-tracking-url]').value,
+      sendEmail: orderStatus === 'plockad' ? false : shouldEmail,
+    };
+  }
+
+  function orderItemRowHtml() {
+    return `
+      <div class="admin-edit-item" data-order-item-row>
+        <div class="admin-field"><label>Produkt</label><input data-order-item-title placeholder="Produktnamn"></div>
+        <div class="admin-field"><label>SKU</label><input data-order-item-sku placeholder="SKU"></div>
+        <div class="admin-field"><label>Antal</label><input data-order-item-quantity type="number" min="1" step="1" value="1"></div>
+        <div class="admin-field"><label>Pris/st kr</label><input data-order-item-unit inputmode="decimal"></div>
+        <div class="admin-field"><label>Radtotal kr</label><input data-order-item-total inputmode="decimal"></div>
+        <button class="admin-action" type="button" data-remove-order-item>${icon('x')}</button>
+      </div>
+    `;
+  }
+
+  function collectOrderItems(panel) {
+    return Array.from(panel.querySelectorAll('[data-order-item-row]')).map((row) => ({
+      title: row.querySelector('[data-order-item-title]').value,
+      sku: row.querySelector('[data-order-item-sku]').value,
+      quantity: row.querySelector('[data-order-item-quantity]').value,
+      unitPriceSek: row.querySelector('[data-order-item-unit]').value,
+      totalSek: row.querySelector('[data-order-item-total]').value,
+    })).filter((item) => item.title.trim());
+  }
+
   document.addEventListener('click', async (event) => {
     const jump = event.target.closest('[data-jump-view]');
     if (jump) setView(jump.dataset.jumpView);
@@ -1184,13 +1296,55 @@
         shouldEmail
           ? 'Statusändringen sparas och kunden får rätt statusmail via Resend.'
           : 'Statusändringen sparas internt och markeras som ej mailad till kund.',
-        () => postJson('/api/admin-members', {
-        action: 'update_order_status',
-        orderId: updateOrder.dataset.updateOrder,
-        orderStatus: panel.querySelector('[data-order-status]').value,
-        trackingNumber: panel.querySelector('[data-order-tracking-number]').value,
-        trackingUrl: panel.querySelector('[data-order-tracking-url]').value,
-        sendEmail: shouldEmail,
+        () => postJson('/api/admin-members', orderStatusPayload(panel, updateOrder.dataset.updateOrder, shouldEmail)));
+    }
+
+    const quickOrderSave = event.target.closest('[data-quick-order-save]');
+    if (quickOrderSave) {
+      const panel = quickOrderSave.closest('.admin-order-panel, .admin-detail-card');
+      const select = panel && panel.querySelector('[data-order-status]');
+      if (!panel || !select) {
+        showToast('Orderpanelen kunde inte läsas. Ladda om admin och försök igen.');
+        return;
+      }
+      select.value = quickOrderSave.dataset.status;
+      const shouldEmail = quickOrderSave.dataset.sendEmail === 'true' && quickOrderSave.dataset.status !== 'plockad';
+      await guardedAction(
+        shouldEmail ? `Markera ${quickOrderSave.dataset.status} och maila kund?` : `Markera ${quickOrderSave.dataset.status}?`,
+        shouldEmail
+          ? 'Statusen sparas och kunden får rätt statusmail.'
+          : 'Statusen sparas internt utan kundmail.',
+        () => postJson('/api/admin-members', orderStatusPayload(panel, quickOrderSave.dataset.quickOrderSave, shouldEmail)));
+    }
+
+    const addOrderItem = event.target.closest('[data-add-order-item]');
+    if (addOrderItem) {
+      const editor = addOrderItem.closest('.admin-order-edit-panel').querySelector('[data-order-items-editor]');
+      editor.insertAdjacentHTML('beforeend', orderItemRowHtml());
+    }
+
+    const removeOrderItem = event.target.closest('[data-remove-order-item]');
+    if (removeOrderItem) {
+      const row = removeOrderItem.closest('[data-order-item-row]');
+      const editor = removeOrderItem.closest('[data-order-items-editor]');
+      if (row && editor && editor.querySelectorAll('[data-order-item-row]').length > 1) {
+        row.remove();
+      }
+    }
+
+    const updateOrderItems = event.target.closest('[data-update-order-items]');
+    if (updateOrderItems) {
+      const panel = updateOrderItems.closest('.admin-order-edit-panel');
+      const items = collectOrderItems(panel);
+      if (!items.length) {
+        showToast('Lägg till minst en produkt innan du sparar.');
+        return;
+      }
+      await guardedAction('Spara orderinnehåll?', 'Produkterna och ordertotalen uppdateras internt utan kundmail.', () => postJson('/api/admin-members', {
+        action: 'update_order_items',
+        orderId: updateOrderItems.dataset.updateOrderItems,
+        items,
+        totalSek: panel.querySelector('[data-order-total]').value,
       }));
     }
 
