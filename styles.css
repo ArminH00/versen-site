@@ -1949,6 +1949,14 @@ p{
   transform:rotate(-2deg);
 }
 
+.hero-product-pear{
+  right:7%;
+  bottom:0;
+  width:34%;
+  z-index:7;
+  transform:rotate(3deg);
+}
+
 .store-hero-copy{
   grid-area:copy;
   align-self:center;
@@ -7951,6 +7959,14 @@ body{
     transform:rotate(5deg);
   }
 
+  .mobile-hero-product-pear{
+    right:10%;
+    bottom:9%;
+    width:34%;
+    z-index:3;
+    transform:rotate(3deg);
+  }
+
   .premium-hero-stage,
   .premium-hero-copy{
     grid-area:auto;
@@ -8605,6 +8621,15 @@ main .premium-hero .mobile-hero-visual{
 .mobile-hero-product-back,
 .mobile-hero-product-right{
   display:none!important;
+}
+
+.mobile-hero-product-pear{
+  display:block!important;
+  right:12%!important;
+  bottom:10%!important;
+  width:32%!important;
+  z-index:3!important;
+  transform:rotate(3deg)!important;
 }
 
 .campaign-strip,
@@ -9862,6 +9887,12 @@ body{
     transform:rotate(4deg)!important;
   }
 
+  .page-home .mobile-hero-product-pear{
+    right:12%!important;
+    bottom:8%!important;
+    width:30%!important;
+  }
+
   .page-home .product-showcase{
     padding-top:32px!important;
     padding-bottom:48px!important;
@@ -9906,6 +9937,13 @@ body{
     right:24%!important;
     bottom:24%!important;
     width:27%!important;
+  }
+
+  .page-home .mobile-hero-product-pear{
+    display:block!important;
+    right:14%!important;
+    bottom:15%!important;
+    width:24%!important;
   }
 }
 

@@ -1227,9 +1227,11 @@ function renderRelatedProducts(currentProduct, products = []) {
 
 function homePreferredDeals(products) {
   const wanted = [
-    ['vassle', 'kreatin', 'paronglass'],
     ['tershine'],
     ['10 st', 'whey', 'portions'],
+    ['celsius', 'apelsin'],
+    ['gyeon', 'wetcoat'],
+    ['body science', 'whey'],
   ];
   const used = new Set();
   const picks = [];
@@ -1238,7 +1240,6 @@ function homePreferredDeals(products) {
     const match = products.find((product) => {
       if (used.has(product.handle)) return false;
       const haystack = [
-        product.handle,
         product.title,
         product.vendor,
         product.category,
@@ -1257,7 +1258,7 @@ function homePreferredDeals(products) {
   const filler = topDiscountProducts(products, 8)
     .filter((product) => !used.has(product.handle));
 
-  return [...picks, ...filler].slice(0, 3);
+  return [...picks, ...filler].slice(0, 8);
 }
 
 function renderHomeTrendingFallback() {
@@ -1268,18 +1269,6 @@ function renderHomeTrendingFallback() {
   }
 
   trending.innerHTML = `
-    <article class="home-trending-card home-static-card">
-      <span class="home-deal-badge">-10%</span>
-      <span class="home-trending-image"><img src="assets/product-clean/vassle-kreatin-paronglass-900g.jpg?v=20260513-cardbg" alt="Vassle & Kreatin Päronglass 900g"></span>
-      <span class="home-trending-copy">
-        <small>Tyngre</small>
-        <strong>Vassle & Kreatin Päronglass 900g</strong>
-        <span class="member-price-label">Medlemspris</span>
-        <span class="home-trending-prices"><em>329 kr</em><del>365 kr</del></span>
-        <span class="home-trending-saving">Du sparar -36 kr</span>
-      </span>
-      <a class="home-add-button" href="/produkter" aria-label="Visa produkter">+</a>
-    </article>
     <article class="home-trending-card home-static-card">
       <span class="home-deal-badge">-21%</span>
       <span class="home-trending-image"><img src="assets/product-clean/10-st-whey-100-portionspase.jpg?v=20260510-cardbg" alt="Body Science Whey 100% Chocolate"></span>
@@ -1301,6 +1290,18 @@ function renderHomeTrendingFallback() {
         <span class="member-price-label">Medlemspris</span>
         <span class="home-trending-prices"><em>159 kr</em><del>199 kr</del></span>
         <span class="home-trending-saving">Du sparar -40 kr</span>
+      </span>
+      <a class="home-add-button" href="/produkter" aria-label="Visa produkter">+</a>
+    </article>
+    <article class="home-trending-card home-static-card">
+      <span class="home-deal-badge">-25%</span>
+      <span class="home-trending-image"><img src="assets/product-clean/snabbforsegling-tershine-amplify-500-ml.jpg?v=20260510-cardbg" alt=""></span>
+      <span class="home-trending-copy">
+        <small>Versen</small>
+        <strong>Amplify snabbförsegling</strong>
+        <span class="member-price-label">Medlemspris</span>
+        <span class="home-trending-prices"><em>149 kr</em><del>199 kr</del></span>
+        <span class="home-trending-saving">Du sparar -50 kr</span>
       </span>
       <a class="home-add-button" href="/produkter" aria-label="Visa produkter">+</a>
     </article>
