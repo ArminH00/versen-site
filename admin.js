@@ -948,7 +948,11 @@
 
     const updateOrder = event.target.closest('[data-update-order]');
     if (updateOrder) {
-      const panel = updateOrder.closest('.admin-detail-card');
+      const panel = updateOrder.closest('.admin-order-panel, .admin-detail-card');
+      if (!panel) {
+        showToast('Orderpanelen kunde inte läsas. Ladda om admin och försök igen.');
+        return;
+      }
       await guardedAction('Ändra orderstatus?', 'Statusändringen påverkar orderflödet och loggas.', () => postJson('/api/admin-members', {
         action: 'update_order_status',
         orderId: updateOrder.dataset.updateOrder,
