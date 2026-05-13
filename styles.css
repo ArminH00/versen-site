@@ -13310,9 +13310,14 @@ body.mobile-menu-open{
     line-height:.95!important;
   }
 
+  .page-home .premium-hero-copy .hero-title-line{
+    display:block;
+    white-space:nowrap;
+  }
+
   .page-home .premium-hero-copy p{
     max-width:300px!important;
-    margin-top:16px!important;
+    margin-top:24px!important;
     margin-bottom:22px!important;
     font-size:16px!important;
     line-height:1.36!important;
