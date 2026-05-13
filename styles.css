@@ -13446,3 +13446,69 @@ body.mobile-menu-open{
     height:480px;
   }
 }
+
+/* Unify the homepage with the hero artwork tone. */
+@media (max-width:640px){
+  .page-home,
+  .page-home body,
+  body.page-home,
+  .page-home main,
+  .page-home .premium-home,
+  .page-home .premium-hero,
+  .page-home .product-showcase,
+  .page-home .premium-trust-bar{
+    background:#eadbc4!important;
+  }
+
+  .page-home .nav,
+  .page-home .launch-nav{
+    background:rgba(234,219,196,.96)!important;
+    border-bottom-color:rgba(110,92,62,.12)!important;
+    box-shadow:0 1px 0 rgba(255,255,255,.18) inset!important;
+  }
+
+  .page-home .premium-hero{
+    background:#eadbc4!important;
+  }
+
+  .page-home .premium-hero-copy{
+    background:transparent!important;
+  }
+
+  .page-home main .premium-hero .mobile-hero-visual{
+    background:#eadbc4!important;
+  }
+
+  .page-home main .premium-hero .mobile-hero-visual::before{
+    height:44px;
+    background:linear-gradient(180deg,#eadbc4 0%,rgba(234,219,196,.7) 48%,rgba(234,219,196,0) 100%)!important;
+  }
+
+  .page-home .product-showcase{
+    margin-top:0!important;
+    padding-inline:24px!important;
+  }
+
+  .page-home .home-trending-card{
+    background:#efe4d1!important;
+    color:#080909!important;
+  }
+
+  .page-home .home-trending-image,
+  .page-home .product-image{
+    background:#efe4d1!important;
+  }
+
+  .page-home .product-showcase h2,
+  .page-home .home-trending-copy strong,
+  .page-home .home-trending-prices em{
+    color:#080909!important;
+  }
+
+  .page-home .product-showcase .eyebrow,
+  .page-home .section-heading-row a,
+  .page-home .home-trending-vendor,
+  .page-home .home-trending-prices del{
+    color:#6f6d67!important;
+  }
+}
