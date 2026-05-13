@@ -15,12 +15,15 @@ HERO_PRODUCTS = [
     "bilschampo-tershine-purify-s-keramiskt.jpg",
     "fortvattsmedel-tershine-elevate-snow-foam-skummande-vaxsakert.jpg",
     "kallavfettning-tershine-dissolve.jpg",
+    "vassle-kreatin-paronglass-900g.jpg",
 ]
 
 
 def is_background(pixel):
     red, green, blue, _alpha = pixel
-    return red >= 242 and green >= 242 and blue >= 242
+    channel_min = min(red, green, blue)
+    channel_max = max(red, green, blue)
+    return channel_min >= 236 and (channel_max - channel_min) <= 22
 
 
 def cutout(source_path, target_path):
