@@ -154,10 +154,15 @@ function formatPrice(price) {
 function categoryForProduct(product) {
   const source = [
     product.productType,
+    product.vendor,
     product.title,
     product.handle,
     ...(product.tags || []),
   ].join(' ').toLowerCase();
+
+  if (/(parfym|parfymer|perfume|fragrance|eau de|body mist|ola henriksen|ole henriksen|skönhet|skonhet|smink|makeup|cosmetic|hudvård|hudvard|skincare|skin care)/i.test(source)) {
+    return 'Skönhet & Smink';
+  }
 
   if (/(tershine|gyeon|bilschampo|spolar|däck|dack|avfettning|tvätt|tvatt|torkhandduk|mikrofiber|glasrengöring|snabbvax|bilvård|bilvard|wash mitt|drying towel|wetcoat|repel|purify|relive|dissolve|vision)/i.test(source)) {
     return 'Bilvård';

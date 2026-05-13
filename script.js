@@ -1110,6 +1110,16 @@ function topDiscountProducts(products, count = 4) {
     .slice(0, count);
 }
 
+function addUniqueProduct(target, product, used) {
+  if (!product || used.has(product.handle)) {
+    return false;
+  }
+
+  used.add(product.handle);
+  target.push(product);
+  return true;
+}
+
 function homeDealTeaserCard(products) {
   const picks = products.slice(0, 3);
   const primary = picks[0];
@@ -1226,15 +1236,30 @@ function renderRelatedProducts(currentProduct, products = []) {
 }
 
 function homePreferredDeals(products) {
+  const categoryMinimums = [
+    'Bilvård & tvätt',
+    'Träning & hälsa',
+    'Skönhet & Smink',
+  ];
   const wanted = [
     ['tershine'],
     ['10 st', 'whey', 'portions'],
     ['celsius', 'apelsin'],
     ['gyeon', 'wetcoat'],
     ['body science', 'whey'],
+    ['ola', 'henriksen'],
+    ['body mist'],
+    ['parfym'],
   ];
   const used = new Set();
   const picks = [];
+
+  categoryMinimums.forEach((category) => {
+    topDiscountProducts(
+      products.filter((product) => productMatchesCategory(product, category)),
+      2
+    ).forEach((product) => addUniqueProduct(picks, product, used));
+  });
 
   wanted.forEach((needles) => {
     const match = products.find((product) => {
@@ -1250,8 +1275,7 @@ function homePreferredDeals(products) {
     });
 
     if (match) {
-      used.add(match.handle);
-      picks.push(match);
+      addUniqueProduct(picks, match, used);
     }
   });
 
@@ -1349,6 +1373,10 @@ function productMatchesCategory(product, category) {
 
   if (target === 'träning & hälsa') {
     return values.some((value) => ['träning', 'halsa', 'hälsa', 'training', 'nocco', 'barebells', 'body science', 'protein'].some((needle) => value.includes(needle)));
+  }
+
+  if (target === 'skönhet & smink') {
+    return values.some((value) => ['skönhet', 'skonhet', 'smink', 'beauty', 'makeup', 'parfym', 'perfume', 'fragrance', 'body mist', 'ola henriksen', 'ole henriksen', 'hudvård', 'hudvard', 'skincare'].some((needle) => value.includes(needle)));
   }
 
   return false;
