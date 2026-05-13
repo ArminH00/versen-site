@@ -16,7 +16,7 @@
 <meta property="og:url" content="https://versen.se/A.admin63630325">
 <title>Versen Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="admin.css?v=20260513-admin-polish-a">
+<link rel="stylesheet" href="admin.css?v=20260513-admin-system-b">
 </head>
 
 <body class="admin-body">
@@ -58,15 +58,36 @@
   <main class="admin-main" data-admin-main hidden>
     <header class="admin-topbar">
       <button class="admin-menu-button" type="button" data-admin-menu aria-label="Öppna meny">Menu</button>
-      <div>
-        <span data-admin-section-label>Dashboard</span>
-        <strong>Versen Admin</strong>
+      <div class="admin-topbrand" aria-label="Versen admin">
+        <span class="admin-brand-mark" aria-hidden="true">V</span>
+        <strong>versen</strong>
       </div>
-      <span class="admin-mobile-avatar" aria-hidden="true">VS</span>
+      <nav class="admin-topnav" aria-label="Admin huvudnavigering">
+        <button class="active" type="button" data-admin-view="dashboard">Översikt</button>
+        <button type="button" data-admin-view="orders">Ordrar</button>
+        <button type="button" data-admin-view="checkouts">Checkouts</button>
+        <button type="button" data-admin-view="memberships">Medlemskap</button>
+        <button type="button" data-admin-view="users">Kunder</button>
+        <button type="button" data-admin-view="support">Support</button>
+        <button type="button" data-admin-view="returns">Returer</button>
+        <button type="button" data-admin-view="settings">Inställningar</button>
+        <button type="button" data-admin-view="activity">Loggar</button>
+        <button type="button" data-admin-view="emails">Email</button>
+      </nav>
+      <div class="admin-current-view">
+        <span data-admin-section-label>Dashboard</span>
+        <strong data-admin-title>Versen Admin</strong>
+      </div>
       <form class="admin-search" data-admin-search>
         <input type="search" name="q" placeholder="Sök order, email, kund">
       </form>
       <button class="admin-refresh" type="button" data-admin-refresh>Uppdatera</button>
+      <div class="admin-account-chip">
+        <span class="admin-moon" aria-hidden="true">◐</span>
+        <span class="admin-mobile-avatar" aria-hidden="true">AH</span>
+        <strong>Armin Hurtic</strong>
+        <button type="button" data-admin-logout aria-label="Logga ut">↧</button>
+      </div>
     </header>
 
     <section class="admin-status-row" data-admin-status></section>
@@ -98,6 +119,6 @@
 </div>
 
 <div class="admin-toast" data-admin-toast hidden></div>
-<script src="admin.js?v=20260513-admin-polish-a"></script>
+<script src="admin.js?v=20260513-admin-system-b"></script>
 </body>
 </html>

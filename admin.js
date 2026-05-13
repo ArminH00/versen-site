@@ -16,7 +16,7 @@
   const content = document.querySelector('[data-admin-content]');
   const statusRow = document.querySelector('[data-admin-status]');
   const sectionLabel = document.querySelector('[data-admin-section-label]');
-  const topbarTitle = document.querySelector('.admin-topbar strong');
+  const topbarTitle = document.querySelector('[data-admin-title]');
   const loginForm = document.querySelector('[data-admin-login-form]');
   const loginMessage = document.querySelector('[data-admin-login-message]');
   const searchForm = document.querySelector('[data-admin-search]');
@@ -674,57 +674,81 @@
             ${badge(order.orderStatus || 'status')}
           </div>
         </div>
-        <div class="admin-workflow">
-          ${flow.map(([value, label, active]) => `<button type="button" class="${active ? 'active' : ''}" data-set-order-status="${escapeHtml(value)}">${escapeHtml(label)}</button>`).join('')}
+        <div class="admin-detail-tabs">
+          ${['Översikt', 'Packning', 'Tracking', 'Statusmail', 'Intern logg'].map((label, index) => `<button class="${index === 0 ? 'active' : ''}" type="button" data-order-tab="${escapeHtml(label.toLowerCase().replace(/\s+/g, '-'))}">${escapeHtml(label)}</button>`).join('')}
         </div>
-        <div class="admin-order-note">${escapeHtml(sourceCopy)}</div>
-        <div class="admin-order-summary">
-          <article><span>Total</span><strong>${escapeHtml(order.total || 'Saknas')}</strong></article>
-          <article><span>Status</span><strong>${badge(order.orderStatus || 'Saknas')}</strong></article>
-          <article><span>Betalning</span><strong>${badge(order.paymentStatus || 'Saknas')}</strong></article>
-          <article><span>Medlem</span><strong>${escapeHtml(order.membershipStatus || 'Okänt')}</strong></article>
-        </div>
-        <section class="admin-order-panel admin-order-products">
-          <div class="admin-section-title">
-            <h3>Produkter</h3>
-            <span>${escapeHtml(String((order.items || []).reduce((sum, item) => sum + (Number(item.quantity) || 0), 0)))} st</span>
+        <section class="admin-tab-panel active" data-order-panel="översikt">
+          <div class="admin-order-note">${escapeHtml(sourceCopy)}</div>
+          <div class="admin-order-summary">
+            <article><span>Total</span><strong>${escapeHtml(order.total || 'Saknas')}</strong></article>
+            <article><span>Status</span><strong>${badge(order.orderStatus || 'Saknas')}</strong></article>
+            <article><span>Betalning</span><strong>${badge(order.paymentStatus || 'Saknas')}</strong></article>
+            <article><span>Medlem</span><strong>${escapeHtml(order.membershipStatus || 'Okänt')}</strong></article>
           </div>
-          ${(order.items || []).length ? order.items.map((item) => `
-            <div class="admin-line-item admin-product-line">
-              <span><strong>${escapeHtml(item.title)}</strong><small>SKU ${escapeHtml(item.sku || 'saknas')} · ${escapeHtml(item.quantity)} st</small></span>
-              <strong>${escapeHtml(item.total || item.unitPrice || '')}</strong>
+          <section class="admin-order-panel admin-order-products">
+            <div class="admin-section-title">
+              <h3>Produkter</h3>
+              <span>${escapeHtml(String((order.items || []).reduce((sum, item) => sum + (Number(item.quantity) || 0), 0)))} st</span>
             </div>
-          `).join('') : '<p class="admin-meta">Produkter saknas.</p>'}
-        </section>
-        <section class="admin-order-panel admin-fulfillment-panel">
-          <div class="admin-section-title">
-            <h3>Orderhantering</h3>
-            <span>${escapeHtml(order.source || '')}</span>
-          </div>
-          <div class="admin-form-grid">
-            <div class="admin-field"><label>Nästa status</label><select data-order-status>${orderStatuses.filter((item) => item !== 'alla').map((status) => `<option value="${escapeHtml(status)}" ${String(status).toLowerCase() === String(order.orderStatus || '').toLowerCase() ? 'selected' : ''}>${escapeHtml(status)}</option>`).join('')}</select></div>
-            <div class="admin-field"><label>Trackingnummer</label><input data-order-tracking-number value="${escapeHtml(order.trackingNumber || '')}" placeholder="t.ex. 0034..."></div>
-            <div class="admin-field"><label>Trackinglänk</label><input data-order-tracking-url value="${escapeHtml(order.trackingUrl || '')}" placeholder="https://..."></div>
-            <div class="admin-action-row">
-              <button class="admin-action" type="button" data-set-order-status="packas">Markera packas</button>
-              <button class="admin-action" type="button" data-set-order-status="skickad">Markera skickad</button>
-              <button class="admin-action danger" type="button" data-update-order="${escapeHtml(order.id)}">Spara och maila kund</button>
+            ${(order.items || []).length ? order.items.map((item) => `
+              <div class="admin-line-item admin-product-line">
+                <span><strong>${escapeHtml(item.title)}</strong><small>SKU ${escapeHtml(item.sku || 'saknas')} · ${escapeHtml(item.quantity)} st</small></span>
+                <strong>${escapeHtml(item.total || item.unitPrice || '')}</strong>
+              </div>
+            `).join('') : '<p class="admin-meta">Produkter saknas.</p>'}
+          </section>
+          <section class="admin-order-panel admin-customer-card">
+            <div class="admin-section-title"><h3>Kund & leverans</h3></div>
+            <div class="admin-detail-grid">
+              ${detailValue('Kund', order.customerName || order.email)}
+              ${detailValue('Email', order.email)}
+              ${detailValue('Telefon', order.phone)}
+              ${detailValue('Leveransadress', addressText)}
+              ${detailValue('Tracking', [order.trackingNumber, order.trackingUrl].filter(Boolean).join(' · '))}
             </div>
-          </div>
+          </section>
         </section>
-        <section class="admin-order-panel admin-customer-card">
-          <div class="admin-section-title"><h3>Kund & leverans</h3></div>
-          <div class="admin-detail-grid">
-            ${detailValue('Kund', order.customerName || order.email)}
-            ${detailValue('Email', order.email)}
-            ${detailValue('Telefon', order.phone)}
-            ${detailValue('Leveransadress', addressText)}
-            ${detailValue('Tracking', [order.trackingNumber, order.trackingUrl].filter(Boolean).join(' · '))}
-          </div>
+        <section class="admin-tab-panel" data-order-panel="packning" hidden>
+          <section class="admin-order-panel admin-fulfillment-panel">
+            <div class="admin-section-title">
+              <h3>Packning</h3>
+              <span>${escapeHtml(order.source || '')}</span>
+            </div>
+            <div class="admin-status-steps">
+              ${flow.map(([value, label, active]) => `<button type="button" class="${active ? 'active' : ''}" data-set-order-status="${escapeHtml(value)}">${escapeHtml(label)}</button>`).join('')}
+            </div>
+            <div class="admin-form-grid">
+              <div class="admin-field"><label>Nästa status</label><select data-order-status>${orderStatuses.filter((item) => item !== 'alla').map((status) => `<option value="${escapeHtml(status)}" ${String(status).toLowerCase() === String(order.orderStatus || '').toLowerCase() ? 'selected' : ''}>${escapeHtml(status)}</option>`).join('')}</select></div>
+              <div class="admin-field"><label>Trackingnummer</label><input data-order-tracking-number value="${escapeHtml(order.trackingNumber || '')}" placeholder="t.ex. 0034..."></div>
+              <div class="admin-field"><label>Trackinglänk</label><input data-order-tracking-url value="${escapeHtml(order.trackingUrl || '')}" placeholder="https://..."></div>
+              <div class="admin-action-row">
+                <button class="admin-action" type="button" data-set-order-status="packas">Markera packas</button>
+                <button class="admin-action" type="button" data-set-order-status="skickad">Markera skickad</button>
+                <button class="admin-action danger" type="button" data-update-order="${escapeHtml(order.id)}">Spara och maila kund</button>
+              </div>
+            </div>
+          </section>
         </section>
-        <section class="admin-order-panel">
-          <h3>Intern timeline</h3>
-          <ul class="admin-timeline">${(order.timeline || []).map((event) => `<li><span>${escapeHtml(event.label)}</span><small>${compactDate(event.at)}</small></li>`).join('')}</ul>
+        <section class="admin-tab-panel" data-order-panel="tracking" hidden>
+          <section class="admin-order-panel">
+            <div class="admin-section-title"><h3>Tracking</h3><span>${escapeHtml(order.trackingNumber || 'saknas')}</span></div>
+            <div class="admin-detail-grid">
+              ${detailValue('Trackingnummer', order.trackingNumber)}
+              ${detailValue('Trackinglänk', order.trackingUrl)}
+            </div>
+          </section>
+        </section>
+        <section class="admin-tab-panel" data-order-panel="statusmail" hidden>
+          <section class="admin-order-panel">
+            <div class="admin-section-title"><h3>Statusmail</h3><span>Resend</span></div>
+            <p class="admin-meta">Statusmail skickas när du sparar orderstatus under Packning.</p>
+          </section>
+        </section>
+        <section class="admin-tab-panel" data-order-panel="intern-logg" hidden>
+          <section class="admin-order-panel">
+            <h3>Intern timeline</h3>
+            <ul class="admin-timeline">${(order.timeline || []).map((event) => `<li><span>${escapeHtml(event.label)}</span><small>${compactDate(event.at)}</small></li>`).join('')}</ul>
+          </section>
         </section>
       </div>
     `);
@@ -900,6 +924,13 @@
       document.body.classList.toggle('admin-sidebar-open');
     }
 
+    if (event.target.closest('[data-admin-logout]')) {
+      await postJson('/api/admin-members', { action: 'logout' }).catch(() => null);
+      state.data = null;
+      setShell(false);
+      return;
+    }
+
     if (event.target.closest('[data-admin-drawer-close]')) closeDrawer();
 
     const filter = event.target.closest('[data-filter-key]');
@@ -910,6 +941,18 @@
 
     const orderButton = event.target.closest('[data-open-order]');
     if (orderButton) openOrder(orderButton.dataset.openOrder);
+
+    const orderTab = event.target.closest('[data-order-tab]');
+    if (orderTab) {
+      const detail = orderTab.closest('.admin-order-detail');
+      if (detail) {
+        detail.querySelectorAll('[data-order-tab]').forEach((button) => button.classList.toggle('active', button === orderTab));
+        detail.querySelectorAll('[data-order-panel]').forEach((panel) => {
+          panel.hidden = panel.dataset.orderPanel !== orderTab.dataset.orderTab;
+          panel.classList.toggle('active', panel.dataset.orderPanel === orderTab.dataset.orderTab);
+        });
+      }
+    }
 
     const checkoutButton = event.target.closest('[data-open-checkout]');
     if (checkoutButton) openCheckout(checkoutButton.dataset.openCheckout);
@@ -1021,12 +1064,6 @@
   });
 
   document.querySelector('[data-admin-refresh]').addEventListener('click', () => loadDashboard().catch((error) => showToast(error.message)));
-
-  document.querySelector('[data-admin-logout]').addEventListener('click', async () => {
-    await postJson('/api/admin-members', { action: 'logout' }).catch(() => null);
-    state.data = null;
-    setShell(false);
-  });
 
   getJson('/api/admin-members?mode=session')
     .then((session) => {

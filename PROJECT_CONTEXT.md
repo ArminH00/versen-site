@@ -86,6 +86,18 @@ Recent launch polish has already been pushed:
 - Green rings/outlines around CTA/status buttons were removed; only subtle luster/glow should remain.
 - Latest known styling request: countdown must be stylish text only, no timer pill.
 
+## Admin Design Contract
+
+The internal Versen Admin UI is a separate dark premium operations dashboard. Future admin edits must preserve this direction:
+
+- Premium ecommerce SaaS backend, not a raw CRUD/Supabase/debug dashboard.
+- Dark background, subtle glow, thin borders, small rounded corners, compact controls, clean typography.
+- Everything uses one shared component scale: consistent card radius, border opacity, control height, badge size, row padding, label weight, and section spacing.
+- Hierarchy matters: primary identifiers are clear, statuses are small badges, metadata is quiet, internal/system details have low visual priority.
+- Use grouped sections and tabs where detail views would otherwise become long or chaotic.
+- Mobile can show dense operational data, but must keep sticky navigation, compact controls, scrollable tabs/filters, and no oversized text or buttons.
+- Avoid flashy neon, large animation, oversized cards, mismatched spacing, and developer-looking raw data blocks.
+
 ## Product Copy Principles
 
 - Swedish, short, confident, and launch-ready.
