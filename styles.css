@@ -13281,3 +13281,103 @@ body.mobile-menu-open{
     width:30%!important;
   }
 }
+
+/* Mobile hero cutout: use the supplied product image without its dark background. */
+.page-home .hero-campaign-cutout{
+  display:block;
+  pointer-events:none;
+  -webkit-user-drag:none;
+  user-select:none;
+}
+
+@media (max-width:640px){
+  .page-home .premium-hero{
+    min-height:735px!important;
+    background:#fff!important;
+    overflow:hidden!important;
+  }
+
+  .page-home .premium-hero-copy{
+    position:relative!important;
+    z-index:4!important;
+    padding-top:86px!important;
+    background:transparent!important;
+  }
+
+  .page-home .premium-hero-copy h1{
+    max-width:330px!important;
+    font-size:43px!important;
+    line-height:.95!important;
+  }
+
+  .page-home .premium-hero-copy p{
+    max-width:300px!important;
+    margin-top:16px!important;
+    margin-bottom:22px!important;
+    font-size:16px!important;
+    line-height:1.36!important;
+  }
+
+  .page-home .hero-actions .cta{
+    min-height:44px!important;
+    padding:0 24px!important;
+    font-size:15px!important;
+  }
+
+  .page-home main .premium-hero .mobile-hero-visual{
+    position:absolute!important;
+    inset:auto -10px -8px!important;
+    z-index:2!important;
+    display:block!important;
+    height:430px!important;
+    margin:0!important;
+    overflow:visible!important;
+    background:transparent!important;
+  }
+
+  .page-home main .premium-hero .mobile-hero-visual::before{
+    content:""!important;
+    position:absolute;
+    z-index:2;
+    inset:-10px 10px auto;
+    height:46px;
+    background:linear-gradient(180deg,#fff 0%,rgba(255,255,255,.58) 58%,rgba(255,255,255,0) 100%);
+    pointer-events:none;
+  }
+
+  .page-home main .premium-hero .mobile-hero-visual::after,
+  .page-home main .premium-hero .mobile-hero-visual > span,
+  .page-home .mobile-hero-product{
+    display:none!important;
+    content:none!important;
+  }
+
+  .page-home .hero-campaign-cutout{
+    position:absolute;
+    left:50%;
+    bottom:-6px;
+    width:105%;
+    max-width:none;
+    height:auto;
+    transform:translateX(-50%);
+    filter:drop-shadow(0 24px 18px rgba(8,9,9,.13));
+  }
+
+  .page-home .product-showcase{
+    padding-top:34px!important;
+  }
+}
+
+@media (max-width:380px){
+  .page-home .premium-hero-copy h1{
+    font-size:40px!important;
+  }
+
+  .page-home .premium-hero-copy p{
+    font-size:15px!important;
+  }
+
+  .page-home .hero-campaign-cutout{
+    width:110%;
+  }
+}
