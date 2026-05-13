@@ -86,6 +86,24 @@ Recent launch polish has already been pushed:
 - Green rings/outlines around CTA/status buttons were removed; only subtle luster/glow should remain.
 - Latest known styling request: countdown must be stylish text only, no timer pill.
 
+## Homepage Hero Image Contract
+
+The homepage mobile hero currently uses one supplied campaign artwork as the product visual:
+
+`assets/hero-studio/versen-mobile-hero-blend.png`
+
+When the user says they want to "byta hero bild" or gives a new hero image in a future chat, treat it as a simple image swap unless they explicitly ask for a new layout:
+
+- Replace the campaign artwork at `assets/hero-studio/versen-mobile-hero-blend.png`, or update the single `<img class="hero-campaign-cutout">` source in `index.html` if a new filename is cleaner.
+- Preserve the existing homepage hero structure: `.premium-hero`, `.premium-hero-copy`, `.mobile-hero-visual`, and `.hero-campaign-cutout`.
+- Do not redesign the hero, copy, CTA, typography, or product layout just because the image changes.
+- On mobile, the image should sit as the lower hero artwork, edge-to-edge, large, editorial, and blended into the page. It should feel integrated behind/under the text, not like a product card or separate box.
+- Keep the page background white. If the supplied image has a warm/off-white edge color, fade from that exact sampled edge tone into white using gradients, instead of making the whole page beige.
+- The top of the image must fade far enough into the white hero area that no hard image edge is visible under the text.
+- The white circle/blob/form overlays from older experiments must remain disabled; the supplied artwork should not have decorative shapes placed over it.
+- If the new image has a different crop, adjust only `.hero-campaign-cutout` sizing/object-position and the `.mobile-hero-visual::before` fade. Keep the text block and CTA nearly unchanged.
+- Prioritize mobile first. Desktop can be reviewed later unless the user explicitly asks for desktop in the same request.
+
 ## Admin Design Contract
 
 The internal Versen Admin UI is a separate dark premium operations dashboard. Future admin edits must preserve this direction:

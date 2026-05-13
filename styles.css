@@ -13473,6 +13473,7 @@ body.mobile-menu-open{
 
   .page-home .premium-hero-copy{
     background:transparent!important;
+    padding-top:44px!important;
   }
 
   .page-home main .premium-hero .mobile-hero-visual{
@@ -13533,7 +13534,7 @@ body.mobile-menu-open{
   }
 
   .page-home .premium-hero{
-    min-height:820px!important;
+    min-height:780px!important;
     background:
       linear-gradient(180deg,#fff 0%,#fff 44%,#f2e7d9 60%,#f2e7d9 78%,#fff 100%)!important;
     overflow:hidden!important;
@@ -13544,7 +13545,7 @@ body.mobile-menu-open{
   }
 
   .page-home main .premium-hero .mobile-hero-visual{
-    inset:auto 0 18px!important;
+    inset:auto 0 58px!important;
     height:520px!important;
     background:transparent!important;
     overflow:hidden!important;
