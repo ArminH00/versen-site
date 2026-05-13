@@ -19,6 +19,11 @@ const {
 } = require('../lib/checkout-service');
 const { getOrder, getOrderByPaymentIntent, listOrdersForCustomer } = require('../lib/order-store');
 const { syncStripeInvoice, syncStripeSubscription } = require('../lib/membership-service');
+const {
+  isSupabaseConfigured,
+  markAbandonedCheckoutConverted,
+  upsertAbandonedCheckout,
+} = require('../lib/supabase');
 
 function verifyStripeSignature(rawBody, signatureHeader, secret) {
   if (!secret || !signatureHeader) return false;
@@ -140,6 +145,17 @@ function requireActiveMember(session) {
   }
 }
 
+function abandonedCheckoutId(session, validation, email) {
+  const userId = session && session.customer && session.customer.id ? session.customer.id : 'guest';
+  const digest = crypto
+    .createHash('sha1')
+    .update([userId, validation.cart_id || '', String(email || '').toLowerCase()].join(':'))
+    .digest('hex')
+    .slice(0, 16);
+
+  return `abn_${digest}`;
+}
+
 module.exports = async function handler(req, res) {
   if (req.method === 'POST' && req.query && req.query.webhook === 'stripe') {
     await handleStripeWebhook(req, res);
@@ -196,6 +212,49 @@ module.exports = async function handler(req, res) {
         currency: validation.currency,
         discountCodes: validation.discount_codes,
       });
+      return;
+    }
+
+    if (body.action === 'abandoned_checkout') {
+      const contact = normalizeContact(body.contact, session);
+      const shippingAddress = normalizeAddress(body.shippingAddress || {});
+
+      if (!contact.email) {
+        sendJson(res, 200, { saved: false, reason: 'email_missing' });
+        return;
+      }
+
+      const validation = await validateCheckout({
+        items: body.items,
+        discountCode: body.discountCode,
+        session,
+      });
+
+      if (isSupabaseConfigured()) {
+        const id = abandonedCheckoutId(session, validation, contact.email);
+        await upsertAbandonedCheckout({
+          id,
+          user_id: session.customer && session.customer.id,
+          email: contact.email,
+          name: [shippingAddress.first_name, shippingAddress.last_name].filter(Boolean).join(' '),
+          phone: contact.phone,
+          items: validation.items,
+          cart_value: validation.total,
+          currency: validation.currency,
+          status: 'open',
+          latest_activity: body.latestActivity || 'Checkout påbörjad',
+          metadata: {
+            cart_id: validation.cart_id || null,
+            discount_codes: validation.discount_codes || [],
+            shipping_address: shippingAddress,
+            member: Boolean(session.customer && session.customer.member),
+          },
+        });
+        sendJson(res, 200, { saved: true, checkoutId: id });
+        return;
+      }
+
+      sendJson(res, 200, { saved: false, reason: 'supabase_not_configured' });
       return;
     }
 
@@ -281,13 +340,30 @@ module.exports = async function handler(req, res) {
       requireActiveMember(session);
 
       if (String(body.paymentIntentId || '').startsWith('free_')) {
+        let abandonedId = null;
+        try {
+          const contact = normalizeContact(body.contact, session);
+          const validation = await validateCheckout({
+            items: body.items,
+            discountCode: body.discountCode,
+            session,
+          });
+          abandonedId = abandonedCheckoutId(session, validation, contact.email);
+        } catch (error) {
+          abandonedId = null;
+        }
         const order = await fulfillFreeCheckoutDraft(body.paymentIntentId);
+        await markAbandonedCheckoutConverted(body.paymentIntentId, order.id).catch(() => {});
+        if (abandonedId && abandonedId !== body.paymentIntentId) {
+          await markAbandonedCheckoutConverted(abandonedId, order.id).catch(() => {});
+        }
         sendJson(res, 200, { order: publicOrder(order) });
         return;
       }
 
       const paymentIntent = await retrievePaymentIntent(body.paymentIntentId);
       let fallbackDraft = null;
+      let abandonedId = null;
 
       if (body.items && body.contact && body.shippingAddress) {
         const contact = normalizeContact(body.contact, session);
@@ -314,9 +390,15 @@ module.exports = async function handler(req, res) {
           stripe_payment_intent_id: paymentIntent.id,
           created_at: new Date().toISOString(),
         });
+        abandonedId = abandonedCheckoutId(session, validation, contact.email);
       }
 
       const order = await fulfillPaidPaymentIntent(paymentIntent, fallbackDraft);
+      const checkoutId = paymentIntent.metadata && paymentIntent.metadata.versen_checkout_id;
+      await markAbandonedCheckoutConverted(checkoutId, order.id).catch(() => {});
+      if (abandonedId && abandonedId !== checkoutId) {
+        await markAbandonedCheckoutConverted(abandonedId, order.id).catch(() => {});
+      }
       sendJson(res, 200, { order: publicOrder(order) });
       return;
     }

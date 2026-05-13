@@ -94,6 +94,10 @@ create table if not exists public.subscriptions (
   stripe_customer_id text,
   stripe_subscription_id text not null unique,
   status text not null default 'incomplete',
+  amount integer not null default 0,
+  currency text not null default 'sek',
+  interval text,
+  price_id text,
   current_period_start timestamptz,
   current_period_end timestamptz,
   cancel_at_period_end boolean not null default false,
@@ -174,6 +178,12 @@ alter table public.orders
 alter table public.profiles
   add column if not exists preferences jsonb not null default '{}'::jsonb,
   add column if not exists product_suggestions jsonb not null default '[]'::jsonb;
+
+alter table public.subscriptions
+  add column if not exists amount integer not null default 0,
+  add column if not exists currency text not null default 'sek',
+  add column if not exists interval text,
+  add column if not exists price_id text;
 
 create index if not exists checkout_drafts_payment_intent_idx
   on public.checkout_drafts (stripe_payment_intent_id);

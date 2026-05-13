@@ -164,10 +164,12 @@
     const diagnostics = state.data.diagnostics || {};
     const supabase = diagnostics.supabase || {};
     const shopify = diagnostics.shopify || {};
+    const resend = diagnostics.resend || {};
     const pills = [
       ['Shopify orders', shopify.orders && shopify.orders.ok],
       ['Shopify kunder', shopify.customers && shopify.customers.ok],
       ['Supabase', supabase.configured],
+      ['Resend', resend.configured],
       ['Supporttabell', supabase.supportTickets && supabase.supportTickets.ok],
       ['Abandoned', supabase.abandonedCheckouts && supabase.abandonedCheckouts.ok],
       ['Activity', supabase.activity && supabase.activity.ok],
@@ -234,6 +236,8 @@
       ['membershipsToday', 'Medlemskap idag', stats.membershipsToday, 'memberships', 'Nya skapade/sålda'],
       ['membershipRevenueToday', 'Medlemskap kr', stats.membershipRevenueToday, 'memberships', 'Kräver prisdata/webhook'],
       ['activeMemberships', 'Aktiva medlemskap', stats.activeMemberships, 'memberships', 'Aktiva/trialing'],
+      ['mrr', 'MRR', stats.mrr, 'memberships', 'Monthly recurring revenue'],
+      ['arr', 'ARR', stats.arr, 'memberships', 'Annual recurring revenue'],
       ['supportMessages', 'Support', stats.supportMessages, 'support', 'Alla ärenden'],
       ['unreadSupportMessages', 'Olästa support', stats.unreadSupportMessages, 'support', 'Behöver svar'],
       ['awaitingPacking', 'Väntar packning', stats.awaitingPacking, 'orders', 'Orders att hantera'],
@@ -501,9 +505,10 @@
   function renderMemberships() {
     const rows = filterRows(list('subscriptions'), 'memberships', membershipStatuses);
     const active = list('subscriptions').filter((item) => ['active', 'trialing'].includes(String(item.status || '').toLowerCase())).length;
+    const stats = state.data && state.data.stats ? state.data.stats : {};
     content.innerHTML = `
       <section class="admin-section">
-        ${sectionIntro('Medlemskap', `Aktiva medlemskap: ${active}. MRR/ARR kräver amount/price på subscription-webhook.`, rows.length)}
+        ${sectionIntro('Medlemskap', `Aktiva medlemskap: ${active}. MRR ${stats.mrr || 'Data saknas'} · ARR ${stats.arr || 'Data saknas'}.`, rows.length)}
         ${tableCard('Prenumerationer', rows, renderMembershipRow, 'Inga medlemskap hittades i Supabase ännu.', filterButtons('memberships', membershipStatuses))}
       </section>
     `;
@@ -629,40 +634,95 @@
     return `<div class="admin-detail-card"><span class="admin-mini-label">${escapeHtml(label)}</span><p class="admin-meta">${escapeHtml(value || 'Saknas')}</p></div>`;
   }
 
+  function orderFlowSteps(order) {
+    const status = String(order.orderStatus || order.fulfillmentStatus || '').toLowerCase();
+    return [
+      ['betald', 'Betald', true],
+      ['väntar på packning', 'Väntar packning', /(väntar|pending|open|unfulfilled|paid|pack)/.test(status)],
+      ['packas', 'Packas', /(packas|packing)/.test(status)],
+      ['skickad', 'Skickad', /(skickad|shipped|fulfilled|delivered)/.test(status)],
+      ['levererad', 'Levererad', /(levererad|delivered)/.test(status)],
+    ];
+  }
+
   function openOrder(id) {
     const order = list('orders').find((item) => item.id === id);
     if (!order) return;
+    const flow = orderFlowSteps(order);
+    const sourceCopy = order.source === 'shopify'
+      ? 'Shopify-order visas här för överblick. Statusändringar i denna panel loggas i Versen och synkar fullt när ordern finns i Supabase.'
+      : 'Det här är Versens orderflöde. Hantera packning, tracking, statusmail och intern logg här.';
+    const address = order.shippingAddress || {};
+    const addressText = [
+      address.name || [address.first_name, address.firstName, address.last_name, address.lastName].filter(Boolean).join(' '),
+      address.address1,
+      address.address2,
+      address.zip || address.postalCode,
+      address.city,
+      address.country,
+    ].filter(Boolean).join(', ');
     openDrawer(`
-      <div class="admin-detail">
-        <div>
-          <span class="admin-kicker">${escapeHtml(order.source || 'order')}</span>
-          <h2>${escapeHtml(order.name || order.id)}</h2>
-          <p class="admin-meta">${escapeHtml(order.email || '')} · ${compactDate(order.createdAt)}</p>
+      <div class="admin-detail admin-order-detail">
+        <div class="admin-order-hero">
+          <div>
+            <span class="admin-kicker">${escapeHtml(order.source || 'order')}</span>
+            <h2>${escapeHtml(order.name || order.id)}</h2>
+            <p class="admin-meta">${escapeHtml(order.email || '')} · ${compactDate(order.createdAt)}</p>
+          </div>
+          <div class="admin-order-hero-status">
+            ${badge(order.paymentStatus || 'payment')}
+            ${badge(order.orderStatus || 'status')}
+          </div>
         </div>
-        <div class="admin-detail-grid">
-          ${detailValue('Total', order.total)}
-          ${detailValue('Betalstatus', order.paymentStatus)}
-          ${detailValue('Orderstatus', order.orderStatus)}
-          ${detailValue('Medlemsstatus', order.membershipStatus)}
-          ${detailValue('Tracking', [order.trackingNumber, order.trackingUrl].filter(Boolean).join(' · '))}
-          ${detailValue('Leverans', order.shippingAddress ? [order.shippingAddress.name, order.shippingAddress.address1, order.shippingAddress.zip, order.shippingAddress.city].filter(Boolean).join(', ') : '')}
+        <div class="admin-workflow">
+          ${flow.map(([value, label, active]) => `<button type="button" class="${active ? 'active' : ''}" data-set-order-status="${escapeHtml(value)}">${escapeHtml(label)}</button>`).join('')}
         </div>
-        <section class="admin-detail-card">
-          <h3>Produkter</h3>
+        <div class="admin-order-note">${escapeHtml(sourceCopy)}</div>
+        <div class="admin-order-summary">
+          <article><span>Total</span><strong>${escapeHtml(order.total || 'Saknas')}</strong></article>
+          <article><span>Status</span><strong>${badge(order.orderStatus || 'Saknas')}</strong></article>
+          <article><span>Betalning</span><strong>${badge(order.paymentStatus || 'Saknas')}</strong></article>
+          <article><span>Medlem</span><strong>${escapeHtml(order.membershipStatus || 'Okänt')}</strong></article>
+        </div>
+        <section class="admin-order-panel admin-order-products">
+          <div class="admin-section-title">
+            <h3>Produkter</h3>
+            <span>${escapeHtml(String((order.items || []).reduce((sum, item) => sum + (Number(item.quantity) || 0), 0)))} st</span>
+          </div>
           ${(order.items || []).length ? order.items.map((item) => `
-            <div class="admin-line-item"><span>${escapeHtml(item.quantity)} x ${escapeHtml(item.title)}</span><strong>${escapeHtml(item.total || item.unitPrice || '')}</strong></div>
+            <div class="admin-line-item admin-product-line">
+              <span><strong>${escapeHtml(item.title)}</strong><small>SKU ${escapeHtml(item.sku || 'saknas')} · ${escapeHtml(item.quantity)} st</small></span>
+              <strong>${escapeHtml(item.total || item.unitPrice || '')}</strong>
+            </div>
           `).join('') : '<p class="admin-meta">Produkter saknas.</p>'}
         </section>
-        <section class="admin-detail-card">
-          <h3>Ändra status</h3>
+        <section class="admin-order-panel admin-fulfillment-panel">
+          <div class="admin-section-title">
+            <h3>Orderhantering</h3>
+            <span>${escapeHtml(order.source || '')}</span>
+          </div>
           <div class="admin-form-grid">
-            <div class="admin-field"><label>Status</label><select data-order-status>${orderStatuses.filter((item) => item !== 'alla').map((status) => `<option value="${escapeHtml(status)}">${escapeHtml(status)}</option>`).join('')}</select></div>
-            <div class="admin-field"><label>Trackingnummer</label><input data-order-tracking-number value="${escapeHtml(order.trackingNumber || '')}"></div>
-            <div class="admin-field"><label>Trackinglänk</label><input data-order-tracking-url value="${escapeHtml(order.trackingUrl || '')}"></div>
-            <button class="admin-action danger" type="button" data-update-order="${escapeHtml(order.id)}">Bekräfta statusändring</button>
+            <div class="admin-field"><label>Nästa status</label><select data-order-status>${orderStatuses.filter((item) => item !== 'alla').map((status) => `<option value="${escapeHtml(status)}" ${String(status).toLowerCase() === String(order.orderStatus || '').toLowerCase() ? 'selected' : ''}>${escapeHtml(status)}</option>`).join('')}</select></div>
+            <div class="admin-field"><label>Trackingnummer</label><input data-order-tracking-number value="${escapeHtml(order.trackingNumber || '')}" placeholder="t.ex. 0034..."></div>
+            <div class="admin-field"><label>Trackinglänk</label><input data-order-tracking-url value="${escapeHtml(order.trackingUrl || '')}" placeholder="https://..."></div>
+            <div class="admin-action-row">
+              <button class="admin-action" type="button" data-set-order-status="packas">Markera packas</button>
+              <button class="admin-action" type="button" data-set-order-status="skickad">Markera skickad</button>
+              <button class="admin-action danger" type="button" data-update-order="${escapeHtml(order.id)}">Spara och maila kund</button>
+            </div>
           </div>
         </section>
-        <section class="admin-detail-card">
+        <section class="admin-order-panel admin-customer-card">
+          <div class="admin-section-title"><h3>Kund & leverans</h3></div>
+          <div class="admin-detail-grid">
+            ${detailValue('Kund', order.customerName || order.email)}
+            ${detailValue('Email', order.email)}
+            ${detailValue('Telefon', order.phone)}
+            ${detailValue('Leveransadress', addressText)}
+            ${detailValue('Tracking', [order.trackingNumber, order.trackingUrl].filter(Boolean).join(' · '))}
+          </div>
+        </section>
+        <section class="admin-order-panel">
           <h3>Intern timeline</h3>
           <ul class="admin-timeline">${(order.timeline || []).map((event) => `<li><span>${escapeHtml(event.label)}</span><small>${compactDate(event.at)}</small></li>`).join('')}</ul>
         </section>
@@ -897,6 +957,16 @@
         trackingUrl: panel.querySelector('[data-order-tracking-url]').value,
         sendEmail: true,
       }));
+    }
+
+    const quickOrderStatus = event.target.closest('[data-set-order-status]');
+    if (quickOrderStatus) {
+      const detail = quickOrderStatus.closest('.admin-order-detail');
+      const select = detail && detail.querySelector('[data-order-status]');
+      if (select) {
+        select.value = quickOrderStatus.dataset.setOrderStatus;
+        detail.querySelectorAll('[data-set-order-status]').forEach((button) => button.classList.toggle('active', button === quickOrderStatus));
+      }
     }
 
     const updateSupport = event.target.closest('[data-update-support]');

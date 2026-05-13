@@ -2742,6 +2742,23 @@ async function quoteCheckout() {
   return data;
 }
 
+async function trackAbandonedCheckout(latestActivity) {
+  const draft = readCheckoutDraft();
+
+  if (!draft.contact || !draft.contact.email || !cart.length) {
+    return;
+  }
+
+  await postJson('/api/checkout', {
+    action: 'abandoned_checkout',
+    items: checkoutItemsPayload(),
+    discountCode: readDiscountCode(),
+    contact: draft.contact,
+    shippingAddress: draft.shippingAddress || {},
+    latestActivity,
+  });
+}
+
 async function setupCheckoutPayment() {
   const form = document.querySelector('[data-checkout-payment-form]');
   const message = document.querySelector('[data-checkout-payment-message]');
@@ -3005,6 +3022,7 @@ if (checkoutContactForm) {
         phone: values.phone,
       },
     });
+    trackAbandonedCheckout('Kontaktuppgifter sparade').catch(() => {});
     goCheckoutStep('leverans');
   });
 }
@@ -3027,6 +3045,7 @@ if (checkoutShippingForm) {
         alternateAddress: Boolean(values.alternateAddress),
       },
     });
+    trackAbandonedCheckout('Leveransadress sparad').catch(() => {});
     goCheckoutStep('betalning');
   });
 }

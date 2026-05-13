@@ -647,6 +647,34 @@ button{cursor:pointer}
 .admin-detail h3{margin:0 0 10px;font-size:14px}
 .admin-detail-card{padding:15px}
 .admin-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.admin-order-detail{gap:10px}
+.admin-order-hero{display:flex;align-items:start;justify-content:space-between;gap:12px;padding:4px 2px 2px}
+.admin-order-hero h2{font-size:22px}
+.admin-order-hero-status{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}
+.admin-workflow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.admin-workflow button{
+  min-height:30px;
+  border:1px solid var(--admin-line);
+  border-radius:var(--admin-radius-sm);
+  background:rgba(255,255,255,.035);
+  color:var(--admin-muted);
+  padding:0 8px;
+  font-size:11px;
+  font-weight:750;
+}
+.admin-workflow button.active{border-color:rgba(40,216,116,.24);background:rgba(40,216,116,.10);color:var(--admin-green)}
+.admin-order-note{border:1px solid rgba(123,53,242,.16);border-radius:var(--admin-radius-sm);background:rgba(123,53,242,.075);color:#aeb8c8;padding:9px 10px;font-size:11px;line-height:1.4}
+.admin-order-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.admin-order-summary article{min-height:70px;border:1px solid var(--admin-line);border-radius:var(--admin-radius-sm);background:rgba(255,255,255,.026);padding:11px}
+.admin-order-summary span,
+.admin-section-title span{display:block;color:var(--admin-muted);font-size:10px;font-weight:750}
+.admin-order-summary strong{display:block;margin-top:6px;font-size:16px;letter-spacing:-.02em}
+.admin-order-panel{border-top:1px solid var(--admin-line);padding:13px 2px 0}
+.admin-section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.admin-section-title h3{margin:0}
+.admin-product-line span{display:grid;gap:3px}
+.admin-product-line small{color:var(--admin-muted);font-size:11px}
+.admin-action-row{grid-column:1 / -1;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
 .admin-line-item,
 .admin-timeline li{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--admin-line)}
 .admin-line-item:last-child,
@@ -718,6 +746,8 @@ button{cursor:pointer}
   .admin-grid-2,
   .admin-settings-grid,
   .admin-detail-grid{grid-template-columns:1fr}
+  .admin-order-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .admin-workflow{grid-template-columns:repeat(2,minmax(0,1fr))}
   .admin-chart-card{min-height:210px;padding:15px}
   .admin-donut-wrap{grid-template-columns:112px 1fr;gap:14px}
   .admin-donut{width:104px;height:104px}
@@ -736,6 +766,7 @@ button{cursor:pointer}
   .admin-action{min-height:30px;padding:0 10px}
   .admin-drawer-panel{inset:0;width:100vw;border-radius:0;padding:16px 14px 86px}
   .admin-detail h2{font-size:25px}
+  .admin-order-hero h2{font-size:22px}
   .admin-line-item{font-size:12px}
   .admin-bottom-nav{
     position:fixed;
@@ -778,6 +809,12 @@ button{cursor:pointer}
   .admin-card:nth-child(n+3) strong{font-size:19px}
   .admin-topbar{min-height:72px}
   .admin-table-top h2{font-size:15px}
+  .admin-order-summary{gap:6px}
+  .admin-order-summary article{min-height:64px;padding:10px}
+  .admin-workflow{gap:6px}
+  .admin-workflow button{font-size:10px;padding:0 6px}
+  .admin-action-row{justify-content:stretch}
+  .admin-action-row .admin-action{flex:1}
   .admin-bars{gap:6px;height:120px}
   .admin-bar small{font-size:9px}
   .admin-toast{left:12px;right:12px;bottom:82px;max-width:none}

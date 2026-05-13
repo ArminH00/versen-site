@@ -6,7 +6,14 @@ const {
 } = require('../lib/shopify');
 const { getCustomerSession } = require('./membership');
 const { cancelStripeMembership } = require('../lib/membership-service');
-const { appendProductSuggestion, updateProfilePreferences } = require('../lib/supabase');
+const {
+  appendProductSuggestion,
+  isSupabaseConfigured,
+  logAdminActivity,
+  logEmail,
+  updateProfilePreferences,
+  upsertSupportTicket,
+} = require('../lib/supabase');
 const {
   createSupabaseUser,
   findSupabaseAccountByEmail,
@@ -338,12 +345,57 @@ async function sendSupportEmail(res, body) {
     return;
   }
 
+  const ticketId = `sup_${crypto.randomBytes(10).toString('hex')}`;
+  const category = topic.toLowerCase().includes('retur') ? 'returer' : 'övrigt';
+  let savedTicket = null;
+
+  if (isSupabaseConfigured()) {
+    try {
+      savedTicket = await upsertSupportTicket({
+        id: ticketId,
+        order_id: order || null,
+        email,
+        name,
+        subject: topic,
+        category,
+        status: 'pågående',
+        priority: 'normal',
+        unread: true,
+        message,
+        messages: [{
+          from: 'customer',
+          name,
+          email,
+          message,
+          created_at: new Date().toISOString(),
+        }],
+        metadata: {
+          source: 'contact_form',
+          order_reference: order || null,
+        },
+      });
+      await logAdminActivity({
+        action: 'support_ticket_created',
+        target_type: 'support_ticket',
+        target_id: ticketId,
+        message: `Nytt supportärende från ${email}`,
+        metadata: { topic, order: order || null },
+      }).catch(() => {});
+    } catch (error) {
+      savedTicket = null;
+    }
+  }
+
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.VERSEN_EMAIL_FROM || 'Versen <hej@versen.se>';
   const supportEmail = process.env.VERSEN_SUPPORT_EMAIL || 'hej@versen.se';
 
   if (!apiKey) {
-    sendJson(res, 503, { error: 'Supportmail är inte konfigurerat ännu.' });
+    sendJson(res, savedTicket ? 200 : 503, {
+      status: savedTicket ? 'Ärendet är sparat. Mail är inte konfigurerat ännu.' : undefined,
+      error: savedTicket ? undefined : 'Supportmail är inte konfigurerat ännu.',
+      ticketId: savedTicket ? ticketId : undefined,
+    });
     return;
   }
 
@@ -394,11 +446,39 @@ async function sendSupportEmail(res, body) {
     sendJson(res, response.status, {
       error: details.message || details.error || 'Kunde inte skicka supportärendet.',
       details,
+      ticketId: savedTicket ? ticketId : undefined,
     });
     return;
   }
 
-  sendJson(res, 200, { status: 'Meddelandet är skickat. Vi återkommer via email.' });
+  let emailResult = null;
+
+  try {
+    emailResult = await response.json();
+  } catch (error) {
+    emailResult = null;
+  }
+
+  if (isSupabaseConfigured()) {
+    await logEmail({
+      order_id: order || null,
+      type: 'support_ticket',
+      resend_email_id: emailResult && emailResult.id,
+      status: 'sent',
+    }).catch(() => {});
+    await logAdminActivity({
+      action: 'support_email_sent',
+      target_type: 'support_ticket',
+      target_id: savedTicket ? ticketId : null,
+      message: `Supportmail mottaget från ${email}`,
+      metadata: { resend_id: emailResult && emailResult.id },
+    }).catch(() => {});
+  }
+
+  sendJson(res, 200, {
+    status: 'Meddelandet är skickat. Vi återkommer via email.',
+    ticketId: savedTicket ? ticketId : undefined,
+  });
 }
 
 async function sendWaitlistEmail(res, body) {
