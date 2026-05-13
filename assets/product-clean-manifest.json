@@ -280,6 +280,65 @@
       "url": "/assets/product-clean/vassle-kreatin-kladdkaka-900g.jpg",
       "altText": "Vassle & Kreatin Kladdkaka 900g",
       "variants": {}
+    },
+    "pout-preserve-peptide-lip-treatment-glimmers": {
+      "title": "Pout Preserve Peptide Lip Treatment Glimmers",
+      "vendor": "Ola Henriksen",
+      "url": "/assets/product-clean/pout-preserve-peptide-lip-treatment-glimmers.jpg",
+      "altText": "Pout Preserve Peptide Lip Treatment Glimmers",
+      "variants": {
+        "gid://shopify/ProductVariant/54378181001545": {
+          "url": "/assets/product-clean/pout-preserve-peptide-lip-treatment-glimmers-8e9907dde2.jpg",
+          "altText": "Pout Preserve Peptide Lip Treatment Glimmers"
+        },
+        "gid://shopify/ProductVariant/54378181034313": {
+          "url": "/assets/product-clean/pout-preserve-peptide-lip-treatment-glimmers-8201c235da.jpg",
+          "altText": "Pout Preserve Peptide Lip Treatment Glimmers"
+        },
+        "gid://shopify/ProductVariant/54378181067081": {
+          "url": "/assets/product-clean/pout-preserve-peptide-lip-treatment-glimmers-61bd169977.jpg",
+          "altText": "Pout Preserve Peptide Lip Treatment Glimmers"
+        },
+        "gid://shopify/ProductVariant/54378181099849": {
+          "url": "/assets/product-clean/pout-preserve-peptide-lip-treatment-glimmers-13de18cb90.jpg",
+          "altText": "Pout Preserve Peptide Lip Treatment Glimmers"
+        }
+      }
+    },
+    "kayali-vanilla-28-eau-de-parfum": {
+      "title": "KAYALI Vanilla 28 - Eau de Parfum - 100ml",
+      "vendor": "KAYALI",
+      "url": "/assets/product-clean/kayali-vanilla-28-eau-de-parfum.jpg",
+      "altText": "KAYALI Vanilla 28 - Eau de Parfum - 100ml",
+      "variants": {}
+    },
+    "yum-pistachio-gelato-33-eau-de-parfum-intense": {
+      "title": "KAYALI Yum Pistachio Gelato 33 - Eau de Parfum Intense",
+      "vendor": "KAYALI",
+      "url": "/assets/product-clean/yum-pistachio-gelato-33-eau-de-parfum-intense.jpg",
+      "altText": "KAYALI Yum Pistachio Gelato 33 - Eau de Parfum Intense",
+      "variants": {}
+    },
+    "yum-boujee-marshmallow-81-intensiv-eau-de-parfum": {
+      "title": "KAYALI Yum Boujee Marshmallow 81 - Intensiv eau de parfum",
+      "vendor": "KAYALI",
+      "url": "/assets/product-clean/yum-boujee-marshmallow-81-intensiv-eau-de-parfum.jpg",
+      "altText": "KAYALI Yum Boujee Marshmallow 81 - Intensiv eau de parfum",
+      "variants": {}
+    },
+    "fleur-majesty-rose-royale-31-eau-de-parfum": {
+      "title": "KAYALI Fleur Majesty Rose Royale 31 - Eau de Parfum",
+      "vendor": "KAYALI",
+      "url": "/assets/product-clean/fleur-majesty-rose-royale-31-eau-de-parfum.jpg",
+      "altText": "KAYALI Fleur Majesty Rose Royale 31 - Eau de Parfum",
+      "variants": {}
+    },
+    "eden-sparkling-lychee-39-eau-de-parfum": {
+      "title": "KAYALI Eden Sparkling Lychee 39 Eau de Parfum",
+      "vendor": "KAYALI",
+      "url": "/assets/product-clean/eden-sparkling-lychee-39-eau-de-parfum.jpg",
+      "altText": "KAYALI Eden Sparkling Lychee 39 Eau de Parfum",
+      "variants": {}
     }
   }
 }
