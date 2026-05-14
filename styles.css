@@ -13746,8 +13746,8 @@ body.mobile-menu-open{
 .first-versen-page{
   min-height:calc(100svh - var(--nav-height) - var(--top-strip-height));
   display:grid;
-  place-items:center;
-  padding:clamp(64px,10vw,128px) 20px;
+  place-items:start center;
+  padding:clamp(24px,4vw,54px) max(16px,calc((100vw - 1180px) / 2)) clamp(64px,10vw,128px);
   background:
     radial-gradient(ellipse at 50% 0%,rgba(241,232,215,.88),rgba(255,255,255,0) 44%),
     #fff;
@@ -13862,7 +13862,7 @@ body.mobile-menu-open{
 
   .first-versen-page{
     align-items:start;
-    padding-top:84px;
+    padding:26px 20px 80px;
   }
 
   .first-versen-hero{
