@@ -13698,12 +13698,13 @@ body.mobile-menu-open{
   display:grid;
   align-content:space-between;
   padding:8px 9px;
-  border:1px solid rgba(255,255,255,.72);
+  border:1px solid rgba(255,255,255,.82);
   border-radius:5px;
   background:
-    linear-gradient(118deg,rgba(255,255,255,.16),rgba(255,255,255,0) 34%),
-    linear-gradient(135deg,#171817 0%,#34342f 48%,#ebe0c9 49%,#f7efe0 100%);
-  box-shadow:0 9px 20px rgba(15,18,16,.13), inset 0 1px 0 rgba(255,255,255,.36);
+    radial-gradient(circle at 18% 20%,rgba(255,255,255,.18),rgba(255,255,255,0) 31%),
+    linear-gradient(120deg,rgba(255,255,255,.1),rgba(255,255,255,0) 29%),
+    linear-gradient(135deg,#181916 0%,#242620 56%,#e7dcc4 57%,#f5eedf 100%);
+  box-shadow:0 10px 22px rgba(15,18,16,.16), inset 0 1px 0 rgba(255,255,255,.42), inset 0 -1px 0 rgba(8,9,9,.16);
   color:#fff;
   overflow:hidden;
 }
@@ -13712,7 +13713,7 @@ body.mobile-menu-open{
   content:"";
   position:absolute;
   inset:-30% -50%;
-  background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.58) 47%,transparent 58%);
+  background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.5) 47%,transparent 58%);
   transform:translateX(-42%);
   animation:first-card-mini-sheen 3.2s ease-in-out infinite;
 }
@@ -13728,13 +13729,15 @@ body.mobile-menu-open{
   font-size:7px;
   font-weight:500;
   letter-spacing:.22em;
+  text-shadow:0 1px 2px rgba(0,0,0,.24);
 }
 
 .first-card-strip-card strong{
-  color:#f8efd9;
+  color:#fff8e9;
   font-size:11px;
   font-weight:700;
   letter-spacing:.08em;
+  text-shadow:0 1px 3px rgba(0,0,0,.34);
 }
 
 .first-card-strip:hover,
@@ -13773,13 +13776,16 @@ body.mobile-menu-open{
   display:grid;
   align-content:space-between;
   padding:26px 28px;
-  border:1px solid rgba(255,255,255,.74);
+  border:1px solid rgba(255,255,255,.82);
   border-radius:12px;
   background:
-    linear-gradient(118deg,rgba(255,255,255,.18),rgba(255,255,255,0) 34%),
-    linear-gradient(135deg,#171817 0%,#34342f 48%,#ebe0c9 49%,#f7efe0 100%);
-  box-shadow:0 24px 56px rgba(15,18,16,.14), inset 0 1px 0 rgba(255,255,255,.38);
+    radial-gradient(circle at 18% 20%,rgba(255,255,255,.2),rgba(255,255,255,0) 32%),
+    radial-gradient(circle at 84% 12%,rgba(255,255,255,.34),rgba(255,255,255,0) 24%),
+    linear-gradient(120deg,rgba(255,255,255,.12),rgba(255,255,255,0) 30%),
+    linear-gradient(135deg,#171916 0%,#242620 56%,#e8ddc5 57%,#f6efe0 100%);
+  box-shadow:0 26px 60px rgba(15,18,16,.16), inset 0 1px 0 rgba(255,255,255,.44), inset 0 -1px 0 rgba(8,9,9,.18);
   color:#fff;
+  filter:drop-shadow(0 28px 26px rgba(15,18,16,.12));
   overflow:hidden;
   transform:rotate(-1.4deg);
 }
@@ -13787,26 +13793,44 @@ body.mobile-menu-open{
 .first-versen-card::before{
   content:"";
   position:absolute;
-  inset:auto 10% -22% 10%;
-  height:32%;
-  border-radius:50%;
-  background:rgba(15,18,16,.18);
-  filter:blur(18px);
+  inset:12px;
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:9px;
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.08),rgba(255,255,255,0) 28%),
+    linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,0) 58%);
+  box-shadow:inset 0 0 28px rgba(255,255,255,.05);
+  pointer-events:none;
 }
 
 .first-versen-card::after{
   content:"";
   position:absolute;
   inset:-24% -42%;
-  background:linear-gradient(110deg,transparent 36%,rgba(255,255,255,.5) 47%,transparent 59%);
+  background:linear-gradient(110deg,transparent 36%,rgba(255,255,255,.42) 47%,transparent 59%);
   transform:translateX(-48%);
   animation:first-card-mini-sheen 3.8s ease-in-out infinite;
+  pointer-events:none;
+  z-index:2;
+}
+
+.first-versen-card > span::after{
+  content:"";
+  display:block;
+  width:34px;
+  height:1px;
+  margin-top:13px;
+  background:linear-gradient(90deg,rgba(255,248,233,.74),rgba(255,248,233,0));
+}
+
+.first-versen-card::before{
+  z-index:0;
 }
 
 .first-versen-card span,
 .first-versen-card strong{
   position:relative;
-  z-index:1;
+  z-index:3;
   line-height:1;
 }
 
@@ -13814,13 +13838,15 @@ body.mobile-menu-open{
   font-size:14px;
   font-weight:500;
   letter-spacing:.24em;
+  text-shadow:0 1px 3px rgba(0,0,0,.28);
 }
 
 .first-versen-card strong{
-  color:#f8efd9;
+  color:#fff8e9;
   font-size:36px;
   font-weight:700;
   letter-spacing:.08em;
+  text-shadow:0 2px 8px rgba(0,0,0,.36);
 }
 
 .first-versen-hero p{
