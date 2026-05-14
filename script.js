@@ -3287,6 +3287,22 @@ function supportSummary(ticket = {}) {
   return (latest && (latest.message || latest.body)) || ticket.message || 'Supportärende';
 }
 
+function supportPreviewMessage(ticket = {}) {
+  const messages = Array.isArray(ticket.messages) ? ticket.messages : [];
+  const latest = messages[messages.length - 1] || null;
+  const rawMessage = (latest && (latest.message || latest.body)) || ticket.message || '';
+  const fallback = latest && Array.isArray(latest.attachments) && latest.attachments.length ? 'Bild' : 'Supportärende';
+  const prefix = latest && latest.from === 'admin' ? 'Support: ' : 'Du: ';
+  return `${prefix}${rawMessage || fallback}`;
+}
+
+function latestSupportImage(ticket = {}) {
+  const messages = Array.isArray(ticket.messages) ? ticket.messages : [];
+  const latest = messages[messages.length - 1] || null;
+  const attachments = latest && Array.isArray(latest.attachments) ? latest.attachments : [];
+  return attachments.find((attachment) => attachment && attachment.dataUrl) || null;
+}
+
 function renderAccountSupportPreview(tickets = []) {
   const card = document.querySelector('[data-account-support-card]');
   const preview = document.querySelector('[data-account-support-preview]');
@@ -3306,15 +3322,15 @@ function renderAccountSupportPreview(tickets = []) {
   }
 
   const latest = tickets[0];
+  const latestAt = latest.latestMessageAt || latest.updatedAt;
   preview.innerHTML = `
     <a class="account-support-row" href="/support-chatt?ticket=${encodeURIComponent(latest.id)}">
       <span>
         <strong>${escapeHtml(latest.subject || latest.category || 'Support')}</strong>
-        <small>${escapeHtml(latest.supportNumber || latest.id)} · ${escapeHtml(supportSummary(latest))}</small>
+        <small class="account-support-meta">${escapeHtml(latest.supportNumber || latest.id)} <b>${escapeHtml(formatSupportDate(latestAt))} ${escapeHtml(formatSupportTime(latestAt))}</b></small>
+        <small class="account-support-latest">${escapeHtml(supportPreviewMessage(latest))}</small>
       </span>
-      <em>${escapeHtml(supportStatusLabel(latest.status))}</em>
-      <time>${escapeHtml(formatSupportDate(latest.latestMessageAt || latest.updatedAt))} ${escapeHtml(formatSupportTime(latest.latestMessageAt || latest.updatedAt))}</time>
-      <i aria-hidden="true"></i>
+      <span class="account-support-action"><em>${escapeHtml(supportStatusLabel(latest.status))}</em><i aria-hidden="true"></i></span>
     </a>
   `;
   if (allLink) allLink.hidden = false;
@@ -3342,14 +3358,17 @@ async function loadAccountSupport(session = accountSession) {
 
 function supportTicketListItem(ticket) {
   const latestAt = ticket.latestMessageAt || ticket.updatedAt;
+  const latestImage = latestSupportImage(ticket);
   return `
     <button class="support-chat-list-item" type="button" data-support-open-ticket="${escapeHtml(ticket.id)}">
       <span>
         <strong>${escapeHtml(ticket.subject || 'Support')}</strong>
-        <small>${escapeHtml(ticket.supportNumber || ticket.id)} · ${escapeHtml(supportSummary(ticket))}</small>
+        <small class="support-chat-meta">${escapeHtml(ticket.supportNumber || ticket.id)} <b>${escapeHtml(formatSupportDate(latestAt))} ${escapeHtml(formatSupportTime(latestAt))}</b></small>
+        ${latestImage ? `
+          <span class="support-chat-image-preview"><img src="${escapeHtml(latestImage.dataUrl)}" alt="${escapeHtml(latestImage.name || 'Bifogad bild')}"><small>Bild bifogad</small></span>
+        ` : `<small class="support-chat-latest">${escapeHtml(supportPreviewMessage(ticket))}</small>`}
       </span>
-      <em>${escapeHtml(supportStatusLabel(ticket.status))}</em>
-      <time>${escapeHtml(formatSupportDate(latestAt))} ${escapeHtml(formatSupportTime(latestAt))}</time>
+      <span class="support-chat-card-action"><em>${escapeHtml(supportStatusLabel(ticket.status))}</em><i aria-hidden="true"></i></span>
     </button>
   `;
 }
@@ -3565,7 +3584,10 @@ function initSupportChatPage() {
     if (!input) return;
     const label = page.querySelector('[data-support-attachment-name]');
     const preview = page.querySelector('[data-support-attachment-preview]');
-    if (label) label.textContent = '';
+    if (label) {
+      label.textContent = '';
+      label.classList.remove('is-error');
+    }
     if (preview) {
       preview.hidden = true;
       preview.innerHTML = '';
@@ -3580,7 +3602,10 @@ function initSupportChatPage() {
         }
       })
       .catch((error) => {
-        if (label) label.textContent = error.message || 'Kunde inte läsa bilden.';
+        if (label) {
+          label.textContent = error.message || 'Kunde inte läsa bilden.';
+          label.classList.add('is-error');
+        }
         if (input) input.value = '';
       });
   });
@@ -3593,6 +3618,7 @@ function initSupportChatPage() {
     const input = form.querySelector('[data-support-attachment]');
     const button = form.querySelector('button[type="submit"]');
     const label = form.querySelector('[data-support-attachment-name]');
+    if (label) label.classList.remove('is-error');
     button.disabled = true;
     try {
       const attachment = await readSupportAttachment(input);
@@ -3614,7 +3640,10 @@ function initSupportChatPage() {
       renderSupportChatPanel(data.ticket);
       await loadSupportTickets({ preservePanel: true });
     } catch (error) {
-      if (label) label.textContent = error.message || 'Kunde inte skicka.';
+      if (label) {
+        label.textContent = error.message || 'Kunde inte skicka.';
+        label.classList.add('is-error');
+      }
     } finally {
       button.disabled = false;
     }
