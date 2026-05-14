@@ -13588,7 +13588,7 @@ body.mobile-menu-open{
   }
 
   .page-home main .premium-hero .mobile-hero-visual{
-    inset:auto 0 18px!important;
+    inset:auto 0 0!important;
     height:520px!important;
     background:transparent!important;
     overflow:hidden!important;
