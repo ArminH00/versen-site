@@ -3330,7 +3330,7 @@ async function loadAccountSupport(session = accountSession) {
   }
 
   try {
-    const { response, data } = await getJson('/api/support');
+    const { response, data } = await getJson('/api/account?mode=support');
     if (!response.ok) throw new Error(data.error || 'Kunde inte hämta support.');
     supportTickets = Array.isArray(data.tickets) ? data.tickets : [];
     renderAccountSupportPreview(supportTickets);
@@ -3474,7 +3474,7 @@ async function loadSupportTickets({ preservePanel = false } = {}) {
   if (layout) layout.classList.remove('is-login-only');
   if (panel) panel.hidden = false;
 
-  const { response, data } = await getJson('/api/support');
+  const { response, data } = await getJson('/api/account?mode=support');
   if (!response.ok) {
     if (list) list.innerHTML = `<div class="support-chat-empty">${escapeHtml(data.error || 'Kunde inte hämta supportärenden.')}</div>`;
     return;
@@ -3497,7 +3497,7 @@ async function loadSupportTickets({ preservePanel = false } = {}) {
 
 async function loadSupportTicket(ticketId, { silent = false } = {}) {
   if (!ticketId) return;
-  const { response, data } = await getJson(`/api/support?ticket=${encodeURIComponent(ticketId)}`);
+  const { response, data } = await getJson(`/api/account?mode=support&ticket=${encodeURIComponent(ticketId)}`);
   if (!response.ok || !data.ticket) return;
   supportActiveTicketId = data.ticket.id;
   supportTickets = supportTickets.map((ticket) => String(ticket.id) === String(data.ticket.id) ? data.ticket : ticket);
@@ -3546,8 +3546,8 @@ function initSupportChatPage() {
     button.disabled = true;
     try {
       const attachment = await readSupportAttachment(input);
-      const { response, data } = await postJson('/api/support', {
-        action: 'message',
+      const { response, data } = await postJson('/api/account', {
+        action: 'support_message',
         ticketId: supportActiveTicketId,
         message: textarea ? textarea.value : '',
         attachments: attachment ? [attachment] : [],
