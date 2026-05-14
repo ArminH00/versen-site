@@ -252,7 +252,18 @@ async function sendPasswordResetEmail(req, payload) {
 }
 
 function supportNumberFromId(ticketId) {
-  return `VS-SUP-${String(ticketId || '').replace(/^sup_/, '').slice(0, 6).toUpperCase()}`;
+  const text = String(ticketId || crypto.randomBytes(8).toString('hex'));
+  let hash = 0;
+  for (let index = 0; index < text.length; index += 1) {
+    hash = ((hash << 5) - hash) + text.charCodeAt(index);
+    hash |= 0;
+  }
+  return `V${String(10000 + (Math.abs(hash) % 90000)).padStart(5, '0')}`;
+}
+
+function normalizeSupportNumber(value, fallback) {
+  const current = String(value || '').trim().toUpperCase();
+  return /^V\d{5}$/.test(current) ? current : supportNumberFromId(fallback || current);
 }
 
 function safeArray(value) {
@@ -273,7 +284,7 @@ function isChatTicket(ticket = {}) {
 
 function normalizeSupportAttachment(item = {}) {
   const type = clean(item.type, 40).toLowerCase();
-  const dataUrl = clean(item.dataUrl, 1500000);
+  const dataUrl = clean(item.dataUrl, 2500000);
   const name = clean(item.name, 120) || 'bild';
 
   if (!type.startsWith('image/') || !/^data:image\/(png|jpe?g|webp);base64,/i.test(dataUrl)) {
@@ -295,7 +306,7 @@ function normalizeSupportTicket(row = {}) {
 
   return {
     id: row.id,
-    supportNumber: metadata.support_number || row.id,
+    supportNumber: normalizeSupportNumber(metadata.support_number, row.id),
     subject: row.subject || row.category || 'Support',
     category: row.category || 'övrigt',
     status: row.status || 'pågående',

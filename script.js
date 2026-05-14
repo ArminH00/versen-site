@@ -3310,7 +3310,7 @@ function renderAccountSupportPreview(tickets = []) {
     <a class="account-support-row" href="/support-chatt?ticket=${encodeURIComponent(latest.id)}">
       <span>
         <strong>${escapeHtml(latest.subject || latest.category || 'Support')}</strong>
-        <small>${escapeHtml(supportSummary(latest))}</small>
+        <small>${escapeHtml(latest.supportNumber || latest.id)} · ${escapeHtml(supportSummary(latest))}</small>
       </span>
       <em>${escapeHtml(supportStatusLabel(latest.status))}</em>
       <time>${escapeHtml(formatSupportDate(latest.latestMessageAt || latest.updatedAt))} ${escapeHtml(formatSupportTime(latest.latestMessageAt || latest.updatedAt))}</time>
@@ -3346,7 +3346,7 @@ function supportTicketListItem(ticket) {
     <button class="support-chat-list-item" type="button" data-support-open-ticket="${escapeHtml(ticket.id)}">
       <span>
         <strong>${escapeHtml(ticket.subject || 'Support')}</strong>
-        <small>${escapeHtml(supportSummary(ticket))}</small>
+        <small>${escapeHtml(ticket.supportNumber || ticket.id)} · ${escapeHtml(supportSummary(ticket))}</small>
       </span>
       <em>${escapeHtml(supportStatusLabel(ticket.status))}</em>
       <time>${escapeHtml(formatSupportDate(latestAt))} ${escapeHtml(formatSupportTime(latestAt))}</time>
@@ -3419,6 +3419,7 @@ function renderSupportChatPanel(ticket) {
         </label>
         <textarea name="message" rows="1" placeholder="Skriv ett meddelande"></textarea>
         <button type="submit">Skicka</button>
+        <div class="support-attachment-preview" data-support-attachment-preview hidden></div>
         <small data-support-attachment-name></small>
       </form>
     `}
@@ -3428,22 +3429,41 @@ function renderSupportChatPanel(ticket) {
   if (messagesEl) messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
+async function compressSupportImage(file) {
+  const imageUrl = URL.createObjectURL(file);
+  try {
+    const image = await new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = imageUrl;
+    });
+    const maxSide = 960;
+    const ratio = Math.min(1, maxSide / Math.max(image.naturalWidth || image.width, image.naturalHeight || image.height));
+    const width = Math.max(1, Math.round((image.naturalWidth || image.width) * ratio));
+    const height = Math.max(1, Math.round((image.naturalHeight || image.height) * ratio));
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext('2d');
+    context.drawImage(image, 0, 0, width, height);
+    return canvas.toDataURL('image/jpeg', 0.78);
+  } finally {
+    URL.revokeObjectURL(imageUrl);
+  }
+}
+
 async function readSupportAttachment(input) {
   const file = input && input.files && input.files[0];
   if (!file) return null;
   if (!/^image\/(png|jpe?g|webp)$/i.test(file.type)) {
     throw new Error('Bifoga en JPG, PNG eller WebP.');
   }
-  if (file.size > 1400000) {
-    throw new Error('Bilden får vara max 1,4 MB.');
+  if (file.size > 8000000) {
+    throw new Error('Bilden får vara max 8 MB.');
   }
-  const dataUrl = await new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-  return { name: file.name, type: file.type, dataUrl };
+  const dataUrl = await compressSupportImage(file);
+  return { name: file.name, type: 'image/jpeg', dataUrl };
 }
 
 async function loadSupportTickets({ preservePanel = false } = {}) {
@@ -3544,7 +3564,25 @@ function initSupportChatPage() {
     const input = event.target.closest('[data-support-attachment]');
     if (!input) return;
     const label = page.querySelector('[data-support-attachment-name]');
-    if (label) label.textContent = input.files && input.files[0] ? input.files[0].name : '';
+    const preview = page.querySelector('[data-support-attachment-preview]');
+    if (label) label.textContent = '';
+    if (preview) {
+      preview.hidden = true;
+      preview.innerHTML = '';
+    }
+    readSupportAttachment(input)
+      .then((attachment) => {
+        if (!attachment) return;
+        if (label) label.textContent = attachment.name;
+        if (preview) {
+          preview.hidden = false;
+          preview.innerHTML = `<img src="${escapeHtml(attachment.dataUrl)}" alt="${escapeHtml(attachment.name)}"><span>${escapeHtml(attachment.name)}</span>`;
+        }
+      })
+      .catch((error) => {
+        if (label) label.textContent = error.message || 'Kunde inte läsa bilden.';
+        if (input) input.value = '';
+      });
   });
 
   page.addEventListener('submit', async (event) => {
@@ -3568,6 +3606,11 @@ function initSupportChatPage() {
       if (textarea) textarea.value = '';
       if (input) input.value = '';
       if (label) label.textContent = '';
+      const preview = form.querySelector('[data-support-attachment-preview]');
+      if (preview) {
+        preview.hidden = true;
+        preview.innerHTML = '';
+      }
       renderSupportChatPanel(data.ticket);
       await loadSupportTickets({ preservePanel: true });
     } catch (error) {
