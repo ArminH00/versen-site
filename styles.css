@@ -13851,6 +13851,10 @@ body.mobile-menu-open{
   padding-left:18px;
 }
 
+.first-versen-points li > span{
+  display:block;
+}
+
 .first-versen-points li::before{
   content:"";
   position:absolute;
