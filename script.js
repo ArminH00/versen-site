@@ -40,6 +40,7 @@ function normalizedRoutePath(pathname = window.location.pathname) {
     '/returer.html': '/returer',
     '/faq.html': '/faq',
     '/kontakt.html': '/kontakt',
+    '/support-chatt.html': '/support-chatt',
     '/snart.html': '/snart',
     '/forst-versen.html': '/forst-versen',
     '/admin.html': '/admin',
@@ -58,6 +59,9 @@ const isLaunchPage = currentRoutePath === '/snart';
 let catalogProducts = [];
 let selectedCatalogCategory = null;
 let likedSyncTimer = null;
+let supportTickets = [];
+let supportPollTimer = null;
+let supportActiveTicketId = pageParams.get('ticket') || '';
 
 document.querySelectorAll('[data-first-access-trigger]').forEach((trigger) => {
   trigger.addEventListener('click', () => {
@@ -133,7 +137,7 @@ function renderLuxuryMenu() {
   const links = [
     { href: '/produkter', label: 'Handla', match: ['/produkter', '/produkt'] },
     member ? null : { href: '/medlemskap', label: 'Medlemskap', match: ['/medlemskap', '/medlemskap-aktivt'] },
-    { href: '/konto', label: authenticated ? 'Mitt konto' : 'Konto', match: ['/konto', '/installningar', '/order'] },
+    { href: '/konto', label: authenticated ? 'Mitt konto' : 'Konto', match: ['/konto', '/installningar', '/order', '/support-chatt'] },
     { href: '/kundvagn', label: 'Kundvagn', match: ['/kundvagn', '/checkout'], cart: true },
     { href: '/forslag', label: 'Föreslå drop', match: ['/forslag'], featured: true },
   ].filter(Boolean);
@@ -348,6 +352,21 @@ function formatDate(value) {
   return date.getFullYear() === currentYear ? base : `${base} ${date.getFullYear()}`;
 }
 
+function formatSupportDate(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const months = ['Jan', 'Feb', 'Mars', 'Apr', 'Maj', 'Juni', 'Juli', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'];
+  return `${date.getDate()} ${months[date.getMonth()]}`;
+}
+
+function formatSupportTime(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+}
+
 async function postJson(url, payload) {
   const response = await fetch(url, {
     method: 'POST',
@@ -358,6 +377,12 @@ async function postJson(url, payload) {
     body: JSON.stringify(payload || {}),
   });
   const data = await response.json();
+  return { response, data };
+}
+
+async function getJson(url) {
+  const response = await fetch(url, { credentials: 'same-origin' });
+  const data = await response.json().catch(() => ({}));
   return { response, data };
 }
 
@@ -874,6 +899,7 @@ function applyGlobalSessionUi(session = accountSession) {
   updateFirstMembershipCtas(session);
   renderLuxuryMenu();
   renderSuggestionAccess(session);
+  renderContactSupportAccess(session);
 
   document.querySelectorAll('a[href="/medlemskap"], a[href^="/medlemskap?"]').forEach((link) => {
     link.hidden = member;
@@ -3217,6 +3243,333 @@ function pendingCheckoutTime(pending) {
   return Number.isNaN(time) ? 0 : time;
 }
 
+function supportStatusLabel(value) {
+  const status = String(value || 'pågående').trim();
+  const labels = {
+    nytt: 'Nytt',
+    pågående: 'Pågående',
+    'väntar på kund': 'Väntar på kund',
+    löst: 'Löst',
+    stängt: 'Stängt',
+    returer: 'Retur',
+    övrigt: 'Övrigt',
+  };
+  return labels[status.toLowerCase()] || status;
+}
+
+function renderContactSupportAccess(session = accountSession) {
+  const form = document.querySelector('[data-contact-form]');
+  if (!form || !session) return;
+
+  const authenticated = Boolean(session.authenticated && session.customer);
+  const lock = document.querySelector('[data-support-login-lock]');
+  const customer = authenticated ? session.customer : {};
+  const nameInput = form.querySelector('input[name="name"]');
+  const emailInput = form.querySelector('input[name="email"]');
+
+  if (nameInput && authenticated && !nameInput.value) {
+    nameInput.value = customer.displayName || [customer.firstName, customer.lastName].filter(Boolean).join(' ') || customer.email || '';
+  }
+  if (emailInput && authenticated) {
+    emailInput.value = customer.email || '';
+  }
+
+  form.classList.toggle('is-locked', !authenticated);
+  if (lock) lock.hidden = authenticated;
+  form.querySelectorAll('input, select, textarea, button').forEach((field) => {
+    field.disabled = !authenticated;
+  });
+}
+
+function supportSummary(ticket = {}) {
+  const messages = Array.isArray(ticket.messages) ? ticket.messages : [];
+  const latest = messages[messages.length - 1];
+  return (latest && (latest.message || latest.body)) || ticket.message || 'Supportärende';
+}
+
+function renderAccountSupportPreview(tickets = []) {
+  const card = document.querySelector('[data-account-support-card]');
+  const preview = document.querySelector('[data-account-support-preview]');
+  const allLink = document.querySelector('[data-account-support-all]');
+  if (!card || !preview) return;
+
+  card.hidden = false;
+  if (!tickets.length) {
+    preview.innerHTML = `
+      <div class="empty-state">
+        <span>Inga supportärenden ännu</span>
+        <p>När du kontaktar support visas chatten här.</p>
+      </div>
+    `;
+    if (allLink) allLink.hidden = true;
+    return;
+  }
+
+  const latest = tickets[0];
+  preview.innerHTML = `
+    <a class="account-support-row" href="/support-chatt?ticket=${encodeURIComponent(latest.id)}">
+      <span>
+        <strong>${escapeHtml(latest.subject || latest.category || 'Support')}</strong>
+        <small>${escapeHtml(supportSummary(latest))}</small>
+      </span>
+      <em>${escapeHtml(supportStatusLabel(latest.status))}</em>
+      <time>${escapeHtml(formatSupportDate(latest.latestMessageAt || latest.updatedAt))} ${escapeHtml(formatSupportTime(latest.latestMessageAt || latest.updatedAt))}</time>
+      <i aria-hidden="true"></i>
+    </a>
+  `;
+  if (allLink) allLink.hidden = tickets.length <= 1;
+}
+
+async function loadAccountSupport(session = accountSession) {
+  const card = document.querySelector('[data-account-support-card]');
+  if (!card) return;
+
+  if (!session || !session.authenticated) {
+    card.hidden = true;
+    return;
+  }
+
+  try {
+    const { response, data } = await getJson('/api/support');
+    if (!response.ok) throw new Error(data.error || 'Kunde inte hämta support.');
+    supportTickets = Array.isArray(data.tickets) ? data.tickets : [];
+    renderAccountSupportPreview(supportTickets);
+  } catch (error) {
+    card.hidden = false;
+    renderAccountSupportPreview([]);
+  }
+}
+
+function supportTicketListItem(ticket) {
+  const active = String(ticket.id) === String(supportActiveTicketId);
+  return `
+    <button class="support-chat-list-item ${active ? 'active' : ''}" type="button" data-support-open-ticket="${escapeHtml(ticket.id)}">
+      <span>
+        <strong>${escapeHtml(ticket.subject || 'Support')}</strong>
+        <small>${escapeHtml(supportSummary(ticket))}</small>
+      </span>
+      <em>${escapeHtml(supportStatusLabel(ticket.status))}</em>
+      <time>${escapeHtml(formatSupportDate(ticket.latestMessageAt || ticket.updatedAt))} ${escapeHtml(formatSupportTime(ticket.latestMessageAt || ticket.updatedAt))}</time>
+    </button>
+  `;
+}
+
+function supportMessageHtml(message = {}) {
+  const mine = message.from === 'customer';
+  const attachments = Array.isArray(message.attachments) ? message.attachments : [];
+  return `
+    <div class="support-message ${mine ? 'mine' : 'theirs'}">
+      <div class="support-message-bubble">
+        ${message.message ? `<p>${escapeHtml(message.message)}</p>` : ''}
+        ${attachments.map((attachment) => attachment.dataUrl ? `<img src="${escapeHtml(attachment.dataUrl)}" alt="${escapeHtml(attachment.name || 'Bifogad bild')}">` : '').join('')}
+      </div>
+      <time>${escapeHtml(formatSupportTime(message.created_at))}</time>
+    </div>
+  `;
+}
+
+function renderSupportChatList(tickets = []) {
+  const list = document.querySelector('[data-support-chat-list]');
+  if (!list) return;
+
+  if (!tickets.length) {
+    list.innerHTML = `
+      <div class="support-chat-empty">
+        <strong>Inga ärenden ännu</strong>
+        <p>Starta ett ärende från kontaktsidan så visas chatten här.</p>
+        <a class="product-btn secondary" href="/kontakt">Kontakta support</a>
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = tickets.map(supportTicketListItem).join('');
+}
+
+function renderSupportChatPanel(ticket) {
+  const panel = document.querySelector('[data-support-chat-panel]');
+  if (!panel) return;
+
+  if (!ticket) {
+    panel.innerHTML = '<div class="support-chat-empty">Välj ett ärende för att öppna chatten.</div>';
+    return;
+  }
+
+  const messages = Array.isArray(ticket.messages) ? ticket.messages : [];
+  const closed = ['stängt', 'stangd', 'closed'].includes(String(ticket.status || '').toLowerCase());
+  panel.innerHTML = `
+    <header class="support-chat-header">
+      <div>
+        <small>${escapeHtml(ticket.supportNumber || ticket.id)}</small>
+        <h2>${escapeHtml(ticket.subject || 'Support')}</h2>
+      </div>
+      <span>${escapeHtml(supportStatusLabel(ticket.status))}</span>
+    </header>
+    <div class="support-chat-messages" data-support-chat-messages>
+      ${messages.length ? messages.map(supportMessageHtml).join('') : '<div class="support-chat-empty">Inga meddelanden ännu.</div>'}
+    </div>
+    ${closed ? `
+      <div class="support-chat-closed">Ärendet är stängt. Starta ett nytt ärende om du behöver mer hjälp.</div>
+    ` : `
+      <form class="support-chat-composer" data-support-chat-form>
+        <label class="support-attach-button" aria-label="Bifoga bild">
+          <input type="file" accept="image/png,image/jpeg,image/webp" data-support-attachment hidden>
+          <span>+</span>
+        </label>
+        <textarea name="message" rows="1" placeholder="Skriv ett meddelande"></textarea>
+        <button type="submit">Skicka</button>
+        <small data-support-attachment-name></small>
+      </form>
+    `}
+  `;
+
+  const messagesEl = panel.querySelector('[data-support-chat-messages]');
+  if (messagesEl) messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+async function readSupportAttachment(input) {
+  const file = input && input.files && input.files[0];
+  if (!file) return null;
+  if (!/^image\/(png|jpe?g|webp)$/i.test(file.type)) {
+    throw new Error('Bifoga en JPG, PNG eller WebP.');
+  }
+  if (file.size > 1400000) {
+    throw new Error('Bilden får vara max 1,4 MB.');
+  }
+  const dataUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+  return { name: file.name, type: file.type, dataUrl };
+}
+
+async function loadSupportTickets({ preservePanel = false } = {}) {
+  const page = document.querySelector('[data-support-chat-page]');
+  if (!page || !accountSession) return;
+
+  const list = document.querySelector('[data-support-chat-list]');
+  const panel = document.querySelector('[data-support-chat-panel]');
+  const layout = document.querySelector('.support-chat-layout');
+
+  if (!accountSession.authenticated) {
+    if (layout) layout.classList.add('is-login-only');
+    if (list) {
+      list.innerHTML = `
+        <div class="support-chat-empty">
+          <strong>Logga in för att se supportchatten</strong>
+          <p>Dina ärenden är kopplade till ditt konto.</p>
+          <a class="product-btn" href="/konto?next=support">Logga in</a>
+        </div>
+      `;
+    }
+    if (panel) {
+      panel.hidden = true;
+      panel.innerHTML = '';
+    }
+    return;
+  }
+
+  if (layout) layout.classList.remove('is-login-only');
+  if (panel) panel.hidden = false;
+
+  const { response, data } = await getJson('/api/support');
+  if (!response.ok) {
+    if (list) list.innerHTML = `<div class="support-chat-empty">${escapeHtml(data.error || 'Kunde inte hämta supportärenden.')}</div>`;
+    return;
+  }
+
+  supportTickets = Array.isArray(data.tickets) ? data.tickets : [];
+  if (!supportActiveTicketId && supportTickets[0]) {
+    supportActiveTicketId = supportTickets[0].id;
+  }
+  renderSupportChatList(supportTickets);
+
+  if (supportActiveTicketId) {
+    const active = supportTickets.find((ticket) => String(ticket.id) === String(supportActiveTicketId));
+    if (active && !preservePanel) renderSupportChatPanel(active);
+    await loadSupportTicket(supportActiveTicketId, { silent: preservePanel });
+  } else {
+    renderSupportChatPanel(null);
+  }
+}
+
+async function loadSupportTicket(ticketId, { silent = false } = {}) {
+  if (!ticketId) return;
+  const { response, data } = await getJson(`/api/support?ticket=${encodeURIComponent(ticketId)}`);
+  if (!response.ok || !data.ticket) return;
+  supportActiveTicketId = data.ticket.id;
+  supportTickets = supportTickets.map((ticket) => String(ticket.id) === String(data.ticket.id) ? data.ticket : ticket);
+  if (!supportTickets.some((ticket) => String(ticket.id) === String(data.ticket.id))) {
+    supportTickets.unshift(data.ticket);
+  }
+  renderSupportChatList(supportTickets);
+  const composer = document.querySelector('[data-support-chat-form]');
+  const isComposing = composer && (
+    composer.querySelector('textarea[name="message"]')?.value
+    || (composer.querySelector('[data-support-attachment]')?.files || []).length
+  );
+  if (!silent || !isComposing) {
+    renderSupportChatPanel(data.ticket);
+  }
+}
+
+function initSupportChatPage() {
+  const page = document.querySelector('[data-support-chat-page]');
+  if (!page || page.dataset.initialized === 'true') return;
+  page.dataset.initialized = 'true';
+
+  page.addEventListener('click', async (event) => {
+    const button = event.target.closest('[data-support-open-ticket]');
+    if (!button) return;
+    supportActiveTicketId = button.dataset.supportOpenTicket;
+    window.history.replaceState({}, '', `/support-chatt?ticket=${encodeURIComponent(supportActiveTicketId)}`);
+    await loadSupportTicket(supportActiveTicketId);
+  });
+
+  page.addEventListener('change', (event) => {
+    const input = event.target.closest('[data-support-attachment]');
+    if (!input) return;
+    const label = page.querySelector('[data-support-attachment-name]');
+    if (label) label.textContent = input.files && input.files[0] ? input.files[0].name : '';
+  });
+
+  page.addEventListener('submit', async (event) => {
+    const form = event.target.closest('[data-support-chat-form]');
+    if (!form) return;
+    event.preventDefault();
+    const textarea = form.querySelector('textarea[name="message"]');
+    const input = form.querySelector('[data-support-attachment]');
+    const button = form.querySelector('button[type="submit"]');
+    const label = form.querySelector('[data-support-attachment-name]');
+    button.disabled = true;
+    try {
+      const attachment = await readSupportAttachment(input);
+      const { response, data } = await postJson('/api/support', {
+        action: 'message',
+        ticketId: supportActiveTicketId,
+        message: textarea ? textarea.value : '',
+        attachments: attachment ? [attachment] : [],
+      });
+      if (!response.ok) throw new Error(data.error || 'Kunde inte skicka meddelandet.');
+      if (textarea) textarea.value = '';
+      if (input) input.value = '';
+      if (label) label.textContent = '';
+      renderSupportChatPanel(data.ticket);
+      await loadSupportTickets({ preservePanel: true });
+    } catch (error) {
+      if (label) label.textContent = error.message || 'Kunde inte skicka.';
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  loadSupportTickets();
+  clearInterval(supportPollTimer);
+  supportPollTimer = window.setInterval(() => loadSupportTickets({ preservePanel: true }).catch(() => {}), 7000);
+}
+
 function updateMemberStatus(session = accountSession) {
   syncThemeFromProfile(session);
   applyGlobalSessionUi(session);
@@ -3265,6 +3618,7 @@ function updateMemberStatus(session = accountSession) {
     if (membershipLink) membershipLink.hidden = true;
     if (settingsLink) settingsLink.hidden = true;
     renderOrders([]);
+    loadAccountSupport(session);
     renderSettingsPage(session);
     renderPaymentUpdatePage(session);
     return;
@@ -3313,6 +3667,7 @@ function updateMemberStatus(session = accountSession) {
   if (settingsLink) settingsLink.hidden = false;
   renderOrders(session.customer.orders);
   renderStoredOrders(session.customer.orders);
+  loadAccountSupport(session);
   renderSettingsPage(session);
   renderPaymentUpdatePage(session);
 }
@@ -3459,6 +3814,8 @@ function showAccountExpressMembership() {
 function completeAccountIntent(options = {}) {
   if (accountNext === 'liked') {
     window.location.href = '/gillar';
+  } else if (accountNext === 'support') {
+    window.location.href = '/kontakt';
   } else if (accountCheckoutIntent) {
     if (isActiveMember()) {
       window.location.href = membershipReturnTarget();
@@ -3487,6 +3844,7 @@ async function refreshAccount() {
     renderOrderPage(accountSession);
     renderMembershipActivation(accountSession);
     initCheckoutPage(accountSession);
+    initSupportChatPage();
   } catch (error) {
     accountSession = { authenticated: false };
     updateMemberStatus(accountSession);
@@ -3494,6 +3852,7 @@ async function refreshAccount() {
     renderOrderPage(accountSession);
     renderMembershipActivation(accountSession);
     initCheckoutPage(accountSession);
+    initSupportChatPage();
   } finally {
     document.body.classList.remove('auth-loading');
     adjustAccountScroll(accountSession);
@@ -3912,6 +4271,13 @@ if (contactForm) {
       }
 
       contactForm.reset();
+      renderContactSupportAccess(accountSession);
+      const sentCard = document.querySelector('[data-support-sent-card]');
+      const sentLink = sentCard && sentCard.querySelector('a');
+      if (sentCard && data.chat) {
+        sentCard.hidden = false;
+        if (sentLink) sentLink.href = `/konto?support=${encodeURIComponent(data.chat.id || '')}`;
+      }
       if (message) message.textContent = data.status || 'Meddelandet är skickat.';
     } catch (error) {
       if (message) message.textContent = 'Kunde inte kontakta servern.';

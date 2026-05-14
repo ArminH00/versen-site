@@ -247,9 +247,19 @@ async function sendPasswordResetEmail(req, payload) {
   };
 }
 
-async function sendSupportEmail(res, body) {
-  const name = clean(body.name, 120);
-  const email = clean(body.email, 180).toLowerCase();
+function supportNumberFromId(ticketId) {
+  return `VS-SUP-${String(ticketId || '').replace(/^sup_/, '').slice(0, 6).toUpperCase()}`;
+}
+
+async function sendSupportEmail(req, res, body) {
+  const session = await getCustomerSession(getCookie(req, 'versen_customer_token')).catch(() => ({ authenticated: false, customer: null }));
+  const customer = session.authenticated && session.customer ? session.customer : null;
+  const name = customer
+    ? clean(customer.displayName || customer.firstName || body.name || customer.email, 120)
+    : clean(body.name, 120);
+  const email = customer
+    ? clean(customer.email, 180).toLowerCase()
+    : clean(body.email, 180).toLowerCase();
   const topic = clean(body.topic, 80) || 'Support';
   const order = clean(body.order, 80);
   const message = clean(body.message, 3000);
@@ -260,6 +270,8 @@ async function sendSupportEmail(res, body) {
   }
 
   const ticketId = `sup_${crypto.randomBytes(10).toString('hex')}`;
+  const supportNumber = supportNumberFromId(ticketId);
+  const chatEnabled = Boolean(customer && customer.id);
   const category = topic.toLowerCase().includes('retur') ? 'returer' : 'övrigt';
   let savedTicket = null;
 
@@ -267,25 +279,35 @@ async function sendSupportEmail(res, body) {
     try {
       savedTicket = await upsertSupportTicket({
         id: ticketId,
+        user_id: customer ? customer.id : null,
         order_id: order || null,
         email,
         name,
         subject: topic,
         category,
-        status: 'pågående',
+        status: 'nytt',
         priority: 'normal',
         unread: true,
         message,
         messages: [{
+          id: `msg_${crypto.randomBytes(8).toString('hex')}`,
           from: 'customer',
           name,
           email,
           message,
+          attachments: [],
           created_at: new Date().toISOString(),
         }],
         metadata: {
           source: 'contact_form',
+          channel: chatEnabled ? 'chat' : 'email',
+          support_number: supportNumber,
           order_reference: order || null,
+          customer_unread: false,
+          admin_unread: true,
+          latest_message_at: new Date().toISOString(),
+          customer_member: Boolean(customer && customer.member),
+          chat_enabled: chatEnabled,
         },
       });
       await logAdminActivity({
@@ -306,9 +328,13 @@ async function sendSupportEmail(res, body) {
 
   if (!apiKey) {
     sendJson(res, savedTicket ? 200 : 503, {
-      status: savedTicket ? 'Ärendet är sparat. Mail är inte konfigurerat ännu.' : undefined,
+      status: savedTicket
+        ? (chatEnabled ? 'Ärendet är skapat. Du kan följa det från din profilsida.' : 'Ärendet är sparat. Mail är inte konfigurerat ännu.')
+        : undefined,
       error: savedTicket ? undefined : 'Supportmail är inte konfigurerat ännu.',
       ticketId: savedTicket ? ticketId : undefined,
+      supportNumber: savedTicket ? supportNumber : undefined,
+      chat: chatEnabled && savedTicket ? { id: ticketId, supportNumber } : null,
     });
     return;
   }
@@ -390,8 +416,10 @@ async function sendSupportEmail(res, body) {
   }
 
   sendJson(res, 200, {
-    status: 'Meddelandet är skickat. Vi återkommer via email.',
+    status: chatEnabled ? 'Ärendet är skapat. Du kan följa det från din profilsida.' : 'Meddelandet är skickat. Vi återkommer via email.',
     ticketId: savedTicket ? ticketId : undefined,
+    supportNumber: savedTicket ? supportNumber : undefined,
+    chat: chatEnabled && savedTicket ? { id: ticketId, supportNumber } : null,
   });
 }
 
@@ -739,7 +767,7 @@ module.exports = async function handler(req, res) {
   }
 
   if (body.action === 'contact') {
-    await sendSupportEmail(res, body);
+    await sendSupportEmail(req, res, body);
     return;
   }
 

@@ -10,6 +10,7 @@
     filters: {},
     drawer: null,
   };
+  let adminLiveTimer = null;
 
   const login = document.querySelector('[data-admin-login]');
   const main = document.querySelector('[data-admin-main]');
@@ -56,7 +57,7 @@
   };
 
   const orderStatuses = ['alla', 'mottagen', 'plockas', 'plockad', 'skickad', 'levererad', 'makulerad', 'återbetald', 'retur'];
-  const supportStatuses = ['alla', 'olästa', 'pågående', 'avslutade', 'returer', 'övrigt'];
+  const supportStatuses = ['alla', 'olästa', 'nytt', 'pågående', 'väntar på kund', 'löst', 'stängt', 'returer', 'övrigt'];
   const membershipStatuses = ['alla', 'active', 'trialing', 'paused', 'canceled', 'incomplete', 'past_due'];
 
   const iconPaths = {
@@ -181,6 +182,10 @@
 
   function setShell(authenticated) {
     state.authenticated = authenticated;
+    if (!authenticated) {
+      clearInterval(adminLiveTimer);
+      adminLiveTimer = null;
+    }
     if (login) login.hidden = authenticated;
     if (main) main.hidden = !authenticated;
     if (sidebar) sidebar.hidden = !authenticated;
@@ -516,11 +521,11 @@
     return `
       <div class="admin-row">
         <div>
-          <strong>${escapeHtml(ticket.subject || ticket.id)}</strong>
-          <small>${escapeHtml(ticket.email || 'Email saknas')} · ${compactDate(ticket.updatedAt || ticket.createdAt)}</small>
+          <strong>${escapeHtml(ticket.supportNumber || ticket.id)} · ${escapeHtml(ticket.subject || ticket.id)}</strong>
+          <small>${escapeHtml(ticket.email || 'Email saknas')} · ${compactDate(ticket.latestMessageAt || ticket.updatedAt || ticket.createdAt)}</small>
         </div>
         <span>${escapeHtml(ticket.message || 'Meddelande saknas')}</span>
-        <span>${badge(ticket.unread ? 'oläst' : ticket.status)} ${escapeHtml(ticket.category || '')}</span>
+        <span>${badge(ticket.adminUnread || ticket.unread ? 'oläst' : ticket.status)} ${escapeHtml(ticket.channel === 'chat' ? 'chat' : 'email')} ${escapeHtml(ticket.category || '')}</span>
         <button class="admin-action" type="button" data-open-support="${escapeHtml(ticket.id)}">Öppna</button>
       </div>
     `;
@@ -555,8 +560,12 @@
       återbetald: ['refunded', 'återbetald'],
       retur: ['return', 'retur'],
       olästa: ['unread', 'oläst', 'true'],
+      nytt: ['new', 'nytt'],
       pågående: ['open', 'ongoing', 'pågående'],
-      avslutade: ['closed', 'done', 'avslutad', 'avslutade'],
+      'väntar på kund': ['väntar på kund', 'waiting_customer'],
+      löst: ['löst', 'lost', 'done', 'resolved'],
+      stängt: ['closed', 'stängt', 'stangd'],
+      avslutade: ['closed', 'done', 'avslutad', 'avslutade', 'löst', 'stängt'],
       returer: ['return', 'retur', 'returer'],
       övrigt: ['other', 'övrigt'],
     };
@@ -1121,36 +1130,69 @@
   function openSupport(id) {
     const ticket = list('support').find((item) => String(item.id) === String(id));
     if (!ticket) return;
+    const metadata = ticket.metadata || {};
+    const chatEnabled = ticket.channel === 'chat';
+    const messages = ticket.messages || [];
+    const messageHtml = messages.length
+      ? messages.map((message) => {
+        const mine = message.from === 'admin';
+        const attachments = Array.isArray(message.attachments) ? message.attachments : [];
+        return `
+          <div class="admin-chat-message ${mine ? 'mine' : 'theirs'}">
+            <div>
+              ${message.message || message.body ? `<p>${escapeHtml(message.message || message.body)}</p>` : ''}
+              ${attachments.map((attachment) => attachment.dataUrl ? `<img src="${escapeHtml(attachment.dataUrl)}" alt="${escapeHtml(attachment.name || 'Bifogad bild')}">` : '').join('')}
+            </div>
+            <small>${escapeHtml(message.from === 'admin' ? 'Versen' : (message.name || ticket.name || 'Kund'))} · ${compactDate(message.created_at || message.at)}</small>
+          </div>
+        `;
+      }).join('')
+      : (ticket.message ? `<div class="admin-chat-message theirs"><div><p>${escapeHtml(ticket.message)}</p></div><small>${compactDate(ticket.createdAt)}</small></div>` : '');
     state.drawer = { type: 'support', id };
     openDrawer(`
-      <div class="admin-detail">
-        <div>
-          <span class="admin-kicker">${escapeHtml(ticket.category || 'support')}</span>
-          <h2>${escapeHtml(ticket.subject || ticket.id)}</h2>
-          <p class="admin-meta">${escapeHtml(ticket.email || '')} · ${compactDate(ticket.updatedAt || ticket.createdAt)}</p>
-        </div>
-        <div class="admin-detail-grid">
-          ${detailValue('Status', ticket.status)}
-          ${detailValue('Prioritet', ticket.priority)}
-          ${detailValue('Order', ticket.orderId)}
-          ${detailValue('Kund', ticket.userId)}
-        </div>
-        <section class="admin-detail-card">
-          <h3>Meddelandehistorik</h3>
-          ${ticket.message ? `<p class="admin-meta">${escapeHtml(ticket.message)}</p>` : ''}
-          ${(ticket.messages || []).length ? ticket.messages.map((message) => `<div class="admin-line-item"><span>${escapeHtml(message.body || message.message || '')}</span><small>${compactDate(message.created_at || message.at)}</small></div>`).join('') : ''}
-        </section>
-        <section class="admin-detail-card">
-          <h3>Svara via email</h3>
-          <div class="admin-form-grid">
-            <div class="admin-field"><label>Status</label><select data-support-status>${supportStatuses.filter((item) => item !== 'alla').map((status) => `<option value="${escapeHtml(status)}">${escapeHtml(titleLabel(status))}</option>`).join('')}</select></div>
-            <div class="admin-field"><label>Svar</label><textarea data-support-reply placeholder="Skriv svar till kunden"></textarea></div>
-            <button class="admin-action" type="button" data-send-support-reply="${escapeHtml(ticket.id)}" data-email="${escapeHtml(ticket.email || '')}">Skicka svar</button>
-            <button class="admin-action danger" type="button" data-update-support="${escapeHtml(ticket.id)}">Ändra status</button>
+      <div class="admin-detail admin-support-detail">
+        <div class="admin-support-chat-main">
+          <div class="admin-order-hero">
+            <div>
+              <span class="admin-kicker">${escapeHtml(chatEnabled ? 'supportchatt' : 'mailärende')}</span>
+              <h2>${escapeHtml(ticket.subject || ticket.id)}</h2>
+              <p class="admin-meta">${escapeHtml(ticket.email || '')} · ${compactDate(ticket.latestMessageAt || ticket.updatedAt || ticket.createdAt)}</p>
+            </div>
+            <div class="admin-order-hero-status">
+              ${badge(ticket.status)}
+            </div>
           </div>
+          <section class="admin-detail-card admin-chat-card">
+            <div class="admin-chat-stream">
+              ${messageHtml || '<p class="admin-meta">Ingen meddelandehistorik ännu.</p>'}
+            </div>
+            <div class="admin-form-grid">
+              <div class="admin-field"><label>Svar</label><textarea data-support-reply placeholder="${chatEnabled ? 'Skriv i chatten' : 'Skriv emailsvar till kunden'}"></textarea></div>
+              <button class="admin-action primary" type="button" data-send-support-reply="${escapeHtml(ticket.id)}" data-email="${escapeHtml(ticket.email || '')}">${chatEnabled ? 'Skicka i chatten' : 'Skicka email'}</button>
+            </div>
+          </section>
+        </div>
+        <section class="admin-detail-card admin-support-side">
+          <div class="admin-section-title"><h3>Ärendedetaljer</h3><span>${escapeHtml(ticket.supportNumber || ticket.id)}</span></div>
+          <div class="admin-detail-grid">
+            ${detailValue('Status', ticket.status)}
+            ${detailValue('Kanal', chatEnabled ? 'Inloggad chatt' : 'Email')}
+            ${detailValue('Prioritet', ticket.priority)}
+            ${detailValue('Kategori', ticket.category)}
+            ${detailValue('Order', ticket.orderId || metadata.order_reference || 'Saknas')}
+            ${detailValue('Kund', ticket.userId || 'Ej inloggad')}
+            ${detailValue('Namn', ticket.name)}
+            ${detailValue('Email', ticket.email)}
+            ${detailValue('Medlem', metadata.customer_member ? 'Ja' : 'Nej')}
+            ${detailValue('Skapad', compactDate(ticket.createdAt))}
+          </div>
+          <div class="admin-field"><label>Status</label><select data-support-status>${supportStatuses.filter((item) => !['alla', 'olästa'].includes(item)).map((status) => `<option value="${escapeHtml(status)}" ${ticket.status === status ? 'selected' : ''}>${escapeHtml(titleLabel(status))}</option>`).join('')}</select></div>
+          <button class="admin-action danger" type="button" data-update-support="${escapeHtml(ticket.id)}">Ändra status</button>
         </section>
       </div>
     `);
+    const stream = drawerContent.querySelector('.admin-chat-stream');
+    if (stream) stream.scrollTop = stream.scrollHeight;
   }
 
   function confirmAction(title, copy) {
@@ -1451,6 +1493,8 @@
       loginForm.reset();
       setShell(true);
       await loadDashboard();
+      clearInterval(adminLiveTimer);
+      adminLiveTimer = window.setInterval(() => loadDashboard({ silent: true, preserveDrawer: true }).catch(() => {}), 8000);
       showToast('Admin-session aktiv.');
     } catch (error) {
       if (loginMessage) loginMessage.textContent = error.message || 'Kunde inte logga in.';
@@ -1470,6 +1514,8 @@
     .then((session) => {
       setShell(Boolean(session.authenticated));
       if (session.authenticated) {
+        clearInterval(adminLiveTimer);
+        adminLiveTimer = window.setInterval(() => loadDashboard({ silent: true, preserveDrawer: true }).catch(() => {}), 8000);
         return loadDashboard();
       }
       return null;

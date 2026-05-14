@@ -160,6 +160,11 @@
       "permanent": true
     },
     {
+      "source": "/support-chatt.html",
+      "destination": "/support-chatt",
+      "permanent": true
+    },
+    {
       "source": "/snart.html",
       "destination": "/snart",
       "permanent": true
@@ -257,6 +262,10 @@
     {
       "source": "/kontakt",
       "destination": "/kontakt.html"
+    },
+    {
+      "source": "/support-chatt",
+      "destination": "/support-chatt.html"
     },
     {
       "source": "/snart",

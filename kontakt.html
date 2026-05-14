@@ -61,6 +61,11 @@
     </article>
     <article class="footer-info-row contact-card">
       <p>Maila oss direkt på <a href="mailto:hej@versen.se">hej@versen.se</a> eller skicka ett ärende här.</p>
+      <div class="support-login-lock" data-support-login-lock hidden>
+        <strong>Logga in för snabbare personlig hjälp</strong>
+        <p>Då sparas ärendet som en chatt i din profil. Du kan också maila oss direkt på <a href="mailto:hej@versen.se">hej@versen.se</a>.</p>
+        <a class="product-btn secondary" href="/konto?next=support">Logga in</a>
+      </div>
       <form class="member-form contact-form" data-contact-form>
         <input type="text" name="name" placeholder="Namn" autocomplete="name" required>
         <input type="email" name="email" placeholder="Email" autocomplete="email" required>
@@ -76,6 +81,11 @@
         <button class="product-btn" type="submit">Skicka till support</button>
       </form>
       <p class="form-message" data-contact-message></p>
+      <div class="support-sent-card" data-support-sent-card hidden>
+        <strong>Du kan följa ärendet från din profilsida</strong>
+        <p>Vi har sparat chatten under Support på ditt konto.</p>
+        <a class="product-btn" href="/konto">Ta mig dit</a>
+      </div>
     </article>
   </section>
 </main>
