@@ -13765,6 +13765,64 @@ body.mobile-menu-open{
   line-height:.9;
 }
 
+.first-versen-card{
+  position:relative;
+  width:min(300px,76vw);
+  aspect-ratio:1.72;
+  margin:34px auto 0;
+  display:grid;
+  align-content:space-between;
+  padding:26px 28px;
+  border:1px solid rgba(255,255,255,.74);
+  border-radius:12px;
+  background:
+    linear-gradient(118deg,rgba(255,255,255,.18),rgba(255,255,255,0) 34%),
+    linear-gradient(135deg,#171817 0%,#34342f 48%,#ebe0c9 49%,#f7efe0 100%);
+  box-shadow:0 24px 56px rgba(15,18,16,.14), inset 0 1px 0 rgba(255,255,255,.38);
+  color:#fff;
+  overflow:hidden;
+  transform:rotate(-1.4deg);
+}
+
+.first-versen-card::before{
+  content:"";
+  position:absolute;
+  inset:auto 10% -22% 10%;
+  height:32%;
+  border-radius:50%;
+  background:rgba(15,18,16,.18);
+  filter:blur(18px);
+}
+
+.first-versen-card::after{
+  content:"";
+  position:absolute;
+  inset:-24% -42%;
+  background:linear-gradient(110deg,transparent 36%,rgba(255,255,255,.5) 47%,transparent 59%);
+  transform:translateX(-48%);
+  animation:first-card-mini-sheen 3.8s ease-in-out infinite;
+}
+
+.first-versen-card span,
+.first-versen-card strong{
+  position:relative;
+  z-index:1;
+  line-height:1;
+}
+
+.first-versen-card span{
+  font-size:14px;
+  font-weight:500;
+  letter-spacing:.24em;
+}
+
+.first-versen-card strong{
+  color:#f8efd9;
+  font-size:36px;
+  font-weight:700;
+  letter-spacing:.08em;
+}
+
 .first-versen-hero p{
   max-width:440px;
   margin:24px auto 0;
@@ -13816,6 +13874,21 @@ body.mobile-menu-open{
     font-size:52px;
   }
 
+  .first-versen-card{
+    width:min(250px,72vw);
+    margin:28px 0 0;
+    padding:22px 24px;
+    border-radius:10px;
+  }
+
+  .first-versen-card span{
+    font-size:12px;
+  }
+
+  .first-versen-card strong{
+    font-size:30px;
+  }
+
   .first-versen-hero p{
     margin-inline:0;
     font-size:16px;
@@ -13839,7 +13912,8 @@ body.mobile-menu-open{
 
 @media (prefers-reduced-motion:reduce){
   .first-card-strip::before,
-  .first-card-strip-card::after{
+  .first-card-strip-card::after,
+  .first-versen-card::after{
     animation:none;
   }
 }
