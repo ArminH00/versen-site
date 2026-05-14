@@ -13698,12 +13698,14 @@ body.mobile-menu-open{
   display:grid;
   align-content:space-between;
   padding:8px 9px;
-  border:1px solid rgba(255,255,255,.78);
+  border:1px solid transparent;
   border-radius:5px;
   background:
-    linear-gradient(118deg,rgba(255,255,255,.2),rgba(255,255,255,0) 34%),
-    linear-gradient(135deg,#171817 0%,#31322d 48%,#e9dec8 49%,#f8f0df 100%);
-  box-shadow:0 10px 24px rgba(15,18,16,.14), inset 0 1px 0 rgba(255,255,255,.42);
+    linear-gradient(118deg,rgba(255,255,255,.2),rgba(255,255,255,0) 34%) padding-box,
+    linear-gradient(135deg,#171817 0%,#31322d 48%,#e9dec8 49%,#f8f0df 100%) padding-box,
+    linear-gradient(135deg,#7b5b1f 0%,#f6e7b4 22%,#ad8432 43%,#fff4c8 62%,#8d6a26 100%) border-box;
+  background-clip:padding-box,padding-box,border-box;
+  box-shadow:0 10px 24px rgba(15,18,16,.14), inset 0 1px 0 rgba(255,255,255,.42), 0 0 0 1px rgba(255,244,200,.2);
   color:#fff;
   overflow:hidden;
 }
@@ -13775,13 +13777,15 @@ body.mobile-menu-open{
   display:grid;
   align-content:space-between;
   padding:26px 28px;
-  border:1px solid rgba(255,255,255,.78);
+  border:1.5px solid transparent;
   border-radius:12px;
   background:
-    radial-gradient(circle at 20% 20%,rgba(255,255,255,.16),rgba(255,255,255,0) 30%),
-    linear-gradient(118deg,rgba(255,255,255,.22),rgba(255,255,255,0) 34%),
-    linear-gradient(135deg,#171817 0%,#31322d 48%,#e9dec8 49%,#f8f0df 100%);
-  box-shadow:0 26px 60px rgba(15,18,16,.15), inset 0 1px 0 rgba(255,255,255,.44), inset 0 -1px 0 rgba(8,9,9,.1);
+    radial-gradient(circle at 20% 20%,rgba(255,255,255,.16),rgba(255,255,255,0) 30%) padding-box,
+    linear-gradient(118deg,rgba(255,255,255,.22),rgba(255,255,255,0) 34%) padding-box,
+    linear-gradient(135deg,#171817 0%,#31322d 48%,#e9dec8 49%,#f8f0df 100%) padding-box,
+    linear-gradient(135deg,#6f5018 0%,#f8e8b1 18%,#ad8432 40%,#fff5ca 61%,#8b681f 100%) border-box;
+  background-clip:padding-box,padding-box,padding-box,border-box;
+  box-shadow:0 26px 60px rgba(15,18,16,.15), inset 0 1px 0 rgba(255,255,255,.44), inset 0 -1px 0 rgba(8,9,9,.1), 0 0 0 1px rgba(255,244,200,.18);
   color:#fff;
   overflow:hidden;
   transform:rotate(-1.4deg);
