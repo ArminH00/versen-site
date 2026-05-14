@@ -13648,10 +13648,10 @@ body.mobile-menu-open{
   isolation:isolate;
   width:100%;
   min-height:58px;
-  display:grid;
-  grid-template-columns:1fr auto 1fr;
+  display:flex;
+  justify-content:center;
   align-items:center;
-  gap:14px;
+  gap:12px;
   padding:9px max(18px,calc((100vw - 1180px) / 2));
   border-top:1px solid rgba(9,11,12,.06);
   border-bottom:1px solid rgba(9,11,12,.08);
@@ -13683,12 +13683,12 @@ body.mobile-menu-open{
 }
 
 .first-card-strip-copy{
-  justify-self:end;
+  text-align:right;
 }
 
 .first-card-strip-action{
-  justify-self:start;
   color:#60645e;
+  text-align:left;
 }
 
 .first-card-strip-card{
@@ -13786,8 +13786,7 @@ body.mobile-menu-open{
 @media (max-width:640px){
   .first-card-strip{
     min-height:56px;
-    grid-template-columns:1fr auto 1fr;
-    gap:9px;
+    gap:8px;
     padding-inline:14px;
   }
 
