@@ -3246,13 +3246,13 @@ function pendingCheckoutTime(pending) {
 function supportStatusLabel(value) {
   const status = String(value || 'pågående').trim();
   const labels = {
-    nytt: 'Nytt',
-    pågående: 'Pågående',
-    'väntar på kund': 'Väntar på kund',
+    nytt: 'Mottaget',
+    pågående: 'Vi hjälper dig',
+    'väntar på kund': 'Svar från Versen',
     löst: 'Löst',
     stängt: 'Stängt',
     returer: 'Retur',
-    övrigt: 'Övrigt',
+    övrigt: 'Support',
   };
   return labels[status.toLowerCase()] || status;
 }
@@ -3301,7 +3301,7 @@ function renderAccountSupportPreview(tickets = []) {
         <p>När du kontaktar support visas chatten här.</p>
       </div>
     `;
-    if (allLink) allLink.hidden = true;
+    if (allLink) allLink.hidden = false;
     return;
   }
 
@@ -3317,7 +3317,7 @@ function renderAccountSupportPreview(tickets = []) {
       <i aria-hidden="true"></i>
     </a>
   `;
-  if (allLink) allLink.hidden = tickets.length <= 1;
+  if (allLink) allLink.hidden = false;
 }
 
 async function loadAccountSupport(session = accountSession) {
@@ -3341,15 +3341,15 @@ async function loadAccountSupport(session = accountSession) {
 }
 
 function supportTicketListItem(ticket) {
-  const active = String(ticket.id) === String(supportActiveTicketId);
+  const latestAt = ticket.latestMessageAt || ticket.updatedAt;
   return `
-    <button class="support-chat-list-item ${active ? 'active' : ''}" type="button" data-support-open-ticket="${escapeHtml(ticket.id)}">
+    <button class="support-chat-list-item" type="button" data-support-open-ticket="${escapeHtml(ticket.id)}">
       <span>
         <strong>${escapeHtml(ticket.subject || 'Support')}</strong>
         <small>${escapeHtml(supportSummary(ticket))}</small>
       </span>
       <em>${escapeHtml(supportStatusLabel(ticket.status))}</em>
-      <time>${escapeHtml(formatSupportDate(ticket.latestMessageAt || ticket.updatedAt))} ${escapeHtml(formatSupportTime(ticket.latestMessageAt || ticket.updatedAt))}</time>
+      <time>${escapeHtml(formatSupportDate(latestAt))} ${escapeHtml(formatSupportTime(latestAt))}</time>
     </button>
   `;
 }
@@ -3399,6 +3399,7 @@ function renderSupportChatPanel(ticket) {
   const closed = ['stängt', 'stangd', 'closed'].includes(String(ticket.status || '').toLowerCase());
   panel.innerHTML = `
     <header class="support-chat-header">
+      <button class="support-chat-back" type="button" data-support-back aria-label="Tillbaka till alla ärenden"></button>
       <div>
         <small>${escapeHtml(ticket.supportNumber || ticket.id)}</small>
         <h2>${escapeHtml(ticket.subject || 'Support')}</h2>
@@ -3452,6 +3453,7 @@ async function loadSupportTickets({ preservePanel = false } = {}) {
   const list = document.querySelector('[data-support-chat-list]');
   const panel = document.querySelector('[data-support-chat-panel]');
   const layout = document.querySelector('.support-chat-layout');
+  const hasActiveTicket = Boolean(supportActiveTicketId);
 
   if (!accountSession.authenticated) {
     if (layout) layout.classList.add('is-login-only');
@@ -3471,8 +3473,13 @@ async function loadSupportTickets({ preservePanel = false } = {}) {
     return;
   }
 
-  if (layout) layout.classList.remove('is-login-only');
-  if (panel) panel.hidden = false;
+  if (layout) {
+    layout.classList.remove('is-login-only');
+    layout.classList.toggle('is-detail', hasActiveTicket);
+    layout.classList.toggle('is-list-only', !hasActiveTicket);
+  }
+  if (list) list.hidden = hasActiveTicket;
+  if (panel) panel.hidden = !hasActiveTicket;
 
   const { response, data } = await getJson('/api/account?mode=support');
   if (!response.ok) {
@@ -3481,9 +3488,6 @@ async function loadSupportTickets({ preservePanel = false } = {}) {
   }
 
   supportTickets = Array.isArray(data.tickets) ? data.tickets : [];
-  if (!supportActiveTicketId && supportTickets[0]) {
-    supportActiveTicketId = supportTickets[0].id;
-  }
   renderSupportChatList(supportTickets);
 
   if (supportActiveTicketId) {
@@ -3521,11 +3525,19 @@ function initSupportChatPage() {
   page.dataset.initialized = 'true';
 
   page.addEventListener('click', async (event) => {
+    const back = event.target.closest('[data-support-back]');
+    if (back) {
+      supportActiveTicketId = '';
+      window.history.replaceState({}, '', '/support-chatt');
+      await loadSupportTickets();
+      return;
+    }
+
     const button = event.target.closest('[data-support-open-ticket]');
     if (!button) return;
     supportActiveTicketId = button.dataset.supportOpenTicket;
     window.history.replaceState({}, '', `/support-chatt?ticket=${encodeURIComponent(supportActiveTicketId)}`);
-    await loadSupportTicket(supportActiveTicketId);
+    await loadSupportTickets();
   });
 
   page.addEventListener('change', (event) => {
