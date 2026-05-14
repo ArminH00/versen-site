@@ -13832,6 +13832,67 @@ body.mobile-menu-open{
   text-shadow:0 2px 8px rgba(0,0,0,.32);
 }
 
+.first-versen-points{
+  width:min(560px,100%);
+  margin:28px auto 0;
+  padding:0;
+  display:grid;
+  gap:12px;
+  list-style:none;
+  color:#9f792e;
+  font-size:13px;
+  font-weight:500;
+  line-height:1.45;
+  text-align:left;
+}
+
+.first-versen-points li{
+  position:relative;
+  padding-left:18px;
+}
+
+.first-versen-points li::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:.58em;
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#8c6824,#fff1bd 52%,#a77b24);
+  box-shadow:0 0 0 1px rgba(156,114,36,.18);
+}
+
+.first-versen-points strong{
+  color:#7c5a18;
+  font-weight:700;
+}
+
+.first-versen-cta{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:28px;
+  margin-left:8px;
+  padding:6px 13px;
+  border:1px solid rgba(176,133,48,.7);
+  border-radius:999px;
+  background:rgba(255,255,255,.86);
+  color:#6f5018;
+  font-size:12px;
+  font-weight:700;
+  line-height:1;
+  text-decoration:none;
+  box-shadow:0 8px 18px rgba(15,18,16,.08), inset 0 1px 0 rgba(255,255,255,.9);
+}
+
+.first-versen-cta:hover,
+.first-versen-cta:focus-visible{
+  border-color:#8f671f;
+  background:#fff;
+  color:#111211;
+}
+
 .first-versen-hero p{
   max-width:440px;
   margin:24px auto 0;
@@ -13896,6 +13957,16 @@ body.mobile-menu-open{
 
   .first-versen-card strong{
     font-size:30px;
+  }
+
+  .first-versen-points{
+    margin:26px 0 0;
+    gap:11px;
+    font-size:12.5px;
+  }
+
+  .first-versen-cta{
+    margin:8px 0 0;
   }
 
   .first-versen-hero p{

@@ -620,6 +620,18 @@ function isActiveMember(session = accountSession) {
   return Boolean(session && session.authenticated && session.customer && session.customer.member);
 }
 
+function updateFirstMembershipCtas(session = accountSession) {
+  const authenticated = Boolean(session && session.authenticated);
+  const member = isActiveMember(session);
+  const href = member
+    ? '/medlemskap-aktivt'
+    : (authenticated ? '/medlemskap?invite=BILLIGAST' : '/konto?next=membership&invite=BILLIGAST');
+
+  document.querySelectorAll('[data-first-membership-cta]').forEach((link) => {
+    link.href = href;
+  });
+}
+
 function readDiscountCode() {
   return localStorage.getItem(DISCOUNT_KEY) || '';
 }
@@ -679,6 +691,13 @@ function membershipReturnTarget() {
     return `/checkout?step=${encodeURIComponent(step)}`;
   }
   return '/produkter?unlocked=1';
+}
+
+function membershipReadyUrl() {
+  const invite = (pageParams.get('invite') || '').trim().replace(/\s+/g, '').toUpperCase();
+  const params = new URLSearchParams({ ready: '1' });
+  if (invite) params.set('invite', invite);
+  return `/medlemskap?${params.toString()}`;
 }
 
 if (accountCheckoutIntent) {
@@ -852,6 +871,7 @@ function applyGlobalSessionUi(session = accountSession) {
 
   document.body.classList.toggle('is-authenticated', authenticated);
   document.body.classList.toggle('is-member', member);
+  updateFirstMembershipCtas(session);
   renderLuxuryMenu();
   renderSuggestionAccess(session);
 
@@ -3450,9 +3470,9 @@ function completeAccountIntent(options = {}) {
   } else if (isActiveMember()) {
     window.location.href = '/';
   } else if (accountNext === 'membership' || verificationToken) {
-    window.location.href = '/medlemskap?ready=1';
+    window.location.href = membershipReadyUrl();
   } else {
-    window.location.href = '/medlemskap?ready=1';
+    window.location.href = membershipReadyUrl();
   }
 }
 
@@ -4268,6 +4288,11 @@ if (membershipCheckoutButtons.length) {
   }
 
   if (inviteCodeInput) {
+    const inviteFromUrl = (pageParams.get('invite') || '').trim().replace(/\s+/g, '').toUpperCase();
+    if (inviteFromUrl && !inviteCodeInput.value) {
+      inviteCodeInput.value = inviteFromUrl;
+    }
+
     inviteCodeInput.addEventListener('input', () => {
       inviteCodeInput.value = inviteCodeInput.value.replace(/\s+/g, '').toUpperCase();
       appliedInviteCode = '';
