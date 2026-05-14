@@ -625,7 +625,7 @@ function updateFirstMembershipCtas(session = accountSession) {
   const member = isActiveMember(session);
   const href = member
     ? '/medlemskap-aktivt'
-    : (authenticated ? '/medlemskap?invite=BILLIGAST' : '/konto?next=membership&invite=BILLIGAST');
+    : (authenticated ? '/medlemskap' : '/konto?next=membership');
 
   document.querySelectorAll('[data-first-membership-cta]').forEach((link) => {
     link.href = href;
