@@ -10188,7 +10188,7 @@ body.mobile-menu-open{
 .product-card-meta,
 .home-trending-copy small{
   color:#74716c!important;
-  font-size:13px!important;
+  font-size:12px!important;
   line-height:1.25!important;
 }
 
@@ -10196,7 +10196,7 @@ body.mobile-menu-open{
 .home-trending-copy strong{
   margin-top:14px!important;
   color:#121212!important;
-  font-size:18px!important;
+  font-size:16px!important;
   line-height:1.22!important;
 }
 
@@ -10210,7 +10210,7 @@ body.mobile-menu-open{
   margin-top:auto!important;
   padding-top:22px!important;
   border-top:1px solid var(--product-card-line)!important;
-  font-size:22px!important;
+  font-size:20px!important;
 }
 
 .product-prices span,
@@ -10227,7 +10227,7 @@ body.mobile-menu-open{
 .product-prices .old,
 .home-trending-prices del{
   color:#9b9892!important;
-  font-size:16px!important;
+  font-size:14px!important;
 }
 
 .product-saving,
@@ -10235,7 +10235,7 @@ body.mobile-menu-open{
   display:block!important;
   margin-top:7px!important;
   color:var(--product-card-gold)!important;
-  font-size:12px!important;
+  font-size:11px!important;
   font-weight:650!important;
   letter-spacing:0!important;
   line-height:1.2!important;
@@ -10329,19 +10329,19 @@ body.mobile-menu-open{
 
   .product-info h3,
   .home-trending-copy strong{
-    font-size:16px!important;
+    font-size:15px!important;
   }
 
   .product-prices,
   .home-trending-prices{
     gap:8px!important;
     padding-top:18px!important;
-    font-size:19px!important;
+    font-size:18px!important;
   }
 
   .product-prices .old,
   .home-trending-prices del{
-    font-size:15px!important;
+    font-size:14px!important;
   }
 
   .page-products .filter-row{
