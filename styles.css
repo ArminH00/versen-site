@@ -13641,3 +13641,206 @@ body.mobile-menu-open{
     height:535px;
   }
 }
+
+/* Street-card entry: intentionally small, quiet, and only linked from the hero flow. */
+.first-card-strip{
+  position:relative;
+  isolation:isolate;
+  width:100%;
+  min-height:58px;
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  gap:14px;
+  padding:9px max(18px,calc((100vw - 1180px) / 2));
+  border-top:1px solid rgba(9,11,12,.06);
+  border-bottom:1px solid rgba(9,11,12,.08);
+  background:
+    linear-gradient(100deg,rgba(255,255,255,.95),rgba(246,244,238,.98) 45%,rgba(255,255,255,.94)),
+    #fff;
+  color:#111211;
+  text-decoration:none;
+  overflow:hidden;
+}
+
+.first-card-strip::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  background:linear-gradient(115deg,transparent 0 34%,rgba(255,255,255,.86) 44%,transparent 56% 100%);
+  transform:translateX(-64%);
+  animation:first-card-sheen 4.8s ease-in-out infinite;
+  pointer-events:none;
+}
+
+.first-card-strip-copy,
+.first-card-strip-action{
+  font-size:13px;
+  font-weight:500;
+  letter-spacing:.03em;
+  white-space:nowrap;
+}
+
+.first-card-strip-copy{
+  justify-self:end;
+}
+
+.first-card-strip-action{
+  justify-self:start;
+  color:#60645e;
+}
+
+.first-card-strip-card{
+  position:relative;
+  width:64px;
+  height:36px;
+  display:grid;
+  align-content:space-between;
+  padding:8px 9px;
+  border:1px solid rgba(255,255,255,.72);
+  border-radius:5px;
+  background:
+    linear-gradient(118deg,rgba(255,255,255,.16),rgba(255,255,255,0) 34%),
+    linear-gradient(135deg,#171817 0%,#34342f 48%,#ebe0c9 49%,#f7efe0 100%);
+  box-shadow:0 9px 20px rgba(15,18,16,.13), inset 0 1px 0 rgba(255,255,255,.36);
+  color:#fff;
+  overflow:hidden;
+}
+
+.first-card-strip-card::after{
+  content:"";
+  position:absolute;
+  inset:-30% -50%;
+  background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.58) 47%,transparent 58%);
+  transform:translateX(-42%);
+  animation:first-card-mini-sheen 3.2s ease-in-out infinite;
+}
+
+.first-card-strip-card span,
+.first-card-strip-card strong{
+  position:relative;
+  z-index:1;
+  line-height:1;
+}
+
+.first-card-strip-card span{
+  font-size:7px;
+  font-weight:500;
+  letter-spacing:.22em;
+}
+
+.first-card-strip-card strong{
+  color:#f8efd9;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.08em;
+}
+
+.first-card-strip:hover,
+.first-card-strip:focus-visible{
+  color:#050605;
+  background:#fff;
+}
+
+.first-versen-page{
+  min-height:calc(100svh - var(--nav-height) - var(--top-strip-height));
+  display:grid;
+  place-items:center;
+  padding:clamp(64px,10vw,128px) 20px;
+  background:
+    radial-gradient(ellipse at 50% 0%,rgba(241,232,215,.88),rgba(255,255,255,0) 44%),
+    #fff;
+}
+
+.first-versen-hero{
+  width:min(760px,100%);
+  text-align:center;
+}
+
+.first-versen-hero h1{
+  max-width:620px;
+  margin:14px auto 0;
+  font-size:clamp(54px,9vw,96px);
+  line-height:.9;
+}
+
+.first-versen-hero p{
+  max-width:440px;
+  margin:24px auto 0;
+  color:#666b66;
+  font-size:18px;
+  line-height:1.5;
+}
+
+@keyframes first-card-sheen{
+  0%,54%{transform:translateX(-68%);}
+  72%,100%{transform:translateX(68%);}
+}
+
+@keyframes first-card-mini-sheen{
+  0%,42%{transform:translateX(-54%);}
+  68%,100%{transform:translateX(54%);}
+}
+
+@media (max-width:640px){
+  .first-card-strip{
+    min-height:56px;
+    grid-template-columns:1fr auto 1fr;
+    gap:9px;
+    padding-inline:14px;
+  }
+
+  .first-card-strip-copy,
+  .first-card-strip-action{
+    font-size:12px;
+    letter-spacing:0;
+  }
+
+  .first-card-strip-card{
+    width:58px;
+    height:34px;
+    padding:7px 8px;
+  }
+
+  .first-versen-page{
+    align-items:start;
+    padding-top:84px;
+  }
+
+  .first-versen-hero{
+    text-align:left;
+  }
+
+  .first-versen-hero h1{
+    margin-inline:0;
+    font-size:52px;
+  }
+
+  .first-versen-hero p{
+    margin-inline:0;
+    font-size:16px;
+  }
+}
+
+@media (max-width:360px){
+  .first-card-strip{
+    gap:7px;
+  }
+
+  .first-card-strip-copy,
+  .first-card-strip-action{
+    font-size:11px;
+  }
+
+  .first-card-strip-card{
+    width:54px;
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .first-card-strip::before,
+  .first-card-strip-card::after{
+    animation:none;
+  }
+}

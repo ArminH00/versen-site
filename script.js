@@ -41,6 +41,7 @@ function normalizedRoutePath(pathname = window.location.pathname) {
     '/faq.html': '/faq',
     '/kontakt.html': '/kontakt',
     '/snart.html': '/snart',
+    '/forst-versen.html': '/forst-versen',
     '/admin.html': '/admin',
     '/gross-kontrollrum.html': '/gross-kontrollrum',
   };
@@ -57,6 +58,14 @@ const isLaunchPage = currentRoutePath === '/snart';
 let catalogProducts = [];
 let selectedCatalogCategory = null;
 let likedSyncTimer = null;
+
+document.querySelectorAll('[data-first-access-trigger]').forEach((trigger) => {
+  trigger.addEventListener('click', () => {
+    try {
+      sessionStorage.setItem('versenFirstAccessAt', String(Date.now()));
+    } catch (error) {}
+  });
+});
 
 function getThemePreference() {
   const saved = localStorage.getItem(THEME_KEY);
