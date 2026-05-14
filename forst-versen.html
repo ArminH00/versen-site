@@ -19,7 +19,7 @@
 <meta name="twitter:title" content="Först @ Versen">
 <meta name="twitter:description" content="Först @ Versen.">
 <meta name="twitter:image" content="https://versen.se/assets/community-drop-hero.jpg">
-<script>try{const t=Number(sessionStorage.getItem('versenFirstAccessAt')||0);if(!t||Date.now()-t>120000){location.replace('/');}else{sessionStorage.removeItem('versenFirstAccessAt');}}catch(e){location.replace('/');}</script>
+<script>try{if(!sessionStorage.getItem('versenFirstAccessAt')){location.replace('/');}}catch(e){location.replace('/');}</script>
 <script>try{const p=localStorage.getItem("versenThemePreference")||"light";const d=p==="dark"||(p==="auto"&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.dataset.theme=d?"dark":"light";document.documentElement.dataset.themePreference=p;}catch(e){document.documentElement.dataset.theme="light";}</script>
 <script>try{const p=location.pathname.replace(/\/+$/,'')||'/';if(Date.now()<1777500000000&&!localStorage.getItem('versenLaunchAccess')&&p!=='/snart')location.replace('/snart?next='+encodeURIComponent(location.pathname+location.search+location.hash));}catch(e){}</script>
 <title>Först @ Versen</title>
@@ -107,7 +107,7 @@
       </span>
       <span>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13a8 8 0 0 1 16 0"/><path d="M4 13v4a2 2 0 0 0 2 2h1v-8H6a2 2 0 0 0-2 2Z"/><path d="M20 13v4a2 2 0 0 1-2 2h-1v-8h1a2 2 0 0 1 2 2Z"/></svg>
-        <span><strong>Live support</strong><small>Svar inom 1h.</small></span>
+        <span><strong>Live support</strong><small>Svar inom någon timme.</small></span>
       </span>
     </div>
   </section>
