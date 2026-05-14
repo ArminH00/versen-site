@@ -10142,12 +10142,12 @@ body.mobile-menu-open{
   }
 
   .page-products .product-image{
-    aspect-ratio:1/1.02!important;
+    aspect-ratio:1/1!important;
   }
 
   .page-products .product-image img{
-    width:88%!important;
-    height:88%!important;
+    width:100%!important;
+    height:100%!important;
   }
 }
 
@@ -13627,8 +13627,10 @@ body.mobile-menu-open{
   }
 
   .page-home .home-trending-card,
+  .page-products .product-card,
   .page-home .home-trending-image,
-  .page-home .product-image{
+  .page-home .product-image,
+  .page-products .product-image{
     background:#f6f5f1!important;
   }
 }
